@@ -17,23 +17,20 @@ export default function Navbar() {
             <img 
               src="/images/logo-white-on-black.jpg" 
               alt="GLX Partners" 
-              className="h-10 w-auto mix-blend-screen" 
+              className="h-14 w-auto mix-blend-screen" 
             />
           </a>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <button onClick={() => scrollToSection("why")} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">
-            Why
+          <button onClick={() => scrollToSection("why")} className="text-sm font-medium text-white hover:text-primary transition-colors uppercase tracking-widest">
+            A GLX
           </button>
-          <button onClick={() => scrollToSection("what")} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">
-            What
+          <button onClick={() => scrollToSection("what")} className="text-sm font-medium text-white hover:text-primary transition-colors uppercase tracking-widest">
+            O Que Fazemos
           </button>
-          <button onClick={() => scrollToSection("how")} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">
-            How
-          </button>
-          <button onClick={() => scrollToSection("results")} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">
-            Resultados
+          <button onClick={() => scrollToSection("cases")} className="text-sm font-medium text-white hover:text-primary transition-colors uppercase tracking-widest">
+            Cases
           </button>
         </div>
 

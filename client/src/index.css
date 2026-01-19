@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -44,19 +44,19 @@
 }
 
 :root {
-  /* Laranja Queimado GLX #D65A31 -> OKLCH aprox 0.6 0.18 45 */
+  /* Laranja Queimado GLX (Uso restrito) */
   --primary: oklch(0.6 0.18 45); 
   --primary-foreground: oklch(0.985 0 0);
   
   --sidebar-primary: oklch(0.6 0.18 45);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   
-  /* Gráficos em tons de laranja e cinza */
-  --chart-1: oklch(0.6 0.18 45);
-  --chart-2: oklch(0.7 0.15 50);
-  --chart-3: oklch(0.5 0.1 45);
-  --chart-4: oklch(0.4 0.05 260);
-  --chart-5: oklch(0.3 0.02 260);
+  /* Gráficos mais sóbrios (Cinzas e Branco) */
+  --chart-1: oklch(0.9 0 0);
+  --chart-2: oklch(0.7 0 0);
+  --chart-3: oklch(0.5 0 0);
+  --chart-4: oklch(0.6 0.18 45); /* Apenas um toque de laranja */
+  --chart-5: oklch(0.3 0 0);
   
   --radius: 0rem; /* Swiss Style usa cantos retos ou muito sutis */
   
@@ -86,25 +86,25 @@
   --sidebar-border: oklch(0.9 0 0);
   --sidebar-ring: oklch(0.6 0.18 45);
   
-  --font-sans: 'Jost', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
 }
 
 .dark {
-  /* Laranja Queimado GLX #D65A31 */
+  /* Laranja Queimado GLX (Uso restrito) */
   --primary: oklch(0.6 0.18 45);
   --primary-foreground: oklch(0.985 0 0);
   
   --sidebar-primary: oklch(0.6 0.18 45);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   
-  /* Preto Carvão #111111 -> OKLCH aprox 0.15 0 0 */
-  --background: oklch(0.15 0 0);
+  /* Preto Profundo e Elegante */
+  --background: oklch(0.12 0 0); /* Mais escuro que antes */
   
-  /* Branco #FFFFFF -> OKLCH 1 0 0 */
+  /* Branco Puro */
   --foreground: oklch(0.98 0 0);
   
-  /* Cinza Grafite #2B2B2B -> OKLCH aprox 0.25 0 0 */
-  --card: oklch(0.25 0 0);
+  /* Cinza Grafite Sóbrio */
+  --card: oklch(0.18 0 0);
   --card-foreground: oklch(0.98 0 0);
   
   --popover: oklch(0.25 0 0);
@@ -147,7 +147,7 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Jost', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;

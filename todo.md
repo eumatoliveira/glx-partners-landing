@@ -1,0 +1,24 @@
+# Plano de Refatoração GLX Partners 2.0
+
+- [ ] **Design System (index.css)**
+    - [ ] Mudar fonte para 'Plus Jakarta Sans' (moderna, profissional, menos "dura" que Futura pura)
+    - [ ] Reduzir drasticamente o laranja (apenas botões e acentos mínimos)
+    - [ ] Refinar tons de cinza para um dark mode mais profundo e elegante
+- [ ] **Navbar**
+    - [ ] Aumentar tamanho do logo
+    - [ ] Simplificar menu
+- [ ] **Hero Section**
+    - [ ] Nova Copy: Foco em "Growth + Lean + AI" e "Sistemas de Operação"
+    - [ ] Imagem: Usar a foto da reunião/board em P&B (estilo a que ele gostou)
+    - [ ] Layout: Mais limpo, menos elementos decorativos coloridos
+- [ ] **Why Section**
+    - [ ] Remover foto grande do CEO
+    - [ ] Focar na mensagem "Não vendemos marketing, construímos sistemas"
+- [ ] **What Section**
+    - [ ] Atualizar serviços para refletir a nova descrição (Growth, Lean, AI)
+- [ ] **Novas Seções**
+    - [ ] **Numbers/Impact:** Faixa com números grandes (Cases)
+    - [ ] **Testimonials:** Carrossel ou grid de depoimentos com aspas e logos
+- [ ] **Geral**
+    - [ ] Garantir que todas as fotos estejam em P&B via CSS (grayscale)
+    - [ ] Revisar textos para tom mais "sênior" e assertivo

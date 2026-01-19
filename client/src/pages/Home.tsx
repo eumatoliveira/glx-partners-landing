@@ -1,8 +1,10 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import ImpactSection from "@/components/ImpactSection";
 import WhySection from "@/components/WhySection";
 import WhatSection from "@/components/WhatSection";
 import HowSection from "@/components/HowSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import ResultsSection from "@/components/ResultsSection";
 import Footer from "@/components/Footer";
 
@@ -12,9 +14,11 @@ export default function Home() {
       <Navbar />
       <main className="flex-grow">
         <Hero />
+        <ImpactSection />
         <WhySection />
         <WhatSection />
         <HowSection />
+        <TestimonialsSection />
         <ResultsSection />
       </main>
       <Footer />
