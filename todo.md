@@ -1,6 +1,5 @@
-# Ajustes Finais GLX Partners 3.1
+# Correção de Imagem Hero
 
-- [ ] **1. Logo:** Aumentar ainda mais no Navbar e Footer (garantir legibilidade).
-- [ ] **2. Dra. Izabela:** Adicionar "Dra." antes do nome no depoimento.
-- [ ] **3. Padronização How:** Mudar "GESTÃO CONTÍNUA / PARTNERS" para "Gestão Contínua / Partners".
-- [ ] **4. Imagem Hero:** Verificar caminho da imagem `/images/consulting-meeting.jpg` e garantir que ela exista na pasta public. Se não existir, usar uma imagem de fallback confiável ou restaurar a imagem correta.
+- [ ] **1. Substituir Imagem:** Trocar `/images/consulting-meeting.jpg` por `/images/strategy-meeting.jpg` no componente Hero.tsx.
+- [ ] **2. Verificar Arquivo:** Garantir que o arquivo `strategy-meeting.jpg` existe e é válido.
+- [ ] **3. Reiniciar Servidor:** Forçar reinicialização para limpar cache de assets estáticos.
