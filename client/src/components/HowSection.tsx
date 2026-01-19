@@ -13,26 +13,31 @@ export default function HowSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
             <h2 className="text-primary font-bold tracking-widest uppercase mb-4 text-sm">How We Do It</h2>
-            <h3 className="text-3xl md:text-4xl font-bold mb-8 leading-tight">
-              Lean Six Sigma + Growth Marketing B2B
+            <h3 className="text-3xl md:text-4xl font-bold mb-8 leading-tight text-white">
+              Método GLX
             </h3>
             
             <div className="space-y-12">
               {[
                 {
                   step: "01",
-                  title: "Diagnóstico com Dados",
+                  title: "Diagnóstico Baseado em Dados",
                   desc: "Mapeamos a verdade operacional da clínica para entender onde o dinheiro está vazando."
                 },
                 {
                   step: "02",
-                  title: "Design de Solução",
-                  desc: "Criamos protocolos e padrões operacionais adaptados à realidade do setor de saúde."
+                  title: "Setup e Implementação",
+                  desc: "Instalamos os processos, dashboards e automações necessárias para a operação rodar."
                 },
                 {
                   step: "03",
                   title: "Execução & Sprints",
-                  desc: "Implementamos rotinas de gestão semanais para garantir que a melhoria seja contínua."
+                  desc: "Rotina de gestão semanal. Acompanhamento de metas e correção de rota rápida."
+                },
+                {
+                  step: "04",
+                  title: "GESTÃO CONTÍNUA / PARTNERS",
+                  desc: "Acompanhamento de longo prazo para garantir escala sustentável e novos patamares."
                 }
               ].map((item, index) => (
                 <motion.div 
@@ -64,17 +69,17 @@ export default function HowSection() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative hidden lg:block">
             <div className="relative z-10 border border-white/10 bg-background p-2 shadow-2xl">
               <img 
                 src="/images/healthcare-dashboard.webp" 
                 alt="GLX Dashboard Methodology" 
-                className="w-full h-auto opacity-90 hover:opacity-100 transition-opacity"
+                className="w-full h-auto opacity-90 hover:opacity-100 transition-opacity grayscale contrast-110"
               />
             </div>
             
             {/* Certifications Badge */}
-            <div className="absolute -bottom-8 -right-8 bg-white text-black p-6 max-w-xs shadow-xl hidden md:block">
+            <div className="absolute -bottom-8 -right-8 bg-white text-black p-6 max-w-xs shadow-xl">
               <p className="font-bold uppercase tracking-wider text-xs mb-2 border-b border-black/10 pb-2">Certificações</p>
               <p className="font-medium text-sm">
                 Equipe certificada Black Belt e Master Black Belt pelos maiores conselhos de Lean Health do mundo.

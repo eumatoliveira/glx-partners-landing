@@ -17,19 +17,19 @@ export default function Navbar() {
             <img 
               src="/images/logo-white-on-black.jpg" 
               alt="GLX Partners" 
-              className="h-14 w-auto mix-blend-screen" 
+              className="h-20 w-auto mix-blend-screen" 
             />
           </a>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <button onClick={() => scrollToSection("why")} className="text-sm font-medium text-white hover:text-primary transition-colors uppercase tracking-widest">
+          <button onClick={() => scrollToSection("why")} className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide">
             A GLX
           </button>
-          <button onClick={() => scrollToSection("what")} className="text-sm font-medium text-white hover:text-primary transition-colors uppercase tracking-widest">
+          <button onClick={() => scrollToSection("what")} className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide">
             O Que Fazemos
           </button>
-          <button onClick={() => scrollToSection("cases")} className="text-sm font-medium text-white hover:text-primary transition-colors uppercase tracking-widest">
+          <button onClick={() => scrollToSection("cases")} className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide">
             Cases
           </button>
         </div>

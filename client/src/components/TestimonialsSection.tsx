@@ -4,14 +4,14 @@ import { Quote } from "lucide-react";
 const testimonials = [
   {
     quote: "A GLX transformou nossa operação. Saímos de um caos de planilhas para um sistema previsível de crescimento. O impacto na margem foi imediato.",
-    author: "Dr. Ricardo Silva",
-    role: "Diretor Médico, Clínica Vita",
-    logo: "VITA"
+    author: "Dr. Felipe Roca Nacif",
+    role: "CEO, Clínica Maktub",
+    logo: "MAKTUB"
   },
   {
     quote: "Eles não entregam apenas relatórios, entregam execução. A disciplina do Lean Six Sigma aplicada à nossa realidade mudou o jogo.",
-    author: "Mariana Costa",
-    role: "CEO, HealthTech Solutions",
+    author: "Izabela Brauer Pinho",
+    role: "CEO, Healthtech Solutions",
     logo: "HTS"
   }
 ];
@@ -20,6 +20,9 @@ export default function TestimonialsSection() {
   return (
     <section className="py-32 bg-background relative overflow-hidden">
       <div className="container relative z-10">
+        <h2 className="text-3xl md:text-4xl font-bold mb-16 text-center text-white">
+          Quem confia na <span className="text-primary">GLX</span>
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {testimonials.map((item, index) => (
             <motion.div

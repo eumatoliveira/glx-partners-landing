@@ -6,26 +6,26 @@ const services = [
   {
     icon: TrendingUp,
     title: "Growth & Aquisição",
-    description: "Crescimento previsível com eficiência. Estruturamos funil, canais e mensagem para aumentar demanda qualificada.",
-    metrics: ["CAC", "Taxa de Agendamento", "Conversão"]
+    description: "Estruturamos funil, canais e mensagem para aumentar demanda qualificada com CAC controlado.",
+    metrics: ["CAC", "Conversão", "Receita"]
   },
   {
     icon: Settings,
-    title: "Design Operacional",
-    description: "Desenhamos a operação para escalar sem perder qualidade. Reduzimos filas, tempos de ciclo e gargalos.",
-    metrics: ["Tempo de Espera", "Utilização de Agenda", "Produtividade"]
+    title: "Otimização & Design Operacional",
+    description: "Desenhamos a operação para escalar. Reduzimos filas, tempos de ciclo e gargalos com Lean.",
+    metrics: ["Tempo de Ciclo", "Capacidade", "NPS"]
   },
   {
     icon: BarChart3,
-    title: "KPIs & Sprints",
-    description: "Transformamos estratégia em rotina: painel de indicadores + sprints semanais para melhoria contínua.",
-    metrics: ["NPS/CSAT", "Margem por Serviço", "ROI"]
+    title: "KPIs & Sprints de Execução",
+    description: "Transformamos estratégia em rotina: painel de indicadores + sprints semanais de melhoria.",
+    metrics: ["Metas Batidas", "Velocidade", "Aderência"]
   },
   {
     icon: Scissors,
-    title: "Eficiência de Custos",
+    title: "Eliminação de Desperdícios",
     description: "Cortamos custo 'invisível' (espera, retrabalho, glosas) e recuperamos margem operacional.",
-    metrics: ["Glosas/Perdas", "Custo por Atendimento", "Margem"]
+    metrics: ["Margem Líquida", "Redução de Custo", "EBITDA"]
   }
 ];
 
@@ -34,8 +34,8 @@ export default function WhatSection() {
     <section id="what" className="py-24 bg-background relative">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-primary font-bold tracking-widest uppercase mb-4 text-sm">What We Do</h2>
-          <h3 className="text-3xl md:text-5xl font-bold mb-6">
+          <h2 className="text-primary font-bold tracking-widest uppercase mb-4 text-sm">O Que Fazemos</h2>
+          <h3 className="text-3xl md:text-5xl font-bold mb-6 text-white">
             Performance onde realmente importa.
           </h3>
           <p className="text-muted-foreground text-lg">
@@ -57,7 +57,7 @@ export default function WhatSection() {
                   <div className="w-12 h-12 bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                     <service.icon className="h-6 w-6 text-primary group-hover:text-white" />
                   </div>
-                  <CardTitle className="text-2xl font-bold">{service.title}</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-white">{service.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-6 h-20">{service.description}</p>

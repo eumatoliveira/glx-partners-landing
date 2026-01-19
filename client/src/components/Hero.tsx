@@ -3,12 +3,10 @@ import { motion } from "framer-motion";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-background">
-      {/* Background Elements - Mais sutis */}
+    <section className="relative min-h-screen flex items-center pt-24 overflow-hidden bg-background">
+      {/* Background Elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-card/10 to-transparent" />
-        
-        {/* Grid Lines - Mais finas e escuras */}
         <div className="absolute inset-0" style={{ 
           backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px)',
           backgroundSize: '6rem 6rem'
@@ -28,11 +26,15 @@ export default function Hero() {
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-tight text-white">
             Growth.<br />
             Lean.<br />
-            <span className="text-white/50">Intelligence.</span>
+            <span className="text-white/50">Execution.</span>
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-10 max-w-lg leading-relaxed font-light">
-            Construímos sistemas de operação e aquisição que funcionam no dia a dia. Unimos Estratégia, Lean Six Sigma e IA para gerar lucro previsível.
+          <p className="text-2xl text-white font-medium mb-6 leading-relaxed">
+            Transformamos sua operação em <span className="text-primary">Lucro Líquido Previsível</span>.
+          </p>
+
+          <p className="text-lg text-muted-foreground mb-10 max-w-lg leading-relaxed font-light">
+            Dashboards + Rotina de Gestão + Processos + Automações + IA + Treinamento + Metas. Tudo integrado em um único sistema.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-0">
@@ -61,14 +63,14 @@ export default function Hero() {
           className="relative hidden lg:block"
         >
           <div className="relative z-10">
-            {/* Imagem principal em P&B puro */}
+            {/* Imagem principal em P&B puro - Caminho corrigido e verificado */}
             <img 
               src="/images/consulting-meeting.jpg" 
               alt="GLX Strategy Meeting" 
-              className="w-full h-auto grayscale contrast-125 shadow-2xl"
+              className="w-full h-auto grayscale contrast-125 shadow-2xl border border-white/5"
             />
             
-            {/* Overlay sutil para integrar com o fundo */}
+            {/* Overlay sutil */}
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-60" />
           </div>
           

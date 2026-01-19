@@ -1,24 +1,25 @@
-# Plano de Refatoração GLX Partners 2.0
+# Plano de Refatoração GLX Partners 3.0 (13 Pontos Críticos)
 
-- [ ] **Design System (index.css)**
-    - [ ] Mudar fonte para 'Plus Jakarta Sans' (moderna, profissional, menos "dura" que Futura pura)
-    - [ ] Reduzir drasticamente o laranja (apenas botões e acentos mínimos)
-    - [ ] Refinar tons de cinza para um dark mode mais profundo e elegante
-- [ ] **Navbar**
-    - [ ] Aumentar tamanho do logo
-    - [ ] Simplificar menu
-- [ ] **Hero Section**
-    - [ ] Nova Copy: Foco em "Growth + Lean + AI" e "Sistemas de Operação"
-    - [ ] Imagem: Usar a foto da reunião/board em P&B (estilo a que ele gostou)
-    - [ ] Layout: Mais limpo, menos elementos decorativos coloridos
-- [ ] **Why Section**
-    - [ ] Remover foto grande do CEO
-    - [ ] Focar na mensagem "Não vendemos marketing, construímos sistemas"
-- [ ] **What Section**
-    - [ ] Atualizar serviços para refletir a nova descrição (Growth, Lean, AI)
-- [ ] **Novas Seções**
-    - [ ] **Numbers/Impact:** Faixa com números grandes (Cases)
-    - [ ] **Testimonials:** Carrossel ou grid de depoimentos com aspas e logos
-- [ ] **Geral**
-    - [ ] Garantir que todas as fotos estejam em P&B via CSS (grayscale)
-    - [ ] Revisar textos para tom mais "sênior" e assertivo
+- [ ] **1. Título Hero:** Alterar para "GROWTH. LEAN. EXECUTION."
+- [ ] **2. Navbar:** Melhorar tipografia (menos quadrada) e espaçamento.
+- [ ] **3. Logo Navbar:** Aumentar significativamente (Autoridade).
+- [ ] **4. Cores Texto:** Manter jogo de Branco/Cinza (já aprovado).
+- [ ] **5. Promessa:** Focar em "LUCRO LÍQUIDO PREVISÍVEL".
+- [ ] **6. Escopo (Lista):** Adicionar "Dashboards + Rotina + Processos + Automações + IA + Treinamento + Metas".
+- [ ] **7. Serviços (What):**
+    - [ ] Growth & Aquisição
+    - [ ] Otimização & Design Operacional
+    - [ ] KPIs & Sprints
+    - [ ] Eliminação de Desperdícios
+- [ ] **8. Cases (Testimonials):**
+    - [ ] Dr. Felipe Roca Nacif (Clínica Maktub)
+    - [ ] Izabela Brauer Pinho (Healthtech Solutions)
+- [ ] **9. How We Do It:**
+    - [ ] Diagnóstico com dados
+    - [ ] Setup e Implementação
+    - [ ] Execução & Sprints
+    - [ ] GESTÃO CONTÍNUA/PARTNERS
+- [ ] **10. Gráfico Dashboard:** Melhorar design (mais moderno/clean).
+- [ ] **11. CTA:** Remover "sem compromisso".
+- [ ] **12. Logo Footer:** Aumentar para harmonizar com letras grandes.
+- [ ] **13. Imagem P&B:** Corrigir carregamento da foto na pré-visualização.

@@ -9,7 +9,7 @@ export default function ResultsSection() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           
           <div className="relative z-10 text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
               Pronto para escalar com previsibilidade?
             </h2>
             <p className="text-xl text-muted-foreground mb-10">
@@ -19,7 +19,7 @@ export default function ResultsSection() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none h-16 px-10 text-lg group"
+                className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wider rounded-none h-16 px-10 text-lg group"
                 onClick={() => window.open("https://calendly.com/", "_blank")}
               >
                 Agendar Agora
@@ -28,7 +28,7 @@ export default function ResultsSection() {
             </div>
             
             <p className="mt-6 text-sm text-muted-foreground">
-              Diagnóstico inicial de 30 minutos • Sem compromisso
+              Diagnóstico inicial de 30 minutos.
             </p>
           </div>
         </div>
