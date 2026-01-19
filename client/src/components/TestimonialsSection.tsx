@@ -10,7 +10,7 @@ const testimonials = [
   },
   {
     quote: "Eles não entregam apenas relatórios, entregam execução. A disciplina do Lean Six Sigma aplicada à nossa realidade mudou o jogo.",
-    author: "Izabela Brauer Pinho",
+    author: "Dra. Izabela Brauer Pinho",
     role: "CEO, Healthtech Solutions",
     logo: "HTS"
   }

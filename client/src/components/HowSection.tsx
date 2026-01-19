@@ -36,7 +36,7 @@ export default function HowSection() {
                 },
                 {
                   step: "04",
-                  title: "GESTÃO CONTÍNUA / PARTNERS",
+                  title: "Gestão Contínua / Partners",
                   desc: "Acompanhamento de longo prazo para garantir escala sustentável e novos patamares."
                 }
               ].map((item, index) => (

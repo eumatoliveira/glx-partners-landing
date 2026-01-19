@@ -17,7 +17,7 @@ export default function Navbar() {
             <img 
               src="/images/logo-white-on-black.jpg" 
               alt="GLX Partners" 
-              className="h-20 w-auto mix-blend-screen" 
+              className="h-28 w-auto mix-blend-screen" 
             />
           </a>
         </Link>

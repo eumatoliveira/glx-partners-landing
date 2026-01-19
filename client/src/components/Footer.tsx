@@ -10,7 +10,7 @@ export default function Footer() {
             <img 
               src="/images/logo-white-on-black.jpg" 
               alt="GLX Partners" 
-              className="h-24 w-auto mix-blend-screen mb-6" 
+              className="h-32 w-auto mix-blend-screen mb-8" 
             />
             <p className="text-muted-foreground max-w-sm mb-6">
               Consultoria de Crescimento e Eficiência Operacional especializada no setor de saúde. Unimos Estratégia, Lean e Tecnologia.

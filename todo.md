@@ -1,25 +1,6 @@
-# Plano de Refatoração GLX Partners 3.0 (13 Pontos Críticos)
+# Ajustes Finais GLX Partners 3.1
 
-- [ ] **1. Título Hero:** Alterar para "GROWTH. LEAN. EXECUTION."
-- [ ] **2. Navbar:** Melhorar tipografia (menos quadrada) e espaçamento.
-- [ ] **3. Logo Navbar:** Aumentar significativamente (Autoridade).
-- [ ] **4. Cores Texto:** Manter jogo de Branco/Cinza (já aprovado).
-- [ ] **5. Promessa:** Focar em "LUCRO LÍQUIDO PREVISÍVEL".
-- [ ] **6. Escopo (Lista):** Adicionar "Dashboards + Rotina + Processos + Automações + IA + Treinamento + Metas".
-- [ ] **7. Serviços (What):**
-    - [ ] Growth & Aquisição
-    - [ ] Otimização & Design Operacional
-    - [ ] KPIs & Sprints
-    - [ ] Eliminação de Desperdícios
-- [ ] **8. Cases (Testimonials):**
-    - [ ] Dr. Felipe Roca Nacif (Clínica Maktub)
-    - [ ] Izabela Brauer Pinho (Healthtech Solutions)
-- [ ] **9. How We Do It:**
-    - [ ] Diagnóstico com dados
-    - [ ] Setup e Implementação
-    - [ ] Execução & Sprints
-    - [ ] GESTÃO CONTÍNUA/PARTNERS
-- [ ] **10. Gráfico Dashboard:** Melhorar design (mais moderno/clean).
-- [ ] **11. CTA:** Remover "sem compromisso".
-- [ ] **12. Logo Footer:** Aumentar para harmonizar com letras grandes.
-- [ ] **13. Imagem P&B:** Corrigir carregamento da foto na pré-visualização.
+- [ ] **1. Logo:** Aumentar ainda mais no Navbar e Footer (garantir legibilidade).
+- [ ] **2. Dra. Izabela:** Adicionar "Dra." antes do nome no depoimento.
+- [ ] **3. Padronização How:** Mudar "GESTÃO CONTÍNUA / PARTNERS" para "Gestão Contínua / Partners".
+- [ ] **4. Imagem Hero:** Verificar caminho da imagem `/images/consulting-meeting.jpg` e garantir que ela exista na pasta public. Se não existir, usar uma imagem de fallback confiável ou restaurar a imagem correta.
