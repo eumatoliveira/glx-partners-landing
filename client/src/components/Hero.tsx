@@ -43,7 +43,7 @@ export default function Hero() {
             <Button 
               size="lg" 
               className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wider rounded-none h-16 px-10 text-base transition-all duration-300 w-full sm:w-auto"
-              onClick={() => window.open("https://calendly.com/", "_blank")}
+              onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             >
               Agendar Diagnóstico
             </Button>

@@ -61,7 +61,7 @@ export default function Footer() {
             <Button 
               variant="outline" 
               className="w-full border-white/10 hover:bg-white/5 text-white rounded-none"
-              onClick={() => window.open("https://calendly.com/", "_blank")}
+              onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             >
               Agendar Reunião
             </Button>

@@ -62,7 +62,7 @@ export default function HowSection() {
             <div className="mt-12">
               <Button 
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-8 py-6"
-                onClick={() => window.open("https://calendly.com/", "_blank")}
+                onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
               >
                 Começar Transformação
               </Button>

@@ -20,7 +20,7 @@ export default function ResultsSection() {
               <Button 
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wider rounded-none h-16 px-10 text-lg group"
-                onClick={() => window.open("https://calendly.com/", "_blank")}
+                onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
               >
                 Agendar Agora
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

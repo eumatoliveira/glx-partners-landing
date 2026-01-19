@@ -34,7 +34,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <Button 
-            onClick={() => window.open("https://calendly.com/", "_blank")}
+            onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-6"
           >
             Agendar Diagnóstico
