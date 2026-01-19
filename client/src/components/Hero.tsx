@@ -65,7 +65,7 @@ export default function Hero() {
           <div className="relative z-10">
             {/* Imagem principal em P&B puro - Caminho corrigido e verificado */}
             <img 
-              src="/images/strategy-meeting.jpg" 
+              src="/images/hero-new.png" 
               alt="GLX Strategy Meeting" 
               className="w-full h-auto grayscale contrast-125 shadow-2xl border border-white/5"
             />

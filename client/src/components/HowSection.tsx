@@ -14,7 +14,7 @@ export default function HowSection() {
           <div>
             <h2 className="text-primary font-bold tracking-widest uppercase mb-4 text-sm">How We Do It</h2>
             <h3 className="text-3xl md:text-4xl font-bold mb-8 leading-tight text-white">
-              Método GLX
+              <span className="text-muted-foreground">Método</span> <span className="text-white">GLX</span>
             </h3>
             
             <div className="space-y-12">

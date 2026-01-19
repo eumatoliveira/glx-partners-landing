@@ -5,6 +5,7 @@ import WhySection from "@/components/WhySection";
 import WhatSection from "@/components/WhatSection";
 import HowSection from "@/components/HowSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import FaqSection from "@/components/FaqSection";
 import ResultsSection from "@/components/ResultsSection";
 import Footer from "@/components/Footer";
 
@@ -19,6 +20,7 @@ export default function Home() {
         <WhatSection />
         <HowSection />
         <TestimonialsSection />
+        <FaqSection />
         <ResultsSection />
       </main>
       <Footer />

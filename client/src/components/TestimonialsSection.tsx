@@ -5,7 +5,7 @@ const testimonials = [
   {
     quote: "A GLX transformou nossa operação. Saímos de um caos de planilhas para um sistema previsível de crescimento. O impacto na margem foi imediato.",
     author: "Dr. Felipe Roca Nacif",
-    role: "CEO, Clínica Maktub",
+    role: "CEO, MAKTUB MEDICINA DIAGNÓSTICA",
     logo: "MAKTUB"
   },
   {
@@ -16,6 +16,13 @@ const testimonials = [
   }
 ];
 
+const clientLogos = [
+  "/images/logo-maktub.jpg",
+  "/images/logo-healthtech.png",
+  "/images/logo-maktub.jpg", 
+  "/images/logo-healthtech.png"
+];
+
 export default function TestimonialsSection() {
   return (
     <section className="py-32 bg-background relative overflow-hidden">
@@ -23,7 +30,8 @@ export default function TestimonialsSection() {
         <h2 className="text-3xl md:text-4xl font-bold mb-16 text-center text-white">
           Quem confia na <span className="text-primary">GLX</span>
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-24">
           {testimonials.map((item, index) => (
             <motion.div
               key={index}
@@ -43,6 +51,44 @@ export default function TestimonialsSection() {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Logos dos Clientes com Animação Marquee */}
+        <div className="relative w-full overflow-hidden py-10 border-t border-white/5">
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-background via-transparent to-background" />
+          
+          <div className="flex items-center gap-16 animate-scroll whitespace-nowrap">
+            {/* Primeira cópia dos logos */}
+            {clientLogos.map((logo, index) => (
+              <div key={`logo-1-${index}`} className="flex-shrink-0 w-48 h-24 flex items-center justify-center grayscale opacity-50 blur-[0.5px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
+                <img 
+                  src={logo} 
+                  alt="Client Logo" 
+                  className="max-w-full max-h-full object-contain mix-blend-screen"
+                />
+              </div>
+            ))}
+            {/* Segunda cópia para loop infinito */}
+            {clientLogos.map((logo, index) => (
+              <div key={`logo-2-${index}`} className="flex-shrink-0 w-48 h-24 flex items-center justify-center grayscale opacity-50 blur-[0.5px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
+                <img 
+                  src={logo} 
+                  alt="Client Logo" 
+                  className="max-w-full max-h-full object-contain mix-blend-screen"
+                />
+              </div>
+            ))}
+             {/* Terceira cópia para garantir cobertura em telas largas */}
+             {clientLogos.map((logo, index) => (
+              <div key={`logo-3-${index}`} className="flex-shrink-0 w-48 h-24 flex items-center justify-center grayscale opacity-50 blur-[0.5px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
+                <img 
+                  src={logo} 
+                  alt="Client Logo" 
+                  className="max-w-full max-h-full object-contain mix-blend-screen"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

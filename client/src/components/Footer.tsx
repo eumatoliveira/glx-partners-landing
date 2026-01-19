@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Linkedin, Instagram, Mail, Phone } from "lucide-react";
+import { Linkedin, Instagram, Mail, MessageCircle } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -22,6 +22,9 @@ export default function Footer() {
               <a href="https://instagram.com/glxpartners" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                 <Instagram className="h-6 w-6" />
               </a>
+              <a href="https://wa.me/5511999999999" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <MessageCircle className="h-6 w-6" />
+              </a>
             </div>
           </div>
           
@@ -42,10 +45,6 @@ export default function Footer() {
                 <Mail className="h-4 w-4 text-primary" />
                 <a href="mailto:contato@glxpartners.io" className="hover:text-white transition-colors">contato@glxpartners.io</a>
               </li>
-              <li className="flex items-center gap-3 text-muted-foreground">
-                <Phone className="h-4 w-4 text-primary" />
-                <a href="tel:+5511944223257" className="hover:text-white transition-colors">(11) 94422-3257</a>
-              </li>
             </ul>
             <Button 
               variant="outline" 
@@ -59,7 +58,7 @@ export default function Footer() {
         
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} GLX Partners. Todos os direitos reservados.
+            2026 GLX Partners Enablement LTDA. CNPJ 63944929/000199. Todos os direitos reservados.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-xs text-muted-foreground hover:text-white transition-colors">Privacidade</a>
