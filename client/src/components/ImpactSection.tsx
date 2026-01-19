@@ -47,7 +47,7 @@ export default function ImpactSection() {
         <div className="flex items-center gap-24 animate-scroll-right whitespace-nowrap">
           {/* Primeira cópia dos logos */}
           {clientLogos.map((logo, index) => (
-            <div key={`logo-1-${index}`} className="flex-shrink-0 w-64 h-32 flex items-center justify-center grayscale opacity-60 blur-[1px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
+            <div key={`logo-1-${index}`} className="flex-shrink-0 w-72 h-40 flex items-center justify-center grayscale opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
               <img 
                 src={logo} 
                 alt="Client Logo" 
@@ -57,7 +57,7 @@ export default function ImpactSection() {
           ))}
           {/* Segunda cópia para loop infinito */}
           {clientLogos.map((logo, index) => (
-            <div key={`logo-2-${index}`} className="flex-shrink-0 w-64 h-32 flex items-center justify-center grayscale opacity-60 blur-[1px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
+            <div key={`logo-2-${index}`} className="flex-shrink-0 w-72 h-40 flex items-center justify-center grayscale opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
               <img 
                 src={logo} 
                 alt="Client Logo" 
@@ -67,7 +67,7 @@ export default function ImpactSection() {
           ))}
            {/* Terceira cópia para garantir cobertura em telas largas */}
            {clientLogos.map((logo, index) => (
-            <div key={`logo-3-${index}`} className="flex-shrink-0 w-64 h-32 flex items-center justify-center grayscale opacity-60 blur-[1px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
+            <div key={`logo-3-${index}`} className="flex-shrink-0 w-72 h-40 flex items-center justify-center grayscale opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
               <img 
                 src={logo} 
                 alt="Client Logo" 

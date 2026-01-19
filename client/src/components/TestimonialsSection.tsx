@@ -53,43 +53,7 @@ export default function TestimonialsSection() {
           ))}
         </div>
 
-        {/* Logos dos Clientes com Animação Marquee */}
-        <div className="relative w-full overflow-hidden py-10 border-t border-white/5">
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-background via-transparent to-background" />
-          
-          <div className="flex items-center gap-16 animate-scroll whitespace-nowrap">
-            {/* Primeira cópia dos logos */}
-            {clientLogos.map((logo, index) => (
-              <div key={`logo-1-${index}`} className="flex-shrink-0 w-48 h-24 flex items-center justify-center grayscale opacity-50 blur-[0.5px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
-                <img 
-                  src={logo} 
-                  alt="Client Logo" 
-                  className="max-w-full max-h-full object-contain mix-blend-screen"
-                />
-              </div>
-            ))}
-            {/* Segunda cópia para loop infinito */}
-            {clientLogos.map((logo, index) => (
-              <div key={`logo-2-${index}`} className="flex-shrink-0 w-48 h-24 flex items-center justify-center grayscale opacity-50 blur-[0.5px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
-                <img 
-                  src={logo} 
-                  alt="Client Logo" 
-                  className="max-w-full max-h-full object-contain mix-blend-screen"
-                />
-              </div>
-            ))}
-             {/* Terceira cópia para garantir cobertura em telas largas */}
-             {clientLogos.map((logo, index) => (
-              <div key={`logo-3-${index}`} className="flex-shrink-0 w-48 h-24 flex items-center justify-center grayscale opacity-50 blur-[0.5px] hover:grayscale-0 hover:opacity-100 hover:blur-0 transition-all duration-500">
-                <img 
-                  src={logo} 
-                  alt="Client Logo" 
-                  className="max-w-full max-h-full object-contain mix-blend-screen"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+
       </div>
     </section>
   );

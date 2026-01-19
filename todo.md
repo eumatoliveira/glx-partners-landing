@@ -1,9 +1,11 @@
-# Versão 3.3 - Ajustes Finais e Página de Obrigado
+# Versão 3.4 - Ajustes de Logos e Contato
 
-- [ ] Mover logos Maktub e Healthtech para a pasta public
-- [ ] Atualizar `ImpactSection.tsx` para incluir logos animados abaixo dos dados (movimento para direita)
-- [ ] Atualizar `Footer.tsx` com ícone correto do WhatsApp e ajuste de e-mail
-- [ ] Criar página `/obrigado` (`ThankYou.tsx`)
-- [ ] Atualizar rotas em `App.tsx`
-- [ ] Verificar responsividade mobile (gráficos e logos)
-- [ ] Garantir que `ImagemInicial.png` está sendo usada no Hero
+- [ ] **ImpactSection.tsx:**
+    - Remover blur dos logos.
+    - Aumentar opacidade para 100% (ou próximo) em cinza.
+    - Aumentar tamanho do logo Healthtech Solutions.
+    - Manter animação para direita.
+- [ ] **TestimonialsSection.tsx:**
+    - Remover banner de logos duplicado.
+- [ ] **Footer.tsx:**
+    - Verificar alinhamento do ícone de e-mail (esquerda do texto).
