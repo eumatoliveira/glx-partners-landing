@@ -7,6 +7,7 @@ import HowSection from "@/components/HowSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FaqSection from "@/components/FaqSection";
 import ResultsSection from "@/components/ResultsSection";
+import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -22,6 +23,7 @@ export default function Home() {
         <TestimonialsSection />
         <FaqSection />
         <ResultsSection />
+        <ContactForm />
       </main>
       <Footer />
     </div>
