@@ -1,5 +1,3 @@
-# Correção de Imagem Hero
+# Correção de Erro de Link
 
-- [ ] **1. Substituir Imagem:** Trocar `/images/consulting-meeting.jpg` por `/images/strategy-meeting.jpg` no componente Hero.tsx.
-- [ ] **2. Verificar Arquivo:** Garantir que o arquivo `strategy-meeting.jpg` existe e é válido.
-- [ ] **3. Reiniciar Servidor:** Forçar reinicialização para limpar cache de assets estáticos.
+- [ ] **1. Navbar.tsx:** Remover tag `<a>` aninhada dentro de `<Link>`. O componente `<Link>` do wouter já renderiza um `<a>` internamente ou deve envolver diretamente o conteúdo sem outro `<a>`.

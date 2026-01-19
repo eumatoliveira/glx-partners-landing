@@ -12,14 +12,12 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
       <div className="container flex items-center justify-between h-20">
-        <Link href="/">
-          <a className="flex items-center gap-2">
-            <img 
-              src="/images/logo-white-on-black.jpg" 
-              alt="GLX Partners" 
-              className="h-28 w-auto mix-blend-screen" 
-            />
-          </a>
+        <Link href="/" className="flex items-center gap-2 cursor-pointer">
+          <img 
+            src="/images/logo-white-on-black.jpg" 
+            alt="GLX Partners" 
+            className="h-28 w-auto mix-blend-screen" 
+          />
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
