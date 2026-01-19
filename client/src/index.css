@@ -10,6 +10,11 @@
     from { transform: translateX(0); }
     to { transform: translateX(-100%); }
   }
+  --animate-scroll-right: scroll-right 25s linear infinite;
+  @keyframes scroll-right {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+  }
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
