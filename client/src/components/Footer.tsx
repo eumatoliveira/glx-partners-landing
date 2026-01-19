@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Linkedin, Instagram, Mail } from "lucide-react";
+import { Linkedin, Instagram, Mail, Youtube } from "lucide-react";
 
 // Ícone do WhatsApp SVG inline para garantir visualização correta
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -36,6 +36,9 @@ export default function Footer() {
               </a>
               <a href="https://wa.me/5511944223257" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                 <WhatsAppIcon className="h-6 w-6" />
+              </a>
+              <a href="https://www.youtube.com/@glxpartners" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <Youtube className="h-6 w-6" />
               </a>
             </div>
           </div>
