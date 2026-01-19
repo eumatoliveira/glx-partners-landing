@@ -60,7 +60,7 @@ export default function WhatSection() {
                   <CardTitle className="text-2xl font-bold text-white">{service.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-6 h-20">{service.description}</p>
+                  <p className="text-muted-foreground mb-6 min-h-[5rem]">{service.description}</p>
                   <div className="border-t border-border/50 pt-4">
                     <p className="text-xs uppercase tracking-widest text-primary mb-2 font-bold">Métricas-Chave</p>
                     <div className="flex flex-wrap gap-2">
