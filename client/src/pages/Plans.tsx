@@ -8,9 +8,7 @@ import { useState } from "react";
 export default function Plans() {
   const { t } = useLanguage();
   const [showVideoPartners, setShowVideoPartners] = useState(false);
-  const [showVideoEssentials, setShowVideoEssentials] = useState(false);
-  const [showVideoPro, setShowVideoPro] = useState(false);
-  const [showVideoEnterprise, setShowVideoEnterprise] = useState(false);
+  const [showVideoControlTower, setShowVideoControlTower] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -255,7 +253,7 @@ export default function Plans() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
               {t.plans.towerTitle}
@@ -263,6 +261,32 @@ export default function Plans() {
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               {t.plans.towerSubtitle}
             </p>
+          </motion.div>
+
+          {/* Video Space for Control Tower */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            onClick={() => setShowVideoControlTower(!showVideoControlTower)}
+            className="relative bg-black/50 rounded-lg aspect-video mb-12 cursor-pointer overflow-hidden group/video max-w-3xl mx-auto"
+          >
+            {showVideoControlTower ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                <p className="text-muted-foreground text-sm">{t.plans.videoComingSoon || "Vídeo em breve"}</p>
+              </div>
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-primary/90 rounded-full p-5 group-hover/video:bg-primary transition-colors">
+                    <Play className="h-10 w-10 text-white fill-white" />
+                  </div>
+                </div>
+                <p className="absolute bottom-4 left-4 text-sm text-muted-foreground">{t.plans.videoPlaceholder}</p>
+              </>
+            )}
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -281,28 +305,6 @@ export default function Plans() {
               <h3 className="text-2xl font-bold text-white mb-1">{t.plans.essentialsTitle}</h3>
               <p className="text-blue-400 text-sm font-semibold mb-4">{t.plans.essentialsTagline}</p>
               <p className="text-muted-foreground mb-6 leading-relaxed">{t.plans.essentialsDesc}</p>
-
-              {/* Video Space */}
-              <div 
-                onClick={() => setShowVideoEssentials(!showVideoEssentials)}
-                className="relative bg-black/50 rounded-lg aspect-video mb-6 cursor-pointer overflow-hidden group/video"
-              >
-                {showVideoEssentials ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                    <p className="text-muted-foreground text-sm">{t.plans.videoComingSoon || "Vídeo em breve"}</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-blue-500/90 rounded-full p-3 group-hover/video:bg-blue-500 transition-colors">
-                        <Play className="h-6 w-6 text-white fill-white" />
-                      </div>
-                    </div>
-                    <p className="absolute bottom-2 left-2 text-xs text-muted-foreground">{t.plans.videoPlaceholder}</p>
-                  </>
-                )}
-              </div>
 
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-3 text-sm text-muted-foreground">
@@ -355,28 +357,6 @@ export default function Plans() {
               <p className="text-primary text-sm font-semibold mb-4">{t.plans.towerProTagline}</p>
               <p className="text-muted-foreground mb-6 leading-relaxed">{t.plans.towerProDesc}</p>
 
-              {/* Video Space */}
-              <div 
-                onClick={() => setShowVideoPro(!showVideoPro)}
-                className="relative bg-black/50 rounded-lg aspect-video mb-6 cursor-pointer overflow-hidden group/video"
-              >
-                {showVideoPro ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                    <p className="text-muted-foreground text-sm">{t.plans.videoComingSoon || "Vídeo em breve"}</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-primary/90 rounded-full p-3 group-hover/video:bg-primary transition-colors">
-                        <Play className="h-6 w-6 text-white fill-white" />
-                      </div>
-                    </div>
-                    <p className="absolute bottom-2 left-2 text-xs text-muted-foreground">{t.plans.videoPlaceholder}</p>
-                  </>
-                )}
-              </div>
-
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-3 text-sm text-muted-foreground">
                   <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
@@ -427,28 +407,6 @@ export default function Plans() {
               <h3 className="text-2xl font-bold text-white mb-1">{t.plans.enterpriseTitle}</h3>
               <p className="text-purple-400 text-sm font-semibold mb-4">{t.plans.enterpriseTagline}</p>
               <p className="text-muted-foreground mb-6 leading-relaxed">{t.plans.enterpriseDesc}</p>
-
-              {/* Video Space */}
-              <div 
-                onClick={() => setShowVideoEnterprise(!showVideoEnterprise)}
-                className="relative bg-black/50 rounded-lg aspect-video mb-6 cursor-pointer overflow-hidden group/video"
-              >
-                {showVideoEnterprise ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                    <p className="text-muted-foreground text-sm">{t.plans.videoComingSoon || "Vídeo em breve"}</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-purple-500/90 rounded-full p-3 group-hover/video:bg-purple-500 transition-colors">
-                        <Play className="h-6 w-6 text-white fill-white" />
-                      </div>
-                    </div>
-                    <p className="absolute bottom-2 left-2 text-xs text-muted-foreground">{t.plans.videoPlaceholder}</p>
-                  </>
-                )}
-              </div>
 
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-3 text-sm text-muted-foreground">

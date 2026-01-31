@@ -75,3 +75,8 @@
 - [x] 1 espaço para vídeo por plano
 - [x] Botão único "Solicitar Proposta" para cada plano
 - [x] Manter descrições e design/cores do site
+
+## Versão 6.8 - Vídeo GLX Control Tower
+
+- [x] Adicionar área de vídeo única para o plano GLX Control Tower
+- [x] Remover vídeos individuais dos tiers (Essentials, Pro, Enterprise)
