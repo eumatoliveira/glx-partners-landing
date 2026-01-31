@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useLocation } from "wouter";
-import { ArrowLeft, Lock, User, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 type LoginFormValues = {
   email: string;
@@ -19,10 +21,24 @@ type LoginFormValues = {
 
 export default function Login() {
   const { language } = useLanguage();
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [, setLocation] = useLocation();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+
+  const loginMutation = trpc.emailAuth.login.useMutation({
+    onSuccess: (data) => {
+      toast.success("Login realizado com sucesso!");
+      // Redireciona baseado no role do usuário
+      if (data.user.role === "admin") {
+        setLocation("/glx");
+      } else {
+        setLocation("/dashboard");
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao fazer login");
+    },
+  });
 
   const content = {
     pt: {
@@ -108,20 +124,30 @@ export default function Login() {
     },
   });
 
-  // Se o usuário já está autenticado, redireciona para o dashboard
-  if (isAuthenticated && user) {
-    setLocation("/dashboard");
-    return null;
-  }
+  // Se o usuário já está autenticado, redireciona para o dashboard apropriado
+  useEffect(() => {
+    if (isAuthenticated && user && !loading) {
+      if (user.role === "admin") {
+        setLocation("/glx");
+      } else {
+        setLocation("/dashboard");
+      }
+    }
+  }, [isAuthenticated, user, loading, setLocation]);
 
   function onSubmit(data: LoginFormValues) {
-    setIsLoading(true);
-    // Simulação de login - em produção, isso seria substituído por autenticação real
-    setTimeout(() => {
-      console.log(data);
-      setIsLoading(false);
-      alert("Login realizado com sucesso! (Simulação)");
-    }, 1500);
+    loginMutation.mutate({
+      email: data.email,
+      password: data.password,
+    });
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
@@ -241,9 +267,16 @@ export default function Login() {
               <Button 
                 type="submit" 
                 className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-6 text-lg"
-                disabled={isLoading}
+                disabled={loginMutation.isPending}
               >
-                {isLoading ? t.submitting : t.submit}
+                {loginMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t.submitting}
+                  </>
+                ) : (
+                  t.submit
+                )}
               </Button>
             </form>
           </Form>

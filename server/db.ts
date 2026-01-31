@@ -377,3 +377,74 @@ export async function searchUsers(query: string, limit = 20) {
     .where(sql`${users.email} LIKE ${`%${query}%`} OR ${users.name} LIKE ${`%${query}%`}`)
     .limit(limit);
 }
+
+// ==================== EMAIL/PASSWORD AUTHENTICATION ====================
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUserWithPassword(userData: {
+  email: string;
+  passwordHash: string;
+  name?: string;
+  role?: 'user' | 'admin';
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Generate a unique openId for email/password users
+  const openId = `email_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  
+  await db.insert(users).values({
+    openId,
+    email: userData.email,
+    passwordHash: userData.passwordHash,
+    name: userData.name || userData.email.split('@')[0],
+    loginMethod: 'email',
+    role: userData.role || 'user',
+    isActive: true,
+    lastSignedIn: new Date(),
+  });
+  
+  return await getUserByEmail(userData.email);
+}
+
+export async function updateUserPassword(userId: number, passwordHash: string) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
+}
+
+export async function updateUserStatus(userId: number, isActive: boolean) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(users).set({ isActive }).where(eq(users.id, userId));
+}
+
+export async function updateUserLastSignIn(userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, userId));
+}
+
+export async function deleteUser(userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(users).where(eq(users.id, userId));
+}
+
+export async function updateUser(userId: number, updates: { name?: string; email?: string; role?: 'user' | 'admin'; isActive?: boolean }) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(users).set(updates).where(eq(users.id, userId));
+}

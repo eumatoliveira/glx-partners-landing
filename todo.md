@@ -158,3 +158,29 @@
 - [x] Exportar dados CSV de cada tela
 - [x] Filtro de período (7d, 30d, 90d, 12m)
 - [x] Alertas visuais para métricas críticas
+
+## Versão 9.0 - Sistema de Controle de Acesso
+
+### Estrutura de Autenticação
+- [x] Criar tabela de usuários com email/senha hash
+- [x] Criar tabela de sessões para controle de login
+- [x] Definir roles (admin, user)
+- [x] Configurar admin principal: dev.glxpartners@gmail.com
+
+### Sistema de Login
+- [x] Criar página de login com email/senha
+- [x] Implementar hash de senha (bcrypt)
+- [x] Criar rotas de autenticação (login, logout, register)
+- [x] Implementar sessões JWT
+
+### Controle de Acesso
+- [x] Proteger rotas do Dashboard GLX (apenas admin)
+- [x] Proteger rotas do Dashboard Admin (apenas admin)
+- [x] Criar middleware de verificação de role
+- [x] Redirecionar usuários não autorizados
+
+### Gestão de Usuários (Admin)
+- [x] Listar todos os usuários
+- [x] Criar/editar/excluir usuários
+- [x] Alterar roles de usuários
+- [x] Resetar senhas

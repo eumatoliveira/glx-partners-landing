@@ -10,6 +10,7 @@ import ThankYou from "./pages/ThankYou";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans";
+import AdminRoute from "./components/AdminRoute";
 import {
   AdminDashboard,
   AdminUsers,
@@ -31,8 +32,16 @@ import {
   DataGovernance,
 } from "./pages/glx-dashboard";
 
+// Wrapper component for admin-protected routes
+function AdminProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+  return (
+    <AdminRoute>
+      <Component />
+    </AdminRoute>
+  );
+}
+
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       {/* Public Routes */}
@@ -42,29 +51,69 @@ function Router() {
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/planos"} component={Plans} />
       
-      {/* Admin Routes */}
-      <Route path={"/admin"} component={AdminDashboard} />
-      <Route path={"/admin/users"} component={AdminUsers} />
-      <Route path={"/admin/billing"} component={AdminBilling} />
-      <Route path={"/admin/logs"} component={AdminAuditLogs} />
-      <Route path={"/admin/errors"} component={AdminErrors} />
-      <Route path={"/admin/flags"} component={AdminFeatureFlags} />
-      <Route path={"/admin/security"} component={AdminUsers} />
-      <Route path={"/admin/system"} component={AdminErrors} />
-      <Route path={"/admin/settings"} component={AdminDashboard} />
+      {/* Admin Routes (Protected) */}
+      <Route path={"/admin"}>
+        <AdminRoute><AdminDashboard /></AdminRoute>
+      </Route>
+      <Route path={"/admin/users"}>
+        <AdminRoute><AdminUsers /></AdminRoute>
+      </Route>
+      <Route path={"/admin/billing"}>
+        <AdminRoute><AdminBilling /></AdminRoute>
+      </Route>
+      <Route path={"/admin/logs"}>
+        <AdminRoute><AdminAuditLogs /></AdminRoute>
+      </Route>
+      <Route path={"/admin/errors"}>
+        <AdminRoute><AdminErrors /></AdminRoute>
+      </Route>
+      <Route path={"/admin/flags"}>
+        <AdminRoute><AdminFeatureFlags /></AdminRoute>
+      </Route>
+      <Route path={"/admin/security"}>
+        <AdminRoute><AdminUsers /></AdminRoute>
+      </Route>
+      <Route path={"/admin/system"}>
+        <AdminRoute><AdminErrors /></AdminRoute>
+      </Route>
+      <Route path={"/admin/settings"}>
+        <AdminRoute><AdminDashboard /></AdminRoute>
+      </Route>
       
-      {/* GLX Dashboard Routes */}
-      <Route path={"/glx"} component={HomeCEO} />
-      <Route path={"/glx/ceo"} component={HomeCEO} />
-      <Route path={"/glx/financials"} component={Financials} />
-      <Route path={"/glx/operations"} component={Operations} />
-      <Route path={"/glx/no-show"} component={NoShow} />
-      <Route path={"/glx/funnel"} component={SalesFunnel} />
-      <Route path={"/glx/marketing"} component={MarketingROI} />
-      <Route path={"/glx/protocols"} component={Protocols} />
-      <Route path={"/glx/quality"} component={Quality} />
-      <Route path={"/glx/people"} component={People} />
-      <Route path={"/glx/data"} component={DataGovernance} />
+      {/* GLX Dashboard Routes (Admin Protected) */}
+      <Route path={"/glx"}>
+        <AdminRoute><HomeCEO /></AdminRoute>
+      </Route>
+      <Route path={"/glx/ceo"}>
+        <AdminRoute><HomeCEO /></AdminRoute>
+      </Route>
+      <Route path={"/glx/financials"}>
+        <AdminRoute><Financials /></AdminRoute>
+      </Route>
+      <Route path={"/glx/operations"}>
+        <AdminRoute><Operations /></AdminRoute>
+      </Route>
+      <Route path={"/glx/no-show"}>
+        <AdminRoute><NoShow /></AdminRoute>
+      </Route>
+      <Route path={"/glx/funnel"}>
+        <AdminRoute><SalesFunnel /></AdminRoute>
+      </Route>
+      <Route path={"/glx/marketing"}>
+        <AdminRoute><MarketingROI /></AdminRoute>
+      </Route>
+      <Route path={"/glx/protocols"}>
+        <AdminRoute><Protocols /></AdminRoute>
+      </Route>
+      <Route path={"/glx/quality"}>
+        <AdminRoute><Quality /></AdminRoute>
+      </Route>
+      <Route path={"/glx/people"}>
+        <AdminRoute><People /></AdminRoute>
+      </Route>
+      <Route path={"/glx/data"}>
+        <AdminRoute><DataGovernance /></AdminRoute>
+      </Route>
       
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
