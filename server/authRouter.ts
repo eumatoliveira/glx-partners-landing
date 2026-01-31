@@ -21,6 +21,10 @@ import { ENV } from "./_core/env";
 const ADMIN_EMAIL = "dev.glxpartners@gmail.com";
 const ADMIN_PASSWORD = "Dev.glxpartners!311";
 
+// Test client user
+const CLIENT_EMAIL = "cliente.teste@glxpartners.com";
+const CLIENT_PASSWORD = "Cliente123!";
+
 // Initialize admin user on first load
 async function initializeAdminUser() {
   const existingAdmin = await getUserByEmail(ADMIN_EMAIL);
@@ -36,8 +40,24 @@ async function initializeAdminUser() {
   }
 }
 
+// Initialize test client user
+async function initializeClientUser() {
+  const existingClient = await getUserByEmail(CLIENT_EMAIL);
+  if (!existingClient) {
+    const passwordHash = await bcrypt.hash(CLIENT_PASSWORD, 12);
+    await createUserWithPassword({
+      email: CLIENT_EMAIL,
+      passwordHash,
+      name: "Cliente Teste GLX",
+      role: "user",
+    });
+    console.log("[Auth] Client test user created:", CLIENT_EMAIL);
+  }
+}
+
 // Call initialization
 initializeAdminUser().catch(console.error);
+initializeClientUser().catch(console.error);
 
 export const authRouter = router({
   // Login with email/password

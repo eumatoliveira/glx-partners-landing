@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans";
 import AdminRoute from "./components/AdminRoute";
+import ClientRoute from "./components/ClientRoute";
 import {
   AdminDashboard,
   AdminFinanceiro,
@@ -19,6 +20,16 @@ import {
   AdminErros,
   AdminFeatureFlags,
 } from "./pages/admin";
+
+// Client Dashboard Pages
+import CEOScorecard from "./pages/client/CEOScorecard";
+import OperationalWaste from "./pages/client/OperationalWaste";
+import GrowthEngine from "./pages/client/GrowthEngine";
+import Financials from "./pages/client/Financials";
+import Operations from "./pages/client/Operations";
+import Quality from "./pages/client/Quality";
+import People from "./pages/client/People";
+import DataGovernance from "./pages/client/DataGovernance";
 
 function Router() {
   return (
@@ -48,6 +59,32 @@ function Router() {
       </Route>
       <Route path={"/admin/flags"}>
         <AdminRoute><AdminFeatureFlags /></AdminRoute>
+      </Route>
+      
+      {/* Client Dashboard Routes (Protected) - GLX Performance */}
+      <Route path={"/performance"}>
+        <ClientRoute><CEOScorecard /></ClientRoute>
+      </Route>
+      <Route path={"/performance/financials"}>
+        <ClientRoute><Financials /></ClientRoute>
+      </Route>
+      <Route path={"/performance/operations"}>
+        <ClientRoute><Operations /></ClientRoute>
+      </Route>
+      <Route path={"/performance/waste"}>
+        <ClientRoute><OperationalWaste /></ClientRoute>
+      </Route>
+      <Route path={"/performance/growth"}>
+        <ClientRoute><GrowthEngine /></ClientRoute>
+      </Route>
+      <Route path={"/performance/quality"}>
+        <ClientRoute><Quality /></ClientRoute>
+      </Route>
+      <Route path={"/performance/people"}>
+        <ClientRoute><People /></ClientRoute>
+      </Route>
+      <Route path={"/performance/data"}>
+        <ClientRoute><DataGovernance /></ClientRoute>
       </Route>
       
       <Route path={"/404"} component={NotFound} />

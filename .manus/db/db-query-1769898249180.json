@@ -1,0 +1,26 @@
+{
+  "query": "SELECT id, email, name, role, isActive, passwordHash IS NOT NULL as has_password FROM users WHERE email = 'dev.glxpartners@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute SELECT id, email, name, role, isActive, passwordHash IS NOT NULL as has_password FROM users WHERE email = 'dev.glxpartners@gmail.com';",
+  "rows": [
+    {
+      "id": "1",
+      "email": "dev.glxpartners@gmail.com",
+      "name": "GLX Admin",
+      "role": "admin",
+      "isActive": "1",
+      "has_password": "1"
+    },
+    {
+      "id": "90009",
+      "email": "dev.glxpartners@gmail.com",
+      "name": "GLX Admin",
+      "role": "admin",
+      "isActive": "1",
+      "has_password": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\tisActive\thas_password\n1\tdev.glxpartners@gmail.com\tGLX Admin\tadmin\t1\t1\n90009\tdev.glxpartners@gmail.com\tGLX Admin\tadmin\t1\t1\n",
+  "stderr": "",
+  "execution_time_ms": 91
+}

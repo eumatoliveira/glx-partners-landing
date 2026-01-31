@@ -290,3 +290,66 @@
 - [x] Corrigir autenticação no sdk.ts para suportar tokens de email/senha
 - [x] Garantir redirecionamento para /admin após login bem-sucedido
 - [x] Testar fluxo completo de login
+
+## Versão 13.0 - Dashboard Cliente GLX Performance
+
+### Estrutura Base
+- [x] Criar layout ClientDashboardLayout com sidebar dark mode
+- [x] Implementar toggle de tema (dark/light mode)
+- [x] Criar sistema de navegação com menu lateral
+- [x] Configurar usuário de teste para clientes (cliente.teste@glxpartners.com / Cliente123!)
+
+### Tela 1: Home CEO (Control Tower)
+- [x] Scorecard com 4 KPIs principais (Faturamento, EBITDA, NPS, Ocupação)
+- [x] Mini sparklines para tendência 6 meses
+- [x] Alertas Andon (exceções críticas)
+- [x] Forecast: Realizado vs Meta vs Tendência
+
+### Tela 2: Financials (Receita/Margem/Caixa)
+- [x] Gráfico de Cascata (Waterfall Chart) para composição da margem
+- [x] Margem de Contribuição por Hora Clínica
+- [x] Indicadores financeiros com tendência
+
+### Tela 3: Operations (Agenda/Capacidade)
+- [x] OEE das Salas (Disponibilidade x Performance x Qualidade)
+- [x] Takt Time vs Cycle Time
+- [x] Gráfico de Gantt simplificado de ocupação
+
+### Tela 4: No-show & Waste
+- [x] Heatmap de frequência por dia/hora
+- [x] Waste Breakdown (donut chart)
+- [x] COPQ (Cost of Poor Quality)
+- [x] Pareto de Motivos
+- [x] Recovery Actions com status
+
+### Tela 5: Growth & Marketing ROI
+- [x] Funil Comercial com taxas de conversão
+- [x] KPIs de Marketing (Spend, CPL, CAC, ROI)
+- [x] ROI Forecast vs Actual
+- [x] Channel Performance table
+- [x] Insights card
+
+### Tela 6: Qualidade/NPS
+- [x] NPS com análise de sentimento
+- [x] Taxa de Reclamações (DPMO adaptado)
+- [x] Gráfico de Controle (Control Chart)
+
+### Tela 7: Pessoas (RH)
+- [x] Produtividade (Revenue per FTE)
+- [x] Absenteísmo e Turnover
+- [x] Gráficos comparativos
+
+### Tela 8: Data Governance
+- [x] Qualidade do Dado (% cadastros incompletos)
+- [x] Log de Auditoria
+
+### Exportação PDF
+- [x] Relatórios com gráficos e tabelas
+- [x] Linguagem LSS Master Black Belt
+- [x] Logo GLX em todos os relatórios
+- [x] Descrição de cada gráfico e aplicação prática
+
+### Responsividade Mobile
+- [x] Revisar todas as telas para formato mobile
+- [x] Ajustar grids e cards para telas pequenas
+- [x] Testar em diferentes resoluções

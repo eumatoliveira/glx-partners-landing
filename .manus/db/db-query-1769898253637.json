@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, email, name, role, isActive, openId, passwordHash FROM users WHERE email = 'dev.glxpartners@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute SELECT id, email, name, role, isActive, openId, passwordHash FROM users WHERE email = 'dev.glxpartners@gmail.com';",
+  "rows": [
+    {
+      "id": "1",
+      "email": "dev.glxpartners@gmail.com",
+      "name": "GLX Admin",
+      "role": "admin",
+      "isActive": "1",
+      "openId": "Chs2FHWmvGBY8zHxNmVWnm",
+      "passwordHash": "$2b$12$YsCyve2LE5mTwpg.9EMRSuI9XvrCLOwXVqn6SoMf1W7UVIR6UdTUW"
+    },
+    {
+      "id": "90009",
+      "email": "dev.glxpartners@gmail.com",
+      "name": "GLX Admin",
+      "role": "admin",
+      "isActive": "1",
+      "openId": "email_1769892696779_6og7c",
+      "passwordHash": "$2b$12$.eGZQ2rhXgqEnZpz94YeoeF53aOMhS1o8TOKGlDC/ysu4yo29Bbei"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\tisActive\topenId\tpasswordHash\n1\tdev.glxpartners@gmail.com\tGLX Admin\tadmin\t1\tChs2FHWmvGBY8zHxNmVWnm\t$2b$12$YsCyve2LE5mTwpg.9EMRSuI9XvrCLOwXVqn6SoMf1W7UVIR6UdTUW\n90009\tdev.glxpartners@gmail.com\tGLX Admin\tadmin\t1\temail_1769892696779_6og7c\t$2b$12$.eGZQ2rhXgqEnZpz94YeoeF53aOMhS1o8TOKGlDC/ysu4yo29Bbei\n",
+  "stderr": "",
+  "execution_time_ms": 200
+}
