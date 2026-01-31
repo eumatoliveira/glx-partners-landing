@@ -10,19 +10,95 @@ import { useLocation } from "wouter";
 import { ArrowLeft, Lock, User, Eye, EyeOff } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "E-mail inválido" }),
-  password: z.string().min(6, { message: "A senha deve ter no mínimo 6 caracteres" }),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginFormValues = {
+  email: string;
+  password: string;
+};
 
 export default function Login() {
+  const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
+
+  const content = {
+    pt: {
+      title: "Acesso Exclusivo para",
+      titleHighlight: "Parceiros.",
+      subtitle: "Acesse seus dashboards, relatórios de performance e materiais exclusivos da metodologia GLX.",
+      back: "Voltar para Home",
+      backMobile: "Voltar",
+      email: "E-mail Corporativo",
+      emailPlaceholder: "seu@email.com",
+      password: "Senha",
+      passwordPlaceholder: "••••••••",
+      remember: "Lembrar-me",
+      forgot: "Esqueceu a senha?",
+      submit: "Acessar Plataforma",
+      submitting: "Entrando...",
+      notClient: "Ainda não é cliente?",
+      schedule: "Agende um diagnóstico",
+      plans: "Conheça nossos planos",
+      validation: {
+        email: "E-mail inválido",
+        password: "A senha deve ter no mínimo 6 caracteres"
+      }
+    },
+    en: {
+      title: "Exclusive Access for",
+      titleHighlight: "Partners.",
+      subtitle: "Access your dashboards, performance reports, and exclusive GLX methodology materials.",
+      back: "Back to Home",
+      backMobile: "Back",
+      email: "Corporate Email",
+      emailPlaceholder: "your@email.com",
+      password: "Password",
+      passwordPlaceholder: "••••••••",
+      remember: "Remember me",
+      forgot: "Forgot password?",
+      submit: "Access Platform",
+      submitting: "Logging in...",
+      notClient: "Not a client yet?",
+      schedule: "Schedule a diagnosis",
+      plans: "See our plans",
+      validation: {
+        email: "Invalid email",
+        password: "Password must be at least 6 characters"
+      }
+    },
+    es: {
+      title: "Acceso Exclusivo para",
+      titleHighlight: "Socios.",
+      subtitle: "Accede a tus dashboards, informes de rendimiento y materiales exclusivos de la metodología GLX.",
+      back: "Volver al Inicio",
+      backMobile: "Volver",
+      email: "E-mail Corporativo",
+      emailPlaceholder: "tu@email.com",
+      password: "Contraseña",
+      passwordPlaceholder: "••••••••",
+      remember: "Recordarme",
+      forgot: "¿Olvidaste la contraseña?",
+      submit: "Acceder a la Plataforma",
+      submitting: "Entrando...",
+      notClient: "¿Aún no eres cliente?",
+      schedule: "Agenda un diagnóstico",
+      plans: "Conoce nuestros planes",
+      validation: {
+        email: "E-mail inválido",
+        password: "La contraseña debe tener al menos 6 caracteres"
+      }
+    }
+  };
+
+  const t = content[language];
+
+  const loginSchema = z.object({
+    email: z.string().email({ message: t.validation.email }),
+    password: z.string().min(6, { message: t.validation.password }),
+  });
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -69,10 +145,10 @@ export default function Login() {
           >
             <img src="/images/logo-white-on-black.jpg" alt="GLX Partners" className="h-40 mb-10 mix-blend-screen" style={{width: '180px', height: '180px'}} />
             <h1 className="text-4xl font-bold text-white mb-6 leading-tight">
-              Acesso Exclusivo para <span className="text-primary">Parceiros.</span>
+              {t.title} <span className="text-primary">{t.titleHighlight}</span>
             </h1>
             <p className="text-muted-foreground text-lg">
-              Acesse seus dashboards, relatórios de performance e materiais exclusivos da metodologia GLX.
+              {t.subtitle}
             </p>
           </motion.div>
         </div>
@@ -89,7 +165,7 @@ export default function Login() {
           className="absolute top-4 left-4 md:top-8 md:left-8 text-muted-foreground hover:text-white z-20"
           onClick={() => setLocation("/")}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> <span className="hidden md:inline">Voltar para Home</span><span className="md:hidden">Voltar</span>
+          <ArrowLeft className="mr-2 h-4 w-4" /> <span className="hidden md:inline">{t.back}</span><span className="md:hidden">{t.backMobile}</span>
         </Button>
 
         <div className="w-full max-w-md space-y-8">
@@ -100,12 +176,12 @@ export default function Login() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">E-mail Corporativo</FormLabel>
+                    <FormLabel className="text-white">{t.email}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input 
-                          placeholder="seu@email.com" 
+                          placeholder={t.emailPlaceholder} 
                           className="pl-10 bg-secondary/50 border-border/50 text-white placeholder:text-muted-foreground/50 focus:border-primary" 
                           {...field} 
                         />
@@ -121,13 +197,13 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Senha</FormLabel>
+                    <FormLabel className="text-white">{t.password}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input 
                           type={showPassword ? "text" : "password"} 
-                          placeholder="••••••••" 
+                          placeholder={t.passwordPlaceholder} 
                           className="pl-10 pr-10 bg-secondary/50 border-border/50 text-white placeholder:text-muted-foreground/50 focus:border-primary" 
                           {...field} 
                         />
@@ -156,10 +232,10 @@ export default function Login() {
                     htmlFor="remember"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
                   >
-                    Lembrar-me
+                    {t.remember}
                   </label>
                 </div>
-                <a href="#" className="text-primary hover:underline font-medium">Esqueceu a senha?</a>
+                <a href="#" className="text-primary hover:underline font-medium">{t.forgot}</a>
               </div>
 
               <Button 
@@ -167,17 +243,17 @@ export default function Login() {
                 className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-6 text-lg"
                 disabled={isLoading}
               >
-                {isLoading ? "Entrando..." : "Acessar Plataforma"}
+                {isLoading ? t.submitting : t.submit}
               </Button>
             </form>
           </Form>
 
           <div className="text-center text-sm text-muted-foreground mt-8 space-y-2">
             <p>
-              Ainda não é cliente? <a href="http://www.calendly.com/glxpartners" target="_blank" rel="noopener noreferrer" className="text-white hover:underline font-medium">Agende um diagnóstico</a>
+              {t.notClient} <a href="http://www.calendly.com/glxpartners" target="_blank" rel="noopener noreferrer" className="text-white hover:underline font-medium">{t.schedule}</a>
             </p>
             <p>
-              <a href="/#what" className="text-primary hover:underline font-medium">Conheça nossos planos</a>
+              <a href="/#what" className="text-primary hover:underline font-medium">{t.plans}</a>
             </p>
           </div>
         </div>

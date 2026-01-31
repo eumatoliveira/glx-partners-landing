@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Linkedin, Instagram, Mail, Youtube } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Ícone do WhatsApp SVG inline para garantir visualização correta
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -14,6 +15,58 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 export default function Footer() {
+  const { language } = useLanguage();
+
+  const content = {
+    pt: {
+      description: "Consultoria de Crescimento e Eficiência Operacional especializada no setor de saúde. Unimos Estratégia, Lean e Tecnologia.",
+      menu: "Menu",
+      menuItems: {
+        about: "A GLX",
+        services: "O Que Fazemos",
+        method: "Método",
+        cases: "Cases"
+      },
+      contact: "Contato",
+      scheduleBtn: "Agendar Reunião",
+      copyright: "2026 GLX Partners Enablement LTDA. CNPJ 63944929/000199. Todos os direitos reservados.",
+      privacy: "Privacidade",
+      terms: "Termos"
+    },
+    en: {
+      description: "Growth and Operational Efficiency Consulting specialized in the healthcare sector. We combine Strategy, Lean, and Technology.",
+      menu: "Menu",
+      menuItems: {
+        about: "About GLX",
+        services: "What We Do",
+        method: "Method",
+        cases: "Cases"
+      },
+      contact: "Contact",
+      scheduleBtn: "Schedule Meeting",
+      copyright: "2026 GLX Partners Enablement LTDA. CNPJ 63944929/000199. All rights reserved.",
+      privacy: "Privacy",
+      terms: "Terms"
+    },
+    es: {
+      description: "Consultoría de Crecimiento y Eficiencia Operacional especializada en el sector salud. Unimos Estrategia, Lean y Tecnología.",
+      menu: "Menú",
+      menuItems: {
+        about: "GLX",
+        services: "Qué Hacemos",
+        method: "Método",
+        cases: "Casos"
+      },
+      contact: "Contacto",
+      scheduleBtn: "Agendar Reunión",
+      copyright: "2026 GLX Partners Enablement LTDA. CNPJ 63944929/000199. Todos los derechos reservados.",
+      privacy: "Privacidad",
+      terms: "Términos"
+    }
+  };
+
+  const t = content[language];
+
   return (
     <footer className="bg-background border-t border-white/5 py-16">
       <div className="container">
@@ -25,7 +78,7 @@ export default function Footer() {
               className="h-32 w-auto mix-blend-screen mb-8" style={{width: '150px', height: '150px'}} 
             />
             <p className="text-muted-foreground max-w-sm mb-6">
-              Consultoria de Crescimento e Eficiência Operacional especializada no setor de saúde. Unimos Estratégia, Lean e Tecnologia.
+              {t.description}
             </p>
             <div className="flex gap-4">
               <a href="https://linkedin.com/company/glxpartners" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
@@ -44,17 +97,17 @@ export default function Footer() {
           </div>
           
           <div>
-            <h4 className="text-white font-bold uppercase tracking-widest mb-6 text-sm">Menu</h4>
+            <h4 className="text-white font-bold uppercase tracking-widest mb-6 text-sm">{t.menu}</h4>
             <ul className="space-y-4">
-              <li><a href="#why" className="text-muted-foreground hover:text-primary transition-colors">A GLX</a></li>
-              <li><a href="#what" className="text-muted-foreground hover:text-primary transition-colors">O Que Fazemos</a></li>
-              <li><a href="#how" className="text-muted-foreground hover:text-primary transition-colors">Método</a></li>
-              <li><a href="#cases" className="text-muted-foreground hover:text-primary transition-colors">Cases</a></li>
+              <li><a href="#why" className="text-muted-foreground hover:text-primary transition-colors">{t.menuItems.about}</a></li>
+              <li><a href="#what" className="text-muted-foreground hover:text-primary transition-colors">{t.menuItems.services}</a></li>
+              <li><a href="#how" className="text-muted-foreground hover:text-primary transition-colors">{t.menuItems.method}</a></li>
+              <li><a href="#cases" className="text-muted-foreground hover:text-primary transition-colors">{t.menuItems.cases}</a></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="text-white font-bold uppercase tracking-widest mb-6 text-sm">Contato</h4>
+            <h4 className="text-white font-bold uppercase tracking-widest mb-6 text-sm">{t.contact}</h4>
             <ul className="space-y-4 mb-6">
               <li className="flex items-center gap-3 text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
@@ -66,18 +119,18 @@ export default function Footer() {
               className="w-full border-white/10 hover:bg-white/5 text-white rounded-none"
               onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             >
-              Agendar Reunião
+              {t.scheduleBtn}
             </Button>
           </div>
         </div>
         
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">
-            2026 GLX Partners Enablement LTDA. CNPJ 63944929/000199. Todos os direitos reservados.
+            {t.copyright}
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-xs text-muted-foreground hover:text-white transition-colors">Privacidade</a>
-            <a href="#" className="text-xs text-muted-foreground hover:text-white transition-colors">Termos</a>
+            <a href="#" className="text-xs text-muted-foreground hover:text-white transition-colors">{t.privacy}</a>
+            <a href="#" className="text-xs text-muted-foreground hover:text-white transition-colors">{t.terms}</a>
           </div>
         </div>
       </div>

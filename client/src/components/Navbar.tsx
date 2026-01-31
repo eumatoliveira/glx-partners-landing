@@ -1,20 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Globe } from "lucide-react";
+import { Globe, Check } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Language, languageNames } from "@/i18n";
 
 export default function Navbar() {
+  const { language, setLanguage, t } = useLanguage();
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const languages: Language[] = ["pt", "en", "es"];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
@@ -29,13 +35,13 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center gap-8">
           <button onClick={() => scrollToSection("why")} className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide">
-            A GLX
+            {t.nav.about}
           </button>
           <button onClick={() => scrollToSection("what")} className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide">
-            O Que Fazemos
+            {t.nav.services}
           </button>
           <button onClick={() => scrollToSection("cases")} className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide">
-            Cases
+            {t.nav.cases}
           </button>
         </div>
 
@@ -47,9 +53,16 @@ export default function Navbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-black/90 border-white/10 text-white">
-              <DropdownMenuItem className="hover:bg-white/10 cursor-pointer">Português</DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-white/10 cursor-pointer">English</DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-white/10 cursor-pointer">Español</DropdownMenuItem>
+              {languages.map((lang) => (
+                <DropdownMenuItem 
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className="hover:bg-white/10 cursor-pointer flex items-center justify-between"
+                >
+                  {languageNames[lang]}
+                  {language === lang && <Check className="h-4 w-4 ml-2 text-primary" />}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -58,14 +71,14 @@ export default function Navbar() {
               variant="outline"
               className="hidden md:flex border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider rounded-none px-6"
             >
-              Área de Membros
+              {t.nav.membersArea}
             </Button>
           </Link>
           <Button 
             onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-6"
           >
-            Agendar Diagnóstico
+            {t.nav.schedule}
           </Button>
         </div>
       </div>

@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Hero() {
+  const { t } = useLanguage();
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -32,21 +34,21 @@ export default function Hero() {
           className="order-1 lg:order-1"
         >
           <div className="inline-block mb-8 px-0 py-1 border-b border-primary text-white text-sm font-bold tracking-[0.2em] uppercase">
-            Consultoria de Performance em Saúde
+            {t.hero.badge}
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-tight text-white">
-            Growth.<br />
-            Lean.<br />
-            <span className="text-white/50">Execution.</span>
+            {t.hero.title1}<br />
+            {t.hero.title2}<br />
+            <span className="text-white/50">{t.hero.title3}</span>
           </h1>
           
           <p className="text-2xl text-white font-medium mb-6 leading-relaxed">
-            Transformamos sua operação em <span className="text-primary">Lucro Líquido Previsível</span>.
+            {t.hero.subtitle} <span className="text-primary">{t.hero.subtitleHighlight}</span>.
           </p>
 
           <p className="text-lg text-muted-foreground mb-10 max-w-lg leading-relaxed font-light">
-            Dashboards + Rotina de Gestão + Processos + Automações + IA + Treinamento + Metas. Tudo integrado em um único sistema.
+            {t.hero.description}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-0">
@@ -55,7 +57,7 @@ export default function Hero() {
               className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wider rounded-none h-16 px-10 text-base transition-all duration-300 w-full sm:w-auto"
               onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             >
-              Agendar Diagnóstico
+              {t.hero.cta}
             </Button>
             <Button 
               variant="outline" 
@@ -63,7 +65,7 @@ export default function Hero() {
               className="border-white/10 hover:bg-white/5 text-white font-medium uppercase tracking-wider rounded-none h-16 px-10 text-base backdrop-blur-sm w-full sm:w-auto"
               onClick={() => document.getElementById('cases')?.scrollIntoView({behavior: 'smooth'})}
             >
-              Ver Cases
+              {t.hero.secondary}
             </Button>
           </div>
         </motion.div>

@@ -4,10 +4,107 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useLocation } from "wouter";
 import { LogOut, BarChart3, FileText, Users, Settings, TrendingUp, Calendar, Bell } from "lucide-react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Dashboard() {
+  const { language } = useLanguage();
   const { user, isAuthenticated, loading, logout } = useAuth();
   const [, setLocation] = useLocation();
+
+  const content = {
+    pt: {
+      loading: "Carregando...",
+      welcome: "Bem-vindo de volta,",
+      partner: "Parceiro",
+      summary: "Aqui está um resumo da performance da sua clínica.",
+      quickAccess: "Acesso Rápido",
+      user: "Usuário",
+      stats: {
+        revenue: "Faturamento Mensal",
+        margin: "Margem de Lucro",
+        patients: "Novos Pacientes",
+        returnRate: "Taxa de Retorno"
+      },
+      actions: [
+        { title: "Dashboards", description: "Visualize seus KPIs em tempo real" },
+        { title: "Relatórios", description: "Acesse relatórios de performance" },
+        { title: "Equipe", description: "Gerencie sua equipe" },
+        { title: "Agenda", description: "Próximas reuniões e eventos" }
+      ],
+      comingSoon: {
+        title: "Em Breve: Novos Recursos",
+        description: "Estamos trabalhando em novos recursos exclusivos para parceiros GLX, incluindo:",
+        features: [
+          "Dashboards interativos em tempo real",
+          "Relatórios automatizados por e-mail",
+          "Biblioteca de materiais exclusivos",
+          "Chat de suporte direto com consultores"
+        ]
+      }
+    },
+    en: {
+      loading: "Loading...",
+      welcome: "Welcome back,",
+      partner: "Partner",
+      summary: "Here's a summary of your clinic's performance.",
+      quickAccess: "Quick Access",
+      user: "User",
+      stats: {
+        revenue: "Monthly Revenue",
+        margin: "Profit Margin",
+        patients: "New Patients",
+        returnRate: "Return Rate"
+      },
+      actions: [
+        { title: "Dashboards", description: "View your KPIs in real time" },
+        { title: "Reports", description: "Access performance reports" },
+        { title: "Team", description: "Manage your team" },
+        { title: "Calendar", description: "Upcoming meetings and events" }
+      ],
+      comingSoon: {
+        title: "Coming Soon: New Features",
+        description: "We're working on new exclusive features for GLX partners, including:",
+        features: [
+          "Real-time interactive dashboards",
+          "Automated email reports",
+          "Exclusive materials library",
+          "Direct support chat with consultants"
+        ]
+      }
+    },
+    es: {
+      loading: "Cargando...",
+      welcome: "Bienvenido de vuelta,",
+      partner: "Socio",
+      summary: "Aquí tienes un resumen del rendimiento de tu clínica.",
+      quickAccess: "Acceso Rápido",
+      user: "Usuario",
+      stats: {
+        revenue: "Facturación Mensual",
+        margin: "Margen de Ganancia",
+        patients: "Nuevos Pacientes",
+        returnRate: "Tasa de Retorno"
+      },
+      actions: [
+        { title: "Dashboards", description: "Visualiza tus KPIs en tiempo real" },
+        { title: "Informes", description: "Accede a informes de rendimiento" },
+        { title: "Equipo", description: "Gestiona tu equipo" },
+        { title: "Agenda", description: "Próximas reuniones y eventos" }
+      ],
+      comingSoon: {
+        title: "Próximamente: Nuevas Funciones",
+        description: "Estamos trabajando en nuevas funciones exclusivas para socios GLX, incluyendo:",
+        features: [
+          "Dashboards interactivos en tiempo real",
+          "Informes automatizados por e-mail",
+          "Biblioteca de materiales exclusivos",
+          "Chat de soporte directo con consultores"
+        ]
+      }
+    }
+  };
+
+  const t = content[language];
 
   // Redireciona para login se não estiver autenticado
   if (!loading && !isAuthenticated) {
@@ -20,7 +117,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando...</p>
+          <p className="text-muted-foreground">{t.loading}</p>
         </div>
       </div>
     );
@@ -32,17 +129,17 @@ export default function Dashboard() {
   };
 
   const quickActions = [
-    { icon: BarChart3, title: "Dashboards", description: "Visualize seus KPIs em tempo real", color: "bg-blue-500/10 text-blue-500" },
-    { icon: FileText, title: "Relatórios", description: "Acesse relatórios de performance", color: "bg-green-500/10 text-green-500" },
-    { icon: Users, title: "Equipe", description: "Gerencie sua equipe", color: "bg-purple-500/10 text-purple-500" },
-    { icon: Calendar, title: "Agenda", description: "Próximas reuniões e eventos", color: "bg-orange-500/10 text-orange-500" },
+    { icon: BarChart3, title: t.actions[0].title, description: t.actions[0].description, color: "bg-blue-500/10 text-blue-500" },
+    { icon: FileText, title: t.actions[1].title, description: t.actions[1].description, color: "bg-green-500/10 text-green-500" },
+    { icon: Users, title: t.actions[2].title, description: t.actions[2].description, color: "bg-purple-500/10 text-purple-500" },
+    { icon: Calendar, title: t.actions[3].title, description: t.actions[3].description, color: "bg-orange-500/10 text-orange-500" },
   ];
 
   const stats = [
-    { label: "Faturamento Mensal", value: "R$ 450.000", change: "+12%", positive: true },
-    { label: "Margem de Lucro", value: "28%", change: "+3%", positive: true },
-    { label: "Novos Pacientes", value: "156", change: "+8%", positive: true },
-    { label: "Taxa de Retorno", value: "72%", change: "-2%", positive: false },
+    { label: t.stats.revenue, value: "R$ 450.000", change: "+12%", positive: true },
+    { label: t.stats.margin, value: "28%", change: "+3%", positive: true },
+    { label: t.stats.patients, value: "156", change: "+8%", positive: true },
+    { label: t.stats.returnRate, value: "72%", change: "-2%", positive: false },
   ];
 
   return (
@@ -63,7 +160,7 @@ export default function Dashboard() {
             </Button>
             <div className="flex items-center gap-3 pl-4 border-l border-border/40">
               <div className="text-right">
-                <p className="text-sm font-medium text-white">{user?.name || "Usuário"}</p>
+                <p className="text-sm font-medium text-white">{user?.name || t.user}</p>
                 <p className="text-xs text-muted-foreground">{user?.email || ""}</p>
               </div>
               <Button 
@@ -89,10 +186,10 @@ export default function Dashboard() {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-white mb-2">
-            Bem-vindo de volta, {user?.name?.split(" ")[0] || "Parceiro"}!
+            {t.welcome} {user?.name?.split(" ")[0] || t.partner}!
           </h1>
           <p className="text-muted-foreground">
-            Aqui está um resumo da performance da sua clínica.
+            {t.summary}
           </p>
         </motion.div>
 
@@ -122,7 +219,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <h2 className="text-xl font-bold text-white mb-4">Acesso Rápido</h2>
+        <h2 className="text-xl font-bold text-white mb-4">{t.quickAccess}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {quickActions.map((action, index) => (
             <motion.div
@@ -147,29 +244,19 @@ export default function Dashboard() {
         {/* Coming Soon Notice */}
         <Card className="bg-primary/10 border-primary/30">
           <CardHeader>
-            <CardTitle className="text-white">Em Breve: Novos Recursos</CardTitle>
+            <CardTitle className="text-white">{t.comingSoon.title}</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Estamos trabalhando em novos recursos exclusivos para parceiros GLX, incluindo:
+              {t.comingSoon.description}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                Dashboards interativos em tempo real
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                Relatórios automatizados por e-mail
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                Biblioteca de materiais exclusivos
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                Chat de suporte direto com consultores
-              </li>
+              {t.comingSoon.features.map((feature, index) => (
+                <li key={index} className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  {feature}
+                </li>
+              ))}
             </ul>
           </CardContent>
         </Card>

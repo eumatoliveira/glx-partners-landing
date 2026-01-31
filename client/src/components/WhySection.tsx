@@ -1,6 +1,44 @@
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function WhySection() {
+  const { language } = useLanguage();
+
+  const content = {
+    pt: {
+      title1: "Não vendemos marketing.",
+      title2: "Construímos sistemas de crescimento.",
+      subtitle: "Em um mercado cheio de \"gurus\" e fórmulas genéricas, a GLX se diferencia pela engenharia. Nossa abordagem combina crescimento guiado por dados, otimização de processos e automação inteligente.",
+      items: [
+        { title: "Growth Strategy", desc: "Aquisição de clientes com CAC controlado e previsibilidade de receita." },
+        { title: "Lean Six Sigma", desc: "Eliminação implacável de desperdícios e variabilidade operacional." },
+        { title: "Inteligência Artificial", desc: "Automação de processos repetitivos para escalar sem inflar a equipe." }
+      ]
+    },
+    en: {
+      title1: "We don't sell marketing.",
+      title2: "We build growth systems.",
+      subtitle: "In a market full of \"gurus\" and generic formulas, GLX stands out through engineering. Our approach combines data-driven growth, process optimization, and intelligent automation.",
+      items: [
+        { title: "Growth Strategy", desc: "Customer acquisition with controlled CAC and revenue predictability." },
+        { title: "Lean Six Sigma", desc: "Relentless elimination of waste and operational variability." },
+        { title: "Artificial Intelligence", desc: "Automation of repetitive processes to scale without inflating the team." }
+      ]
+    },
+    es: {
+      title1: "No vendemos marketing.",
+      title2: "Construimos sistemas de crecimiento.",
+      subtitle: "En un mercado lleno de \"gurús\" y fórmulas genéricas, GLX se diferencia por la ingeniería. Nuestro enfoque combina crecimiento guiado por datos, optimización de procesos y automatización inteligente.",
+      items: [
+        { title: "Growth Strategy", desc: "Adquisición de clientes con CAC controlado y previsibilidad de ingresos." },
+        { title: "Lean Six Sigma", desc: "Eliminación implacable de desperdicios y variabilidad operacional." },
+        { title: "Inteligencia Artificial", desc: "Automatización de procesos repetitivos para escalar sin inflar el equipo." }
+      ]
+    }
+  };
+
+  const t = content[language];
+
   return (
     <section id="why" className="py-32 bg-background relative border-t border-white/5">
       <div className="container">
@@ -11,8 +49,8 @@ export default function WhySection() {
             viewport={{ once: true }}
             className="text-3xl md:text-5xl font-bold mb-8 leading-tight text-white"
           >
-            Não vendemos marketing.<br />
-            <span className="text-white/40">Construímos sistemas de crescimento.</span>
+            {t.title1}<br />
+            <span className="text-white/40">{t.title2}</span>
           </motion.h2>
           
           <motion.p 
@@ -22,26 +60,12 @@ export default function WhySection() {
             transition={{ delay: 0.2 }}
             className="text-xl text-muted-foreground leading-relaxed"
           >
-            Em um mercado cheio de "gurus" e fórmulas genéricas, a GLX se diferencia pela engenharia. 
-            Nossa abordagem combina crescimento guiado por dados, otimização de processos e automação inteligente.
+            {t.subtitle}
           </motion.p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              title: "Growth Strategy",
-              desc: "Aquisição de clientes com CAC controlado e previsibilidade de receita."
-            },
-            {
-              title: "Lean Six Sigma",
-              desc: "Eliminação implacável de desperdícios e variabilidade operacional."
-            },
-            {
-              title: "Inteligência Artificial",
-              desc: "Automação de processos repetitivos para escalar sem inflar a equipe."
-            }
-          ].map((item, index) => (
+          {t.items.map((item, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}

@@ -1,11 +1,5 @@
 import { motion } from "framer-motion";
-
-const stats = [
-  { value: "+35%", label: "Eficiência Operacional" },
-  { value: "3x", label: "ROI Médio em 12 Meses" },
-  { value: "-40%", label: "Redução de No-Show" },
-  { value: "100%", label: "Decisões Baseadas em Dados" }
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const clientLogos = [
   "/images/logo-maktub-new.png",
@@ -17,6 +11,15 @@ const clientLogos = [
 ];
 
 export default function ImpactSection() {
+  const { t, language } = useLanguage();
+
+  const stats = [
+    { value: "+35%", label: language === "pt" ? "Eficiência Operacional" : language === "en" ? "Operational Efficiency" : "Eficiencia Operacional" },
+    { value: "3x", label: language === "pt" ? "ROI Médio em 12 Meses" : language === "en" ? "Average ROI in 12 Months" : "ROI Promedio en 12 Meses" },
+    { value: "-40%", label: language === "pt" ? "Redução de No-Show" : language === "en" ? "No-Show Reduction" : "Reducción de No-Show" },
+    { value: "100%", label: language === "pt" ? "Decisões Baseadas em Dados" : language === "en" ? "Data-Driven Decisions" : "Decisiones Basadas en Datos" }
+  ];
+
   return (
     <section id="cases" className="py-24 bg-card border-y border-white/5 overflow-hidden">
       <div className="container mb-24">
