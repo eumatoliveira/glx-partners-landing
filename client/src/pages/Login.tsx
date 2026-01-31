@@ -40,7 +40,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Lado Esquerdo - Imagem/Branding */}
+      {/* Lado Esquerdo - Imagem/Branding (Desktop) */}
       <div className="hidden lg:flex w-1/2 bg-black relative overflow-hidden items-center justify-center">
         <div className="absolute inset-0 opacity-40">
            <img 
@@ -69,13 +69,17 @@ export default function Login() {
       </div>
 
       {/* Lado Direito - Formulário */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 relative">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 md:p-8 relative bg-background">
+        {/* Mobile Header com Logo */}
+        <div className="lg:hidden w-full flex flex-col items-center mb-8">
+          <img src="/images/logo-white-on-black.jpg" alt="GLX Partners" className="h-24 mb-6 mix-blend-screen" />
+        </div>
         <Button 
           variant="ghost" 
-          className="absolute top-8 left-8 text-muted-foreground hover:text-white"
+          className="absolute top-4 left-4 md:top-8 md:left-8 text-muted-foreground hover:text-white z-20"
           onClick={() => setLocation("/")}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Home
+          <ArrowLeft className="mr-2 h-4 w-4" /> <span className="hidden md:inline">Voltar para Home</span><span className="md:hidden">Voltar</span>
         </Button>
 
         <div className="w-full max-w-md space-y-8">
