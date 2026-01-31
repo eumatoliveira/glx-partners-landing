@@ -66,3 +66,12 @@
 - [x] Adicionar rota /planos no App.tsx
 - [x] Vincular botão "Conheça nossos planos" à nova página
 - [x] Adicionar traduções da página de Planos (PT, EN, ES)
+
+## Versão 6.7 - Reorganização da Página de Planos
+
+- [x] Reorganizar estrutura: 2 planos principais (GLX Partners e GLX Control Tower)
+- [x] Plano 1 GLX Partners: card único com Diagnóstico 15D + Setup (Start 60D/Pro 90D) + Gestão Contínua 12-24M
+- [x] Plano 2 GLX Control Tower: 3 tiers (Essentials, Pro, Enterprise)
+- [x] 1 espaço para vídeo por plano
+- [x] Botão único "Solicitar Proposta" para cada plano
+- [x] Manter descrições e design/cores do site

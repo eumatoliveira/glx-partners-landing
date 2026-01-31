@@ -243,6 +243,7 @@ export const pt = {
     scheduleCall: "AGENDAR CONVERSA",
     requestProposal: "SOLICITAR PROPOSTA",
     videoPlaceholder: "Clique para ver o vídeo explicativo",
+    videoComingSoon: "Vídeo em breve",
     // Final CTA
     finalTitle: "Pronto para transformar sua clínica?",
     finalSubtitle: "Agende um diagnóstico gratuito e descubra qual plano é ideal para o momento da sua operação.",

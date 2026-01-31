@@ -245,6 +245,7 @@ export const es: Translations = {
     scheduleCall: "AGENDAR LLAMADA",
     requestProposal: "SOLICITAR PROPUESTA",
     videoPlaceholder: "Haz clic para ver el video explicativo",
+    videoComingSoon: "Video próximamente",
     // Final CTA
     finalTitle: "¿Listo para transformar tu clínica?",
     finalSubtitle: "Agenda un diagnóstico gratuito y descubre cuál plan es ideal para tu operación.",

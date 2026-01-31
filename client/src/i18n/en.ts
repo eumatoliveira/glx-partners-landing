@@ -245,6 +245,7 @@ export const en: Translations = {
     scheduleCall: "SCHEDULE CALL",
     requestProposal: "REQUEST PROPOSAL",
     videoPlaceholder: "Click to watch the explainer video",
+    videoComingSoon: "Video coming soon",
     // Final CTA
     finalTitle: "Ready to transform your clinic?",
     finalSubtitle: "Schedule a free diagnosis and find out which plan is ideal for your operation.",
