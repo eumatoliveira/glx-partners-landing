@@ -18,6 +18,7 @@ import {
   AdminAuditLogs,
   AdminErrors,
   AdminFeatureFlags,
+  AdminSystem,
 } from "./pages/admin";
 import {
   HomeCEO,
@@ -74,7 +75,7 @@ function Router() {
         <AdminRoute><AdminUsers /></AdminRoute>
       </Route>
       <Route path={"/admin/system"}>
-        <AdminRoute><AdminErrors /></AdminRoute>
+        <AdminRoute><AdminSystem /></AdminRoute>
       </Route>
       <Route path={"/admin/settings"}>
         <AdminRoute><AdminDashboard /></AdminRoute>
