@@ -57,9 +57,9 @@ export default function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <img src="/images/logo-white-on-black.jpg" alt="GLX Partners" className="h-40 mb-10 mix-blend-screen" />
+            <img src="/images/logo-white-on-black.jpg" alt="GLX Partners" className="h-40 mb-10 mix-blend-screen" style={{width: '180px', height: '180px'}} />
             <h1 className="text-4xl font-bold text-white mb-6 leading-tight">
-              Acesso Exclusivo para <span className="text-primary">Parceiros</span>.
+              Acesso Exclusivo para <span className="text-primary">Parceiros.</span>
             </h1>
             <p className="text-muted-foreground text-lg">
               Acesse seus dashboards, relatórios de performance e materiais exclusivos da metodologia GLX.
