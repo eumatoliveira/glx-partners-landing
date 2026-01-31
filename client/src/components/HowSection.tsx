@@ -78,13 +78,7 @@ export default function HowSection() {
               />
             </div>
             
-            {/* Certifications Badge */}
-            <div className="absolute -bottom-8 -right-8 bg-white text-black p-6 max-w-xs shadow-xl z-20">
-              <p className="font-bold uppercase tracking-wider text-xs mb-2 border-b border-black/10 pb-2">Certificações</p>
-              <p className="font-medium text-sm">
-                Equipe certificada Black Belt e Master Black Belt pelos maiores conselhos de Lean Health do mundo.
-              </p>
-            </div>
+
           </div>
         </div>
       </div>
