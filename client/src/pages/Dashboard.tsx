@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import { LogOut, BarChart3, FileText, Users, Settings, TrendingUp, Calendar, Bell } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEffect } from "react";
 
 export default function Dashboard() {
   const { language } = useLanguage();
@@ -107,8 +108,14 @@ export default function Dashboard() {
   const t = content[language];
 
   // Redireciona para login se não estiver autenticado
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      setLocation("/login");
+    }
+  }, [loading, isAuthenticated, setLocation]);
+
+  // Retorna null enquanto verifica autenticação ou se não autenticado
   if (!loading && !isAuthenticated) {
-    setLocation("/login");
     return null;
   }
 

@@ -264,3 +264,8 @@
 ### Feature Flags (God Mode)
 - [x] Ativar/desativar funcionalidades por cliente
 - [x] Interface de gerenciamento de flags
+
+## Versão 11.1 - Correção de Erro no Dashboard
+
+- [x] Corrigir erro "Cannot update a component while rendering" no Dashboard
+- [x] Mover chamada de navegação para useEffect
