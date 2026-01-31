@@ -17,7 +17,7 @@ export const es: Translations = {
     title2: "Lean.",
     title3: "Execution.",
     subtitle: "Transformamos tu operación en",
-    subtitleHighlight: "Beneficio Neto Predecible",
+    subtitleHighlight: "Lucro Líquido Predecible",
     description: "Dashboards + Rutina de Gestión + Procesos + Automatizaciones + IA + Capacitación + Metas. Todo integrado en un único sistema.",
     cta: "AGENDAR DIAGNÓSTICO",
     secondary: "VER CASOS",
