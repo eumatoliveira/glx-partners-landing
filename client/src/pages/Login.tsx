@@ -253,7 +253,7 @@ export default function Login() {
               {t.notClient} <a href="http://www.calendly.com/glxpartners" target="_blank" rel="noopener noreferrer" className="text-white hover:underline font-medium">{t.schedule}</a>
             </p>
             <p>
-              <a href="/#what" className="text-primary hover:underline font-medium">{t.plans}</a>
+              <a href="/planos" className="text-primary hover:underline font-medium">{t.plans}</a>
             </p>
           </div>
         </div>

@@ -54,3 +54,15 @@
 - [ ] Conectar formulário de contato a CRM
 - [ ] Implementar recuperação de senha
 - [ ] Adicionar analytics (Google Analytics)
+
+## Versão 6.6 - Página de Planos
+
+- [x] Criar página de Planos (Plans.tsx)
+- [x] Seção GLX Partners (Diagnóstico, Setup Start, Setup Pro, Gestão Contínua)
+- [x] Seção GLX Control Tower (Setup, Gestão Contínua)
+- [x] Planos Control Tower (Essentials, Pro, Enterprise)
+- [x] Espaço para vídeos explicativos em cada plano
+- [x] Design em cards/slides com animações
+- [x] Adicionar rota /planos no App.tsx
+- [x] Vincular botão "Conheça nossos planos" à nova página
+- [x] Adicionar traduções da página de Planos (PT, EN, ES)
