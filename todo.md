@@ -353,3 +353,40 @@
 - [x] Revisar todas as telas para formato mobile
 - [x] Ajustar grids e cards para telas pequenas
 - [x] Testar em diferentes resoluções
+
+## Versão 14.0 - Sistema de Gestão de Dados do Dashboard
+
+### Schema do Banco de Dados
+- [x] Criar tabela dashboard_clients para clientes
+- [x] Criar tabela ceo_metrics para métricas do CEO
+- [x] Criar tabela financial_data para dados financeiros
+- [x] Criar tabela operations_data para dados operacionais
+- [x] Criar tabela waste_data para dados de desperdício
+- [x] Criar tabela marketing_data para dados de marketing
+- [x] Criar tabela quality_data para dados de qualidade
+- [x] Criar tabela people_data para dados de RH
+- [x] Criar tabela data_governance para governança de dados
+- [x] Criar tabela andon_alerts para alertas
+- [x] Criar tabela data_imports para histórico de importações
+
+### Painel Admin - Gestão Manual
+- [x] Criar página de gestão de métricas no admin (/admin/data-management)
+- [x] Formulários para editar cada KPI (CEO Scorecard implementado)
+- [x] Seletor de cliente
+- [x] Criação de novos clientes
+
+### Upload de Planilha
+- [x] Implementar upload de arquivos Excel/CSV
+- [x] Parser para diferentes formatos de planilha (xlsx)
+- [x] Preview dos dados antes de importar
+- [x] Seleção de categoria de dados
+
+### Processamento com IA
+- [x] Interface para colar texto livre
+- [x] Extração automática de métricas via LLM
+- [x] Exemplos de texto para facilitar uso
+- [x] Endpoint processWithAI no servidor
+
+### Integração com Dashboard
+- [x] Endpoint clientDashboard.getMyDashboard para clientes
+- [x] Estrutura de dados preparada para conexão

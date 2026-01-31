@@ -149,3 +149,356 @@ export const serviceStatus = mysqlTable("service_status", {
 
 export type ServiceStatus = typeof serviceStatus.$inferSelect;
 export type InsertServiceStatus = typeof serviceStatus.$inferInsert;
+
+
+/**
+ * =====================================================
+ * DASHBOARD CLIENTE - MÉTRICAS E DADOS
+ * =====================================================
+ */
+
+/**
+ * Clientes/Empresas que usam o dashboard
+ */
+export const clients = mysqlTable("clients", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  logo: text("logo"),
+  industry: varchar("industry", { length: 100 }),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Client = typeof clients.$inferSelect;
+export type InsertClient = typeof clients.$inferInsert;
+
+/**
+ * Métricas do CEO Scorecard
+ */
+export const ceoMetrics = mysqlTable("ceo_metrics", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(), // "2026-01", "2026-Q1", etc.
+  
+  // KPIs principais
+  faturamento: decimal("faturamento", { precision: 15, scale: 2 }),
+  faturamentoVariacao: decimal("faturamentoVariacao", { precision: 5, scale: 2 }),
+  ebitda: decimal("ebitda", { precision: 15, scale: 2 }),
+  ebitdaVariacao: decimal("ebitdaVariacao", { precision: 5, scale: 2 }),
+  npsScore: int("npsScore"),
+  npsVariacao: decimal("npsVariacao", { precision: 5, scale: 2 }),
+  ocupacao: decimal("ocupacao", { precision: 5, scale: 2 }),
+  ocupacaoVariacao: decimal("ocupacaoVariacao", { precision: 5, scale: 2 }),
+  
+  // Dados de forecast (JSON array)
+  forecastData: json("forecastData"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CeoMetric = typeof ceoMetrics.$inferSelect;
+export type InsertCeoMetric = typeof ceoMetrics.$inferInsert;
+
+/**
+ * Alertas Andon
+ */
+export const andonAlerts = mysqlTable("andon_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  severity: mysqlEnum("severity", ["critical", "warning", "info", "success"]).default("warning").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  actionLabel: varchar("actionLabel", { length: 100 }),
+  actionUrl: varchar("actionUrl", { length: 255 }),
+  isResolved: boolean("isResolved").default(false).notNull(),
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AndonAlert = typeof andonAlerts.$inferSelect;
+export type InsertAndonAlert = typeof andonAlerts.$inferInsert;
+
+/**
+ * Dados Financeiros
+ */
+export const financialData = mysqlTable("financial_data", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(),
+  
+  // Receita
+  receitaBruta: decimal("receitaBruta", { precision: 15, scale: 2 }),
+  impostos: decimal("impostos", { precision: 15, scale: 2 }),
+  receitaLiquida: decimal("receitaLiquida", { precision: 15, scale: 2 }),
+  
+  // Custos
+  custosPessoal: decimal("custosPessoal", { precision: 15, scale: 2 }),
+  custosInsumos: decimal("custosInsumos", { precision: 15, scale: 2 }),
+  custosOperacionais: decimal("custosOperacionais", { precision: 15, scale: 2 }),
+  custosMarketing: decimal("custosMarketing", { precision: 15, scale: 2 }),
+  
+  // Margens
+  margemBruta: decimal("margemBruta", { precision: 5, scale: 2 }),
+  margemOperacional: decimal("margemOperacional", { precision: 5, scale: 2 }),
+  margemLiquida: decimal("margemLiquida", { precision: 5, scale: 2 }),
+  
+  // Caixa
+  saldoCaixa: decimal("saldoCaixa", { precision: 15, scale: 2 }),
+  fluxoCaixaOperacional: decimal("fluxoCaixaOperacional", { precision: 15, scale: 2 }),
+  
+  // Margem por hora clínica (JSON array)
+  margemPorHoraData: json("margemPorHoraData"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FinancialData = typeof financialData.$inferSelect;
+export type InsertFinancialData = typeof financialData.$inferInsert;
+
+/**
+ * Dados Operacionais
+ */
+export const operationsData = mysqlTable("operations_data", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(),
+  
+  // OEE
+  oeeGeral: decimal("oeeGeral", { precision: 5, scale: 2 }),
+  disponibilidade: decimal("disponibilidade", { precision: 5, scale: 2 }),
+  performance: decimal("performance", { precision: 5, scale: 2 }),
+  qualidade: decimal("qualidade", { precision: 5, scale: 2 }),
+  
+  // Ocupação
+  taxaOcupacao: decimal("taxaOcupacao", { precision: 5, scale: 2 }),
+  tempoMedioEspera: int("tempoMedioEspera"), // em minutos
+  atendimentosDia: int("atendimentosDia"),
+  
+  // Takt Time vs Cycle Time (JSON array)
+  taktCycleData: json("taktCycleData"),
+  
+  // Ocupação das salas (JSON array)
+  ocupacaoSalasData: json("ocupacaoSalasData"),
+  
+  // Gargalos (JSON array)
+  gargalosData: json("gargalosData"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OperationsData = typeof operationsData.$inferSelect;
+export type InsertOperationsData = typeof operationsData.$inferInsert;
+
+/**
+ * Dados de No-show e Waste
+ */
+export const wasteData = mysqlTable("waste_data", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(),
+  
+  // KPIs
+  noShowRate: decimal("noShowRate", { precision: 5, scale: 2 }),
+  noShowVariacao: decimal("noShowVariacao", { precision: 5, scale: 2 }),
+  financialLoss: decimal("financialLoss", { precision: 15, scale: 2 }),
+  idleCapacityHours: int("idleCapacityHours"),
+  efficiencyScore: int("efficiencyScore"),
+  
+  // Heatmap de no-shows (JSON array)
+  heatmapData: json("heatmapData"),
+  
+  // Waste breakdown (JSON array)
+  wasteBreakdownData: json("wasteBreakdownData"),
+  
+  // Department impact (JSON array)
+  departmentImpactData: json("departmentImpactData"),
+  
+  // Recovery actions (JSON array)
+  recoveryActionsData: json("recoveryActionsData"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WasteData = typeof wasteData.$inferSelect;
+export type InsertWasteData = typeof wasteData.$inferInsert;
+
+/**
+ * Dados de Marketing e Growth
+ */
+export const marketingData = mysqlTable("marketing_data", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(),
+  
+  // KPIs de Marketing
+  totalSpend: decimal("totalSpend", { precision: 15, scale: 2 }),
+  spendVariacao: decimal("spendVariacao", { precision: 5, scale: 2 }),
+  costPerLead: decimal("costPerLead", { precision: 10, scale: 2 }),
+  cplVariacao: decimal("cplVariacao", { precision: 5, scale: 2 }),
+  acquisitionCost: decimal("acquisitionCost", { precision: 10, scale: 2 }),
+  cacVariacao: decimal("cacVariacao", { precision: 5, scale: 2 }),
+  marketingRoi: decimal("marketingRoi", { precision: 7, scale: 2 }),
+  roiVariacao: decimal("roiVariacao", { precision: 5, scale: 2 }),
+  
+  // Funil comercial (JSON array)
+  funnelData: json("funnelData"),
+  
+  // ROI forecast vs actual (JSON array)
+  roiForecastData: json("roiForecastData"),
+  
+  // Channel performance (JSON array)
+  channelPerformanceData: json("channelPerformanceData"),
+  
+  // Insights
+  bestChannel: varchar("bestChannel", { length: 100 }),
+  bestChannelRoi: decimal("bestChannelRoi", { precision: 5, scale: 2 }),
+  channelToOptimize: varchar("channelToOptimize", { length: 100 }),
+  optimizeReason: text("optimizeReason"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type MarketingData = typeof marketingData.$inferSelect;
+export type InsertMarketingData = typeof marketingData.$inferInsert;
+
+/**
+ * Dados de Qualidade e NPS
+ */
+export const qualityData = mysqlTable("quality_data", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(),
+  
+  // NPS
+  npsScore: int("npsScore"),
+  npsRespostas: int("npsRespostas"),
+  promotores: decimal("promotores", { precision: 5, scale: 2 }),
+  passivos: decimal("passivos", { precision: 5, scale: 2 }),
+  detratores: decimal("detratores", { precision: 5, scale: 2 }),
+  
+  // Lean Six Sigma
+  dpmo: int("dpmo"),
+  sigmaLevel: decimal("sigmaLevel", { precision: 3, scale: 1 }),
+  cp: decimal("cp", { precision: 4, scale: 2 }),
+  cpk: decimal("cpk", { precision: 4, scale: 2 }),
+  firstPassYield: decimal("firstPassYield", { precision: 5, scale: 2 }),
+  
+  // Gráfico de controle (JSON array)
+  controlChartData: json("controlChartData"),
+  
+  // Feedback recente (JSON array)
+  feedbackData: json("feedbackData"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type QualityData = typeof qualityData.$inferSelect;
+export type InsertQualityData = typeof qualityData.$inferInsert;
+
+/**
+ * Dados de People/RH
+ */
+export const peopleData = mysqlTable("people_data", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(),
+  
+  // KPIs
+  headcount: int("headcount"),
+  headcountVariacao: decimal("headcountVariacao", { precision: 5, scale: 2 }),
+  turnover: decimal("turnover", { precision: 5, scale: 2 }),
+  turnoverVariacao: decimal("turnoverVariacao", { precision: 5, scale: 2 }),
+  absenteismo: decimal("absenteismo", { precision: 5, scale: 2 }),
+  absenteismoVariacao: decimal("absenteismoVariacao", { precision: 5, scale: 2 }),
+  revenuePerFte: decimal("revenuePerFte", { precision: 15, scale: 2 }),
+  revenueFteVariacao: decimal("revenueFteVariacao", { precision: 5, scale: 2 }),
+  
+  // Produtividade por mês (JSON array)
+  produtividadeData: json("produtividadeData"),
+  
+  // Turnover e absenteísmo por mês (JSON array)
+  turnoverAbsenteismoData: json("turnoverAbsenteismoData"),
+  
+  // Performance da equipe (JSON array)
+  teamPerformanceData: json("teamPerformanceData"),
+  
+  // Treinamento
+  certificacoes: int("certificacoes"),
+  horasTreinamento: int("horasTreinamento"),
+  metaAtingida: decimal("metaAtingida", { precision: 5, scale: 2 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PeopleData = typeof peopleData.$inferSelect;
+export type InsertPeopleData = typeof peopleData.$inferInsert;
+
+/**
+ * Dados de Data Governance
+ */
+export const dataGovernanceData = mysqlTable("data_governance_data", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(),
+  
+  // KPIs
+  registrosTotais: int("registrosTotais"),
+  dataQualityScore: int("dataQualityScore"),
+  lgpdCompliance: int("lgpdCompliance"),
+  issuesPendentes: int("issuesPendentes"),
+  
+  // Dimensões de qualidade
+  completude: int("completude"),
+  precisao: int("precisao"),
+  consistencia: int("consistencia"),
+  atualidade: int("atualidade"),
+  validade: int("validade"),
+  
+  // Integrações (JSON array)
+  integracoesData: json("integracoesData"),
+  
+  // Problemas de dados (JSON array)
+  problemasData: json("problemasData"),
+  
+  // Segurança
+  criptografia: int("criptografia"),
+  auditTrailEvents: int("auditTrailEvents"),
+  backupStatus: varchar("backupStatus", { length: 50 }),
+  lastBackup: timestamp("lastBackup"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DataGovernanceData = typeof dataGovernanceData.$inferSelect;
+export type InsertDataGovernanceData = typeof dataGovernanceData.$inferInsert;
+
+/**
+ * Histórico de importações de dados
+ */
+export const dataImports = mysqlTable("data_imports", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  userId: int("userId").references(() => users.id).notNull(),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileType: mysqlEnum("fileType", ["excel", "csv", "json", "manual", "ai"]).notNull(),
+  fileUrl: text("fileUrl"),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
+  recordsImported: int("recordsImported"),
+  errorMessage: text("errorMessage"),
+  metadata: json("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type DataImport = typeof dataImports.$inferSelect;
+export type InsertDataImport = typeof dataImports.$inferInsert;

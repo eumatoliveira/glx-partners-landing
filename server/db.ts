@@ -448,3 +448,554 @@ export async function updateUser(userId: number, updates: { name?: string; email
   
   await db.update(users).set(updates).where(eq(users.id, userId));
 }
+
+
+// ==================== DASHBOARD CLIENTE - DATA ACCESS ====================
+
+import {
+  clients,
+  InsertClient,
+  ceoMetrics,
+  InsertCeoMetric,
+  andonAlerts,
+  InsertAndonAlert,
+  financialData,
+  InsertFinancialData,
+  operationsData,
+  InsertOperationsData,
+  wasteData,
+  InsertWasteData,
+  marketingData,
+  InsertMarketingData,
+  qualityData,
+  InsertQualityData,
+  peopleData,
+  InsertPeopleData,
+  dataGovernanceData,
+  InsertDataGovernanceData,
+  dataImports,
+  InsertDataImport,
+} from "../drizzle/schema";
+
+// ==================== CLIENTS ====================
+
+export async function getAllClients() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(clients).orderBy(clients.name);
+}
+
+export async function getClientById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(clients).where(eq(clients.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getClientBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(clients).where(eq(clients.slug, slug)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createClient(client: InsertClient) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(clients).values(client);
+  return result;
+}
+
+export async function updateClient(id: number, updates: Partial<InsertClient>) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(clients).set(updates).where(eq(clients.id, id));
+}
+
+export async function deleteClient(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(clients).where(eq(clients.id, id));
+}
+
+// ==================== CEO METRICS ====================
+
+export async function getCeoMetrics(clientId: number, period?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (period) {
+    return await db.select().from(ceoMetrics)
+      .where(and(eq(ceoMetrics.clientId, clientId), eq(ceoMetrics.period, period)))
+      .orderBy(desc(ceoMetrics.createdAt));
+  }
+  
+  return await db.select().from(ceoMetrics)
+    .where(eq(ceoMetrics.clientId, clientId))
+    .orderBy(desc(ceoMetrics.createdAt));
+}
+
+export async function getLatestCeoMetrics(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(ceoMetrics)
+    .where(eq(ceoMetrics.clientId, clientId))
+    .orderBy(desc(ceoMetrics.createdAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertCeoMetrics(data: InsertCeoMetric) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Check if exists for this client and period
+  const existing = await db.select().from(ceoMetrics)
+    .where(and(eq(ceoMetrics.clientId, data.clientId), eq(ceoMetrics.period, data.period)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(ceoMetrics).set(data).where(eq(ceoMetrics.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(ceoMetrics).values(data);
+    return result[0].insertId;
+  }
+}
+
+// ==================== ANDON ALERTS ====================
+
+export async function getAndonAlerts(clientId: number, includeResolved = false) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (includeResolved) {
+    return await db.select().from(andonAlerts)
+      .where(eq(andonAlerts.clientId, clientId))
+      .orderBy(desc(andonAlerts.createdAt));
+  }
+  
+  return await db.select().from(andonAlerts)
+    .where(and(eq(andonAlerts.clientId, clientId), eq(andonAlerts.isResolved, false)))
+    .orderBy(desc(andonAlerts.createdAt));
+}
+
+export async function createAndonAlert(alert: InsertAndonAlert) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(andonAlerts).values(alert);
+}
+
+export async function resolveAndonAlert(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(andonAlerts).set({ isResolved: true, resolvedAt: new Date() }).where(eq(andonAlerts.id, id));
+}
+
+export async function deleteAndonAlert(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(andonAlerts).where(eq(andonAlerts.id, id));
+}
+
+// ==================== FINANCIAL DATA ====================
+
+export async function getFinancialData(clientId: number, period?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (period) {
+    return await db.select().from(financialData)
+      .where(and(eq(financialData.clientId, clientId), eq(financialData.period, period)))
+      .orderBy(desc(financialData.createdAt));
+  }
+  
+  return await db.select().from(financialData)
+    .where(eq(financialData.clientId, clientId))
+    .orderBy(desc(financialData.createdAt));
+}
+
+export async function getLatestFinancialData(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(financialData)
+    .where(eq(financialData.clientId, clientId))
+    .orderBy(desc(financialData.createdAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertFinancialData(data: InsertFinancialData) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(financialData)
+    .where(and(eq(financialData.clientId, data.clientId), eq(financialData.period, data.period)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(financialData).set(data).where(eq(financialData.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(financialData).values(data);
+    return result[0].insertId;
+  }
+}
+
+// ==================== OPERATIONS DATA ====================
+
+export async function getOperationsData(clientId: number, period?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (period) {
+    return await db.select().from(operationsData)
+      .where(and(eq(operationsData.clientId, clientId), eq(operationsData.period, period)))
+      .orderBy(desc(operationsData.createdAt));
+  }
+  
+  return await db.select().from(operationsData)
+    .where(eq(operationsData.clientId, clientId))
+    .orderBy(desc(operationsData.createdAt));
+}
+
+export async function getLatestOperationsData(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(operationsData)
+    .where(eq(operationsData.clientId, clientId))
+    .orderBy(desc(operationsData.createdAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertOperationsData(data: InsertOperationsData) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(operationsData)
+    .where(and(eq(operationsData.clientId, data.clientId), eq(operationsData.period, data.period)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(operationsData).set(data).where(eq(operationsData.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(operationsData).values(data);
+    return result[0].insertId;
+  }
+}
+
+// ==================== WASTE DATA ====================
+
+export async function getWasteData(clientId: number, period?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (period) {
+    return await db.select().from(wasteData)
+      .where(and(eq(wasteData.clientId, clientId), eq(wasteData.period, period)))
+      .orderBy(desc(wasteData.createdAt));
+  }
+  
+  return await db.select().from(wasteData)
+    .where(eq(wasteData.clientId, clientId))
+    .orderBy(desc(wasteData.createdAt));
+}
+
+export async function getLatestWasteData(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(wasteData)
+    .where(eq(wasteData.clientId, clientId))
+    .orderBy(desc(wasteData.createdAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertWasteData(data: InsertWasteData) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(wasteData)
+    .where(and(eq(wasteData.clientId, data.clientId), eq(wasteData.period, data.period)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(wasteData).set(data).where(eq(wasteData.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(wasteData).values(data);
+    return result[0].insertId;
+  }
+}
+
+// ==================== MARKETING DATA ====================
+
+export async function getMarketingData(clientId: number, period?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (period) {
+    return await db.select().from(marketingData)
+      .where(and(eq(marketingData.clientId, clientId), eq(marketingData.period, period)))
+      .orderBy(desc(marketingData.createdAt));
+  }
+  
+  return await db.select().from(marketingData)
+    .where(eq(marketingData.clientId, clientId))
+    .orderBy(desc(marketingData.createdAt));
+}
+
+export async function getLatestMarketingData(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(marketingData)
+    .where(eq(marketingData.clientId, clientId))
+    .orderBy(desc(marketingData.createdAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertMarketingData(data: InsertMarketingData) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(marketingData)
+    .where(and(eq(marketingData.clientId, data.clientId), eq(marketingData.period, data.period)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(marketingData).set(data).where(eq(marketingData.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(marketingData).values(data);
+    return result[0].insertId;
+  }
+}
+
+// ==================== QUALITY DATA ====================
+
+export async function getQualityData(clientId: number, period?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (period) {
+    return await db.select().from(qualityData)
+      .where(and(eq(qualityData.clientId, clientId), eq(qualityData.period, period)))
+      .orderBy(desc(qualityData.createdAt));
+  }
+  
+  return await db.select().from(qualityData)
+    .where(eq(qualityData.clientId, clientId))
+    .orderBy(desc(qualityData.createdAt));
+}
+
+export async function getLatestQualityData(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(qualityData)
+    .where(eq(qualityData.clientId, clientId))
+    .orderBy(desc(qualityData.createdAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertQualityData(data: InsertQualityData) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(qualityData)
+    .where(and(eq(qualityData.clientId, data.clientId), eq(qualityData.period, data.period)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(qualityData).set(data).where(eq(qualityData.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(qualityData).values(data);
+    return result[0].insertId;
+  }
+}
+
+// ==================== PEOPLE DATA ====================
+
+export async function getPeopleData(clientId: number, period?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (period) {
+    return await db.select().from(peopleData)
+      .where(and(eq(peopleData.clientId, clientId), eq(peopleData.period, period)))
+      .orderBy(desc(peopleData.createdAt));
+  }
+  
+  return await db.select().from(peopleData)
+    .where(eq(peopleData.clientId, clientId))
+    .orderBy(desc(peopleData.createdAt));
+}
+
+export async function getLatestPeopleData(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(peopleData)
+    .where(eq(peopleData.clientId, clientId))
+    .orderBy(desc(peopleData.createdAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertPeopleData(data: InsertPeopleData) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(peopleData)
+    .where(and(eq(peopleData.clientId, data.clientId), eq(peopleData.period, data.period)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(peopleData).set(data).where(eq(peopleData.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(peopleData).values(data);
+    return result[0].insertId;
+  }
+}
+
+// ==================== DATA GOVERNANCE ====================
+
+export async function getDataGovernanceData(clientId: number, period?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (period) {
+    return await db.select().from(dataGovernanceData)
+      .where(and(eq(dataGovernanceData.clientId, clientId), eq(dataGovernanceData.period, period)))
+      .orderBy(desc(dataGovernanceData.createdAt));
+  }
+  
+  return await db.select().from(dataGovernanceData)
+    .where(eq(dataGovernanceData.clientId, clientId))
+    .orderBy(desc(dataGovernanceData.createdAt));
+}
+
+export async function getLatestDataGovernanceData(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(dataGovernanceData)
+    .where(eq(dataGovernanceData.clientId, clientId))
+    .orderBy(desc(dataGovernanceData.createdAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertDataGovernanceData(data: InsertDataGovernanceData) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(dataGovernanceData)
+    .where(and(eq(dataGovernanceData.clientId, data.clientId), eq(dataGovernanceData.period, data.period)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(dataGovernanceData).set(data).where(eq(dataGovernanceData.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(dataGovernanceData).values(data);
+    return result[0].insertId;
+  }
+}
+
+// ==================== DATA IMPORTS ====================
+
+export async function getDataImports(clientId?: number, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (clientId) {
+    return await db.select().from(dataImports)
+      .where(eq(dataImports.clientId, clientId))
+      .orderBy(desc(dataImports.createdAt))
+      .limit(limit);
+  }
+  
+  return await db.select().from(dataImports)
+    .orderBy(desc(dataImports.createdAt))
+    .limit(limit);
+}
+
+export async function createDataImport(data: InsertDataImport) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(dataImports).values(data);
+  return result[0].insertId;
+}
+
+export async function updateDataImportStatus(id: number, status: 'pending' | 'processing' | 'completed' | 'failed', recordsImported?: number, errorMessage?: string) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const updates: Partial<InsertDataImport> = { status };
+  if (recordsImported !== undefined) updates.recordsImported = recordsImported;
+  if (errorMessage) updates.errorMessage = errorMessage;
+  if (status === 'completed' || status === 'failed') updates.completedAt = new Date();
+  
+  await db.update(dataImports).set(updates).where(eq(dataImports.id, id));
+}
+
+// ==================== BULK DATA OPERATIONS ====================
+
+export async function getAllDashboardData(clientId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [ceo, financial, operations, waste, marketing, quality, people, dataGov, alerts] = await Promise.all([
+    getLatestCeoMetrics(clientId),
+    getLatestFinancialData(clientId),
+    getLatestOperationsData(clientId),
+    getLatestWasteData(clientId),
+    getLatestMarketingData(clientId),
+    getLatestQualityData(clientId),
+    getLatestPeopleData(clientId),
+    getLatestDataGovernanceData(clientId),
+    getAndonAlerts(clientId),
+  ]);
+  
+  return {
+    ceoMetrics: ceo,
+    financialData: financial,
+    operationsData: operations,
+    wasteData: waste,
+    marketingData: marketing,
+    qualityData: quality,
+    peopleData: people,
+    dataGovernanceData: dataGov,
+    andonAlerts: alerts,
+  };
+}

@@ -15,7 +15,8 @@ import {
   X,
   Moon,
   Sun,
-  Server
+  Server,
+  Database
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
@@ -49,6 +50,7 @@ interface AdminLayoutProps {
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Gestão de Dados", href: "/admin/data-management", icon: Database },
   { name: "Financeiro", href: "/admin/financeiro", icon: CreditCard },
   { name: "Usuários", href: "/admin/usuarios", icon: Users },
   { name: "Sistema", href: "/admin/sistema", icon: Server },
@@ -195,7 +197,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             {/* Quick Links */}
             <div className={cn("p-4 border-t", borderColor)}>
-              <Link href="/glx">
+              <Link href="/performance">
                 <Button variant="ghost" className={cn("w-full justify-start gap-2", textSecondary, hoverBg)}>
                   <Activity className="h-4 w-4" />
                   Dashboard GLX
@@ -314,7 +316,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href="/glx">
+                      <Link href="/performance">
                         <span className="cursor-pointer flex items-center gap-2">
                           <Activity className="h-4 w-4" />
                           Dashboard GLX
