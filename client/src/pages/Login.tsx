@@ -31,7 +31,7 @@ export default function Login() {
       // Força o redirecionamento usando window.location.href
       setTimeout(() => {
         if (data.user.role === "admin") {
-          window.location.href = "/glx";
+          window.location.href = "/admin";
         } else {
           window.location.href = "/dashboard";
         }
@@ -135,7 +135,7 @@ export default function Login() {
       setIsRedirecting(true);
       // Usa window.location.href para garantir o redirecionamento
       if (user.role === "admin") {
-        window.location.href = "/glx";
+        window.location.href = "/admin";
       } else {
         window.location.href = "/dashboard";
       }

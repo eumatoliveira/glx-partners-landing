@@ -269,3 +269,8 @@
 
 - [x] Corrigir erro "Cannot update a component while rendering" no Dashboard
 - [x] Mover chamada de navegação para useEffect
+
+## Versão 11.2 - Redirecionamento para /admin
+
+- [x] Alterar redirecionamento após login de /glx para /admin
+- [x] Atualizar useEffect de autenticação para redirecionar para /admin
