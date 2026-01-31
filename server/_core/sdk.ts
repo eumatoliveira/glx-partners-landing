@@ -265,23 +265,34 @@ class SDKServer {
       throw ForbiddenError("Invalid session cookie");
     }
 
-    // Try to verify as email/password JWT first
+    // Try to verify JWT token
     try {
       const secretKey = this.getSessionSecret();
       const { payload } = await jwtVerify(sessionCookie, secretKey, {
         algorithms: ["HS256"],
       });
       
-      // Check if this is an email/password token (has 'sub' field starting with 'email_')
+      // Check if this is an email/password token (has 'email' field)
+      const email = payload.email as string;
       const sub = payload.sub as string;
-      if (sub && sub.startsWith('email_')) {
-        const user = await db.getUserByOpenId(sub);
+      
+      // Email/password login token - look up user by email or openId (sub)
+      if (email) {
+        let user = await db.getUserByEmail(email);
         if (user) {
           return user;
         }
       }
       
-      // Check for standard session token format
+      // Try to find user by sub (openId)
+      if (sub) {
+        let user = await db.getUserByOpenId(sub);
+        if (user) {
+          return user;
+        }
+      }
+      
+      // Check for standard session token format (OAuth flow)
       const { openId, appId, name } = payload as Record<string, unknown>;
       if (typeof openId === 'string' && openId.length > 0) {
         const signedInAt = new Date();

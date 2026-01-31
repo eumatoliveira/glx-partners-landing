@@ -19,18 +19,6 @@ import {
   AdminErros,
   AdminFeatureFlags,
 } from "./pages/admin";
-import {
-  HomeCEO,
-  Financials,
-  Operations,
-  NoShow,
-  SalesFunnel,
-  MarketingROI,
-  Protocols,
-  Quality,
-  People,
-  DataGovernance,
-} from "./pages/glx-dashboard";
 
 function Router() {
   return (
@@ -42,7 +30,7 @@ function Router() {
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/planos"} component={Plans} />
       
-      {/* Admin Routes (Protected) */}
+      {/* Admin Routes (Protected) - Centro de Comando */}
       <Route path={"/admin"}>
         <AdminRoute><AdminDashboard /></AdminRoute>
       </Route>
@@ -60,41 +48,6 @@ function Router() {
       </Route>
       <Route path={"/admin/flags"}>
         <AdminRoute><AdminFeatureFlags /></AdminRoute>
-      </Route>
-      
-      {/* GLX Dashboard Routes (Admin Protected) */}
-      <Route path={"/glx"}>
-        <AdminRoute><HomeCEO /></AdminRoute>
-      </Route>
-      <Route path={"/glx/ceo"}>
-        <AdminRoute><HomeCEO /></AdminRoute>
-      </Route>
-      <Route path={"/glx/financials"}>
-        <AdminRoute><Financials /></AdminRoute>
-      </Route>
-      <Route path={"/glx/operations"}>
-        <AdminRoute><Operations /></AdminRoute>
-      </Route>
-      <Route path={"/glx/no-show"}>
-        <AdminRoute><NoShow /></AdminRoute>
-      </Route>
-      <Route path={"/glx/funnel"}>
-        <AdminRoute><SalesFunnel /></AdminRoute>
-      </Route>
-      <Route path={"/glx/marketing"}>
-        <AdminRoute><MarketingROI /></AdminRoute>
-      </Route>
-      <Route path={"/glx/protocols"}>
-        <AdminRoute><Protocols /></AdminRoute>
-      </Route>
-      <Route path={"/glx/quality"}>
-        <AdminRoute><Quality /></AdminRoute>
-      </Route>
-      <Route path={"/glx/people"}>
-        <AdminRoute><People /></AdminRoute>
-      </Route>
-      <Route path={"/glx/data"}>
-        <AdminRoute><DataGovernance /></AdminRoute>
       </Route>
       
       <Route path={"/404"} component={NotFound} />

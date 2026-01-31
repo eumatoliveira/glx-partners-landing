@@ -1,0 +1,24 @@
+{
+  "query": "SELECT * FROM users WHERE email = 'dev.glxpartners@gmail.com' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute SELECT * FROM users WHERE email = 'dev.glxpartners@gmail.com' LIMIT 1;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "Chs2FHWmvGBY8zHxNmVWnm",
+      "name": "GLX Admin",
+      "email": "dev.glxpartners@gmail.com",
+      "loginMethod": "email",
+      "role": "admin",
+      "createdAt": "2026-01-31 17:04:01",
+      "updatedAt": "2026-01-31 22:07:46",
+      "lastSignedIn": "2026-01-31 22:07:46",
+      "mfaEnabled": "0",
+      "passwordHash": "$2b$12$YsCyve2LE5mTwpg.9EMRSuI9XvrCLOwXVqn6SoMf1W7UVIR6UdTUW",
+      "isActive": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\tloginMethod\trole\tcreatedAt\tupdatedAt\tlastSignedIn\tmfaEnabled\tpasswordHash\tisActive\n1\tChs2FHWmvGBY8zHxNmVWnm\tGLX Admin\tdev.glxpartners@gmail.com\temail\tadmin\t2026-01-31 17:04:01\t2026-01-31 22:07:46\t2026-01-31 22:07:46\t0\t$2b$12$YsCyve2LE5mTwpg.9EMRSuI9XvrCLOwXVqn6SoMf1W7UVIR6UdTUW\t1\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

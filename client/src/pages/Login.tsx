@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,22 +23,41 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { user, isAuthenticated, loading } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  // Função de redirecionamento separada para evitar problemas de render
+  const redirectToAdmin = useCallback(() => {
+    console.log("[Login] Redirecting to /admin...");
+    window.location.replace("/admin");
+  }, []);
+
+  const redirectToDashboard = useCallback(() => {
+    console.log("[Login] Redirecting to /dashboard...");
+    window.location.replace("/dashboard");
+  }, []);
 
   const loginMutation = trpc.emailAuth.login.useMutation({
     onSuccess: (data) => {
+      console.log("[Login] Login successful:", data);
       toast.success("Login realizado com sucesso!");
+      setLoginSuccess(true);
       setIsRedirecting(true);
-      // Força o redirecionamento usando window.location.href
+      
+      // Armazenar a role para o redirecionamento
+      const targetUrl = data.user.role === "admin" ? "/admin" : "/dashboard";
+      console.log("[Login] Target URL:", targetUrl);
+      
+      // Usar setTimeout para garantir que o cookie foi setado
       setTimeout(() => {
-        if (data.user.role === "admin") {
-          window.location.href = "/admin";
-        } else {
-          window.location.href = "/dashboard";
-        }
-      }, 300);
+        console.log("[Login] Executing redirect to:", targetUrl);
+        window.location.replace(targetUrl);
+      }, 500);
     },
     onError: (error) => {
+      console.error("[Login] Login error:", error);
       toast.error(error.message || "Erro ao fazer login");
+      setIsRedirecting(false);
+      setLoginSuccess(false);
     },
   });
 
@@ -131,18 +150,23 @@ export default function Login() {
 
   // Se o usuário já está autenticado, redireciona para o dashboard apropriado
   useEffect(() => {
-    if (!loading && isAuthenticated && user) {
+    if (!loading && isAuthenticated && user && !loginSuccess) {
+      console.log("[Login] User already authenticated, redirecting...", user);
       setIsRedirecting(true);
-      // Usa window.location.href para garantir o redirecionamento
-      if (user.role === "admin") {
-        window.location.href = "/admin";
-      } else {
-        window.location.href = "/dashboard";
-      }
+      // Usa setTimeout para evitar problemas de render
+      const timer = setTimeout(() => {
+        if (user.role === "admin") {
+          redirectToAdmin();
+        } else {
+          redirectToDashboard();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, user, loading]);
+  }, [isAuthenticated, user, loading, loginSuccess, redirectToAdmin, redirectToDashboard]);
 
   function onSubmit(data: LoginFormValues) {
+    console.log("[Login] Submitting login form:", data.email);
     loginMutation.mutate({
       email: data.email,
       password: data.password,
@@ -278,12 +302,17 @@ export default function Login() {
               <Button 
                 type="submit" 
                 className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-6 text-lg"
-                disabled={loginMutation.isPending}
+                disabled={loginMutation.isPending || isRedirecting}
               >
                 {loginMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {t.submitting}
+                  </>
+                ) : isRedirecting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t.redirecting}
                   </>
                 ) : (
                   t.submit

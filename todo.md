@@ -274,3 +274,19 @@
 
 - [x] Alterar redirecionamento após login de /glx para /admin
 - [x] Atualizar useEffect de autenticação para redirecionar para /admin
+
+## Versão 12.0 - Correção de Login e Remoção de /glx
+
+- [x] Analisar vídeo para identificar problema no login
+- [x] Corrigir fluxo de login para abrir /admin após autenticação
+- [x] Excluir todas as páginas /glx (GLXDashboardLayout, páginas glx-dashboard)
+- [x] Remover rotas /glx do App.tsx
+- [x] Testar fluxo completo de login
+
+## Versão 12.1 - Correção do Sistema de Login
+
+- [x] Criar usuário admin no banco de dados com credenciais corretas
+- [x] Corrigir API de login para funcionar corretamente
+- [x] Corrigir autenticação no sdk.ts para suportar tokens de email/senha
+- [x] Garantir redirecionamento para /admin após login bem-sucedido
+- [x] Testar fluxo completo de login
