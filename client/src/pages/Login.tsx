@@ -57,7 +57,7 @@ export default function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <img src="/images/logo-glx.png" alt="GLX Partners" className="h-16 mb-8" />
+            <img src="/images/logo-white-on-black.jpg" alt="GLX Partners" className="h-24 mb-8 mix-blend-screen" />
             <h1 className="text-4xl font-bold text-white mb-6 leading-tight">
               Acesso Exclusivo para <span className="text-primary">Parceiros</span>.
             </h1>
@@ -143,8 +143,13 @@ export default function Login() {
             </form>
           </Form>
 
-          <div className="text-center text-sm text-muted-foreground mt-8">
-            Ainda não é cliente? <a href="/" className="text-white hover:underline">Agende um diagnóstico</a>
+          <div className="text-center text-sm text-muted-foreground mt-8 space-y-2">
+            <p>
+              Ainda não é cliente? <a href="http://www.calendly.com/glxpartners" target="_blank" rel="noopener noreferrer" className="text-white hover:underline font-medium">Agende um diagnóstico</a>
+            </p>
+            <p>
+              <a href="/#what" className="text-primary hover:underline font-medium">Conheça nossos planos</a>
+            </p>
           </div>
         </div>
       </div>
