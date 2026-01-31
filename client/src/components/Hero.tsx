@@ -1,9 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 export default function Hero() {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"]
+  });
+  
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
   return (
-    <section className="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden bg-background">
+    <section ref={ref} className="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden bg-background">
       {/* Background Elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-card/10 to-transparent" />
@@ -58,8 +68,9 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* Coluna da Direita: Imagem */}
+        {/* Coluna da Direita: Imagem com Parallax */}
         <motion.div 
+          style={{ y, opacity }}
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
