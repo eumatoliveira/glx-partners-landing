@@ -33,13 +33,14 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline"
-            onClick={() => window.open("#", "_blank")}
-            className="hidden md:flex border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider rounded-none px-6"
-          >
-            Área de Membros
-          </Button>
+          <Link href="/login">
+            <Button 
+              variant="outline"
+              className="hidden md:flex border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider rounded-none px-6"
+            >
+              Área de Membros
+            </Button>
+          </Link>
           <Button 
             onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-6"
