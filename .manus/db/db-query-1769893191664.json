@@ -1,0 +1,26 @@
+{
+  "query": "SELECT id, openId, email, name, role, passwordHash FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute SELECT id, openId, email, name, role, passwordHash FROM users;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "Chs2FHWmvGBY8zHxNmVWnm",
+      "email": "mynameisgta@gmail.com",
+      "name": "mynameisgta",
+      "role": "admin",
+      "passwordHash": "NULL"
+    },
+    {
+      "id": "90009",
+      "openId": "email_1769892696779_6og7c",
+      "email": "dev.glxpartners@gmail.com",
+      "name": "GLX Admin",
+      "role": "admin",
+      "passwordHash": "$2b$12$.eGZQ2rhXgqEnZpz94YeoeF53aOMhS1o8TOKGlDC/ysu4yo29Bbei"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\temail\tname\trole\tpasswordHash\n1\tChs2FHWmvGBY8zHxNmVWnm\tmynameisgta@gmail.com\tmynameisgta\tadmin\tNULL\n90009\temail_1769892696779_6og7c\tdev.glxpartners@gmail.com\tGLX Admin\tadmin\t$2b$12$.eGZQ2rhXgqEnZpz94YeoeF53aOMhS1o8TOKGlDC/ysu4yo29Bbei\n",
+  "stderr": "",
+  "execution_time_ms": 186
+}

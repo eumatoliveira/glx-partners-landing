@@ -1,0 +1,8 @@
+{
+  "query": "DELETE FROM users WHERE openId LIKE 'email_%' AND email = 'dev.glxpartners@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute DELETE FROM users WHERE openId LIKE 'email_%' AND email = 'dev.glxpartners@gmail.com';",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1451 (23000) at line 1: Cannot delete or update a parent row: a foreign key constraint fails (`ju7z8rekbppjdbzrhbkpnv`.`audit_logs`, CONSTRAINT `audit_logs_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)"
+  ]
+}
