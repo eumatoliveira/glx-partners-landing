@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useLocation } from "wouter";
 import { ArrowLeft, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -22,18 +21,21 @@ type LoginFormValues = {
 export default function Login() {
   const { language } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
-  const [, setLocation] = useLocation();
   const { user, isAuthenticated, loading } = useAuth();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const loginMutation = trpc.emailAuth.login.useMutation({
     onSuccess: (data) => {
       toast.success("Login realizado com sucesso!");
-      // Redireciona baseado no role do usuário
-      if (data.user.role === "admin") {
-        setLocation("/glx");
-      } else {
-        setLocation("/dashboard");
-      }
+      setIsRedirecting(true);
+      // Força o redirecionamento usando window.location.href
+      setTimeout(() => {
+        if (data.user.role === "admin") {
+          window.location.href = "/glx";
+        } else {
+          window.location.href = "/dashboard";
+        }
+      }, 300);
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao fazer login");
@@ -55,6 +57,7 @@ export default function Login() {
       forgot: "Esqueceu a senha?",
       submit: "Acessar Plataforma",
       submitting: "Entrando...",
+      redirecting: "Redirecionando...",
       notClient: "Ainda não é cliente?",
       schedule: "Agende um diagnóstico",
       plans: "Conheça nossos planos",
@@ -77,6 +80,7 @@ export default function Login() {
       forgot: "Forgot password?",
       submit: "Access Platform",
       submitting: "Logging in...",
+      redirecting: "Redirecting...",
       notClient: "Not a client yet?",
       schedule: "Schedule a diagnosis",
       plans: "See our plans",
@@ -99,6 +103,7 @@ export default function Login() {
       forgot: "¿Olvidaste la contraseña?",
       submit: "Acceder a la Plataforma",
       submitting: "Entrando...",
+      redirecting: "Redirigiendo...",
       notClient: "¿Aún no eres cliente?",
       schedule: "Agenda un diagnóstico",
       plans: "Conoce nuestros planes",
@@ -126,14 +131,16 @@ export default function Login() {
 
   // Se o usuário já está autenticado, redireciona para o dashboard apropriado
   useEffect(() => {
-    if (isAuthenticated && user && !loading) {
+    if (!loading && isAuthenticated && user) {
+      setIsRedirecting(true);
+      // Usa window.location.href para garantir o redirecionamento
       if (user.role === "admin") {
-        setLocation("/glx");
+        window.location.href = "/glx";
       } else {
-        setLocation("/dashboard");
+        window.location.href = "/dashboard";
       }
     }
-  }, [isAuthenticated, user, loading, setLocation]);
+  }, [isAuthenticated, user, loading]);
 
   function onSubmit(data: LoginFormValues) {
     loginMutation.mutate({
@@ -142,10 +149,14 @@ export default function Login() {
     });
   }
 
-  if (loading) {
+  // Mostra loading enquanto verifica autenticação ou está redirecionando
+  if (loading || isRedirecting) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">{isRedirecting ? t.redirecting : "Verificando..."}</p>
+        </div>
       </div>
     );
   }
@@ -189,7 +200,7 @@ export default function Login() {
         <Button 
           variant="ghost" 
           className="absolute top-4 left-4 md:top-8 md:left-8 text-muted-foreground hover:text-white z-20"
-          onClick={() => setLocation("/")}
+          onClick={() => window.location.href = "/"}
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> <span className="hidden md:inline">{t.back}</span><span className="md:hidden">{t.backMobile}</span>
         </Button>

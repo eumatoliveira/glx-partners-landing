@@ -1,11 +1,29 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import AdminLayout from "@/components/AdminLayout";
+import { 
+  Zap, 
+  Plus,
+  Search,
+  MoreHorizontal,
+  Users,
+  Globe,
+  Lock,
+  Trash2,
+  Edit,
+  Copy
+} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -15,92 +33,148 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { trpc } from "@/lib/trpc";
-import { 
-  Flag, 
-  Plus, 
-  Trash2, 
-  Zap,
-  Loader2,
-  Power,
-  PowerOff
-} from "lucide-react";
-import { Redirect } from "wouter";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+
+const featureFlags = [
+  { 
+    id: 1, 
+    key: "novo_dashboard", 
+    name: "Novo Dashboard v2", 
+    description: "Interface redesenhada do dashboard principal",
+    enabled: true, 
+    scope: "global",
+    percentage: 100,
+    createdAt: "15/01/2026",
+    updatedAt: "28/01/2026"
+  },
+  { 
+    id: 2, 
+    key: "ai_insights", 
+    name: "AI Insights", 
+    description: "Recomendações baseadas em IA para otimização",
+    enabled: true, 
+    scope: "beta",
+    percentage: 30,
+    createdAt: "20/01/2026",
+    updatedAt: "30/01/2026"
+  },
+  { 
+    id: 3, 
+    key: "dark_mode_v2", 
+    name: "Dark Mode v2", 
+    description: "Nova paleta de cores para modo escuro",
+    enabled: false, 
+    scope: "internal",
+    percentage: 0,
+    createdAt: "25/01/2026",
+    updatedAt: "25/01/2026"
+  },
+  { 
+    id: 4, 
+    key: "export_pdf_advanced", 
+    name: "Exportação PDF Avançada", 
+    description: "Relatórios PDF com gráficos e tabelas customizadas",
+    enabled: true, 
+    scope: "premium",
+    percentage: 100,
+    createdAt: "10/01/2026",
+    updatedAt: "29/01/2026"
+  },
+  { 
+    id: 5, 
+    key: "realtime_notifications", 
+    name: "Notificações em Tempo Real", 
+    description: "Push notifications via WebSocket",
+    enabled: true, 
+    scope: "global",
+    percentage: 100,
+    createdAt: "05/01/2026",
+    updatedAt: "31/01/2026"
+  },
+];
+
+const scopeColors: Record<string, string> = {
+  global: "bg-green-500/20 text-green-500",
+  beta: "bg-blue-500/20 text-blue-500",
+  internal: "bg-purple-500/20 text-purple-500",
+  premium: "bg-yellow-500/20 text-yellow-500",
+  enterprise: "bg-red-500/20 text-red-500",
+};
+
+const scopeIcons: Record<string, React.ReactNode> = {
+  global: <Globe className="h-3 w-3 mr-1" />,
+  beta: <Users className="h-3 w-3 mr-1" />,
+  internal: <Lock className="h-3 w-3 mr-1" />,
+  premium: <Zap className="h-3 w-3 mr-1" />,
+  enterprise: <Lock className="h-3 w-3 mr-1" />,
+};
 
 export default function AdminFeatureFlags() {
-  const { user, loading: authLoading } = useAuth();
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [flags, setFlags] = useState(featureFlags);
+  const [isAddOpen, setIsAddOpen] = useState(false);
   const [newFlag, setNewFlag] = useState({
+    key: "",
     name: "",
     description: "",
-    enabled: false
-  });
-  
-  const { data: flags, isLoading, refetch } = trpc.admin.getFeatureFlags.useQuery();
-  
-  const createMutation = trpc.admin.createFeatureFlag.useMutation({
-    onSuccess: () => {
-      toast.success("Feature flag criada com sucesso!");
-      setIsCreateOpen(false);
-      setNewFlag({ name: "", description: "", enabled: false });
-      refetch();
-    },
-    onError: (error) => {
-      toast.error("Erro ao criar feature flag: " + error.message);
-    }
+    scope: "internal",
   });
 
-  const updateMutation = trpc.admin.updateFeatureFlag.useMutation({
-    onSuccess: () => {
-      toast.success("Feature flag atualizada!");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error("Erro ao atualizar: " + error.message);
-    }
-  });
+  const filteredFlags = flags.filter(flag => 
+    flag.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    flag.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const deleteMutation = trpc.admin.deleteFeatureFlag.useMutation({
-    onSuccess: () => {
-      toast.success("Feature flag removida!");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error("Erro ao remover: " + error.message);
-    }
-  });
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user || user.role !== "admin") {
-    return <Redirect to="/" />;
-  }
-
-  const handleCreate = () => {
-    if (!newFlag.name.trim()) {
-      toast.error("Nome é obrigatório");
-      return;
-    }
-    createMutation.mutate(newFlag);
+  const handleToggle = (id: number) => {
+    setFlags(flags.map(flag => 
+      flag.id === id ? { ...flag, enabled: !flag.enabled } : flag
+    ));
   };
 
-  const handleToggle = (id: number, currentEnabled: boolean) => {
-    updateMutation.mutate({ id, enabled: !currentEnabled });
+  const handleAddFlag = () => {
+    const newId = Math.max(...flags.map(f => f.id)) + 1;
+    const now = new Date().toLocaleDateString("pt-BR");
+    setFlags([...flags, {
+      id: newId,
+      key: newFlag.key,
+      name: newFlag.name,
+      description: newFlag.description,
+      enabled: false,
+      scope: newFlag.scope,
+      percentage: 0,
+      createdAt: now,
+      updatedAt: now,
+    }]);
+    setIsAddOpen(false);
+    setNewFlag({ key: "", name: "", description: "", scope: "internal" });
   };
 
   const handleDelete = (id: number) => {
-    if (confirm("Tem certeza que deseja remover esta feature flag?")) {
-      deleteMutation.mutate({ id });
+    if (confirm("Tem certeza que deseja excluir esta feature flag?")) {
+      setFlags(flags.filter(f => f.id !== id));
     }
+  };
+
+  const handleCopyKey = (key: string) => {
+    navigator.clipboard.writeText(key);
+    alert(`Chave "${key}" copiada!`);
   };
 
   return (
@@ -110,65 +184,72 @@ export default function AdminFeatureFlags() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Zap className="h-6 w-6 text-yellow-400" />
-              God Mode - Feature Flags
+              <Zap className="h-6 w-6 text-primary" />
+              Feature Flags
             </h1>
-            <p className="text-muted-foreground">Ative ou desative funcionalidades para clientes específicos</p>
+            <p className="text-muted-foreground">God Mode - Controle de funcionalidades em tempo real</p>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary/90">
+              <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Nova Feature Flag
+                Nova Flag
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[#111111] border-white/10">
+            <DialogContent>
               <DialogHeader>
                 <DialogTitle>Criar Feature Flag</DialogTitle>
                 <DialogDescription>
-                  Adicione uma nova flag para controlar funcionalidades do sistema
+                  Adicione uma nova flag para controlar funcionalidades.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome da Flag</Label>
-                  <Input
-                    id="name"
-                    placeholder="ex: new_dashboard_v2"
+                  <Label htmlFor="key">Chave (key)</Label>
+                  <Input 
+                    id="key" 
+                    value={newFlag.key}
+                    onChange={(e) => setNewFlag({...newFlag, key: e.target.value.toLowerCase().replace(/\s/g, '_')})}
+                    placeholder="nome_da_feature"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome</Label>
+                  <Input 
+                    id="name" 
                     value={newFlag.name}
-                    onChange={(e) => setNewFlag({ ...newFlag, name: e.target.value })}
-                    className="bg-white/5 border-white/10"
+                    onChange={(e) => setNewFlag({...newFlag, name: e.target.value})}
+                    placeholder="Nome da Feature"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="description">Descrição</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Descreva o que esta flag controla..."
+                  <Textarea 
+                    id="description" 
                     value={newFlag.description}
-                    onChange={(e) => setNewFlag({ ...newFlag, description: e.target.value })}
-                    className="bg-white/5 border-white/10"
+                    onChange={(e) => setNewFlag({...newFlag, description: e.target.value})}
+                    placeholder="Descrição da funcionalidade..."
                   />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="enabled">Ativar imediatamente</Label>
-                  <Switch
-                    id="enabled"
-                    checked={newFlag.enabled}
-                    onCheckedChange={(checked) => setNewFlag({ ...newFlag, enabled: checked })}
-                  />
+                <div className="space-y-2">
+                  <Label htmlFor="scope">Escopo</Label>
+                  <Select value={newFlag.scope} onValueChange={(v) => setNewFlag({...newFlag, scope: v})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="internal">Internal</SelectItem>
+                      <SelectItem value="beta">Beta</SelectItem>
+                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="enterprise">Enterprise</SelectItem>
+                      <SelectItem value="global">Global</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button 
-                  onClick={handleCreate}
-                  disabled={createMutation.isPending}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  {createMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancelar</Button>
+                <Button onClick={handleAddFlag} disabled={!newFlag.key || !newFlag.name}>
                   Criar Flag
                 </Button>
               </DialogFooter>
@@ -177,117 +258,147 @@ export default function AdminFeatureFlags() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-primary/20">
-                <Flag className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total de Flags</p>
-                <p className="text-2xl font-bold">{flags?.length ?? 0}</p>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total</CardTitle>
+              <Zap className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{flags.length}</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-green-500/20">
-                <Power className="h-5 w-5 text-green-400" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Ativas</p>
-                <p className="text-2xl font-bold">
-                  {flags?.filter(f => f.enabled).length ?? 0}
-                </p>
-              </div>
+
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Ativas</CardTitle>
+              <Zap className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-500">{flags.filter(f => f.enabled).length}</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-gray-500/20">
-                <PowerOff className="h-5 w-5 text-gray-400" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Inativas</p>
-                <p className="text-2xl font-bold">
-                  {flags?.filter(f => !f.enabled).length ?? 0}
-                </p>
-              </div>
+
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Inativas</CardTitle>
+              <Zap className="h-4 w-4 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-500">{flags.filter(f => !f.enabled).length}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Em Beta</CardTitle>
+              <Users className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-500">{flags.filter(f => f.scope === "beta").length}</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Feature Flags List */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : flags?.length === 0 ? (
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-12 text-center">
-              <Flag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Nenhuma Feature Flag</h3>
-              <p className="text-muted-foreground mb-4">
-                Crie sua primeira feature flag para começar a controlar funcionalidades
-              </p>
-              <Button onClick={() => setIsCreateOpen(true)} className="bg-primary hover:bg-primary/90">
-                <Plus className="h-4 w-4 mr-2" />
-                Criar Feature Flag
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {flags?.map((flag) => (
-              <Card 
-                key={flag.id} 
-                className={cn(
-                  "border transition-all duration-200",
-                  flag.enabled 
-                    ? "bg-green-500/5 border-green-500/30 hover:border-green-500/50" 
-                    : "bg-white/5 border-white/10 hover:border-white/20"
-                )}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "h-2 w-2 rounded-full",
-                        flag.enabled ? "bg-green-400" : "bg-gray-500"
-                      )} />
-                      <CardTitle className="text-base font-mono">{flag.name}</CardTitle>
-                    </div>
-                    <Switch
-                      checked={flag.enabled}
-                      onCheckedChange={() => handleToggle(flag.id, flag.enabled)}
-                      disabled={updateMutation.isPending}
-                    />
-                  </div>
-                  {flag.description && (
-                    <CardDescription className="mt-2">
-                      {flag.description}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent className="pt-2">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>
-                      Criada em {new Date(flag.createdAt).toLocaleDateString('pt-BR')}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                      onClick={() => handleDelete(flag.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+        {/* Flags Table */}
+        <Card className="bg-card/50 border-border/50">
+          <CardHeader>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <CardTitle>Feature Flags</CardTitle>
+                <CardDescription>Ative ou desative funcionalidades instantaneamente</CardDescription>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 w-64"
+                />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Feature</TableHead>
+                  <TableHead>Escopo</TableHead>
+                  <TableHead>Rollout</TableHead>
+                  <TableHead>Atualizado</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredFlags.map((flag) => (
+                  <TableRow key={flag.id}>
+                    <TableCell>
+                      <Switch 
+                        checked={flag.enabled}
+                        onCheckedChange={() => handleToggle(flag.id)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{flag.name}</p>
+                        <p className="text-sm text-muted-foreground font-mono">{flag.key}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={scopeColors[flag.scope]}>
+                        {scopeIcons[flag.scope]}
+                        {flag.scope.charAt(0).toUpperCase() + flag.scope.slice(1)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-primary rounded-full"
+                            style={{ width: `${flag.percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-sm">{flag.percentage}%</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{flag.updatedAt}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleCopyKey(flag.key)}>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copiar chave
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="text-red-500"
+                            onClick={() => handleDelete(flag.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );

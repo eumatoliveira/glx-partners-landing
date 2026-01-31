@@ -223,3 +223,44 @@
 - [x] Garantir que direciona para /login
 - [x] Ajustar página de login para autenticação por email/senha
 - [x] Após login, redirecionar para dashboard apropriado (admin ou user)
+
+## Versão 10.2 - Correção do Redirecionamento após Login
+
+- [x] Corrigir redirecionamento após login bem-sucedido
+- [x] Garantir que o usuário seja redirecionado para /glx (admin) ou /dashboard (user)
+
+## Versão 11.0 - Novo Painel de Administração (Centro de Comando SaaS)
+
+### Estrutura Base
+- [x] Excluir arquivos admin existentes
+- [x] Criar novo AdminLayout com sidebar e top bar
+- [x] Implementar busca global (usuários por email/ID)
+- [x] Implementar seletor de ambiente (Production/Staging)
+- [x] Cards modulares com bordas arredondadas e sombras
+
+### 1. Painel Financeiro (Health Check)
+- [x] MRR/ARR com gráfico de linha ascendente
+- [x] Churn Rate com alerta visual (> 5%)
+- [x] LTV comparativo com CAC
+- [x] Lista de Inadimplência com ações necessárias
+
+### 2. Controle de Acessos & Segurança (RBAC)
+- [x] User Impersonation (Logar como usuário)
+- [x] Gestão de Roles (Admin, Editor, Viewer, Financeiro)
+- [x] Audit Log (histórico de alterações)
+- [x] MFA Status (visualização 2FA)
+
+### 3. Saúde do Sistema & Cloud (DevOps Lite)
+- [x] Status dos Serviços (API, DB, Workers, CDN)
+- [x] Consumo de Recursos (CPU, Memória, Armazenamento)
+- [x] Previsão de Gastos Cloud
+- [x] Latência Média global
+
+### 4. Identificação de Erros (Observabilidade)
+- [x] Error Rate (gráfico 4xx/5xx 24h)
+- [x] Live Logs (feed em tempo real estilo terminal)
+- [x] Alertas Inteligentes (tempestade de erros)
+
+### Feature Flags (God Mode)
+- [x] Ativar/desativar funcionalidades por cliente
+- [x] Interface de gerenciamento de flags

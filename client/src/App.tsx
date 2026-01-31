@@ -13,12 +13,11 @@ import Plans from "./pages/Plans";
 import AdminRoute from "./components/AdminRoute";
 import {
   AdminDashboard,
-  AdminUsers,
-  AdminBilling,
-  AdminAuditLogs,
-  AdminErrors,
+  AdminFinanceiro,
+  AdminUsuarios,
+  AdminSistema,
+  AdminErros,
   AdminFeatureFlags,
-  AdminSystem,
 } from "./pages/admin";
 import {
   HomeCEO,
@@ -32,15 +31,6 @@ import {
   People,
   DataGovernance,
 } from "./pages/glx-dashboard";
-
-// Wrapper component for admin-protected routes
-function AdminProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  return (
-    <AdminRoute>
-      <Component />
-    </AdminRoute>
-  );
-}
 
 function Router() {
   return (
@@ -56,29 +46,20 @@ function Router() {
       <Route path={"/admin"}>
         <AdminRoute><AdminDashboard /></AdminRoute>
       </Route>
-      <Route path={"/admin/users"}>
-        <AdminRoute><AdminUsers /></AdminRoute>
+      <Route path={"/admin/financeiro"}>
+        <AdminRoute><AdminFinanceiro /></AdminRoute>
       </Route>
-      <Route path={"/admin/billing"}>
-        <AdminRoute><AdminBilling /></AdminRoute>
+      <Route path={"/admin/usuarios"}>
+        <AdminRoute><AdminUsuarios /></AdminRoute>
       </Route>
-      <Route path={"/admin/logs"}>
-        <AdminRoute><AdminAuditLogs /></AdminRoute>
+      <Route path={"/admin/sistema"}>
+        <AdminRoute><AdminSistema /></AdminRoute>
       </Route>
-      <Route path={"/admin/errors"}>
-        <AdminRoute><AdminErrors /></AdminRoute>
+      <Route path={"/admin/erros"}>
+        <AdminRoute><AdminErros /></AdminRoute>
       </Route>
       <Route path={"/admin/flags"}>
         <AdminRoute><AdminFeatureFlags /></AdminRoute>
-      </Route>
-      <Route path={"/admin/security"}>
-        <AdminRoute><AdminUsers /></AdminRoute>
-      </Route>
-      <Route path={"/admin/system"}>
-        <AdminRoute><AdminSystem /></AdminRoute>
-      </Route>
-      <Route path={"/admin/settings"}>
-        <AdminRoute><AdminDashboard /></AdminRoute>
       </Route>
       
       {/* GLX Dashboard Routes (Admin Protected) */}
