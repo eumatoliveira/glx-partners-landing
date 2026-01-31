@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { Globe } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Navbar() {
   const scrollToSection = (id: string) => {
@@ -33,6 +40,19 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-white hover:text-primary hover:bg-transparent">
+                <Globe className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-black/90 border-white/10 text-white">
+              <DropdownMenuItem className="hover:bg-white/10 cursor-pointer">Português</DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-white/10 cursor-pointer">English</DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-white/10 cursor-pointer">Español</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Link href="/login">
             <Button 
               variant="outline"

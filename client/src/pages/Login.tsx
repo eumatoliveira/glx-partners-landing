@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useLocation } from "wouter";
-import { ArrowLeft, Lock, User } from "lucide-react";
+import { ArrowLeft, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "E-mail inválido" }),
@@ -18,6 +19,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [, setLocation] = useLocation();
 
   const form = useForm<LoginFormValues>({
@@ -121,11 +123,22 @@ export default function Login() {
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input 
-                          type="password" 
+                          type={showPassword ? "text" : "password"} 
                           placeholder="••••••••" 
-                          className="pl-10 bg-secondary/50 border-border/50 text-white placeholder:text-muted-foreground/50 focus:border-primary" 
+                          className="pl-10 pr-10 bg-secondary/50 border-border/50 text-white placeholder:text-muted-foreground/50 focus:border-primary" 
                           {...field} 
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-3 text-muted-foreground hover:text-white focus:outline-none"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -134,6 +147,15 @@ export default function Login() {
               />
 
               <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="remember" className="border-white/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                  <label
+                    htmlFor="remember"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                  >
+                    Lembrar-me
+                  </label>
+                </div>
                 <a href="#" className="text-primary hover:underline font-medium">Esqueceu a senha?</a>
               </div>
 
