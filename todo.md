@@ -216,3 +216,10 @@
 - [x] Cards modulares com métricas
 - [x] Gráficos interativos (Chart.js)
 - [x] Tabelas com ordenação e filtros
+
+## Versão 10.1 - Ajuste do Fluxo de Login
+
+- [x] Verificar botão "Área de Membros" no Navbar
+- [x] Garantir que direciona para /login
+- [x] Ajustar página de login para autenticação por email/senha
+- [x] Após login, redirecionar para dashboard apropriado (admin ou user)
