@@ -18,6 +18,18 @@ import {
   AdminErrors,
   AdminFeatureFlags,
 } from "./pages/admin";
+import {
+  HomeCEO,
+  Financials,
+  Operations,
+  NoShow,
+  SalesFunnel,
+  MarketingROI,
+  Protocols,
+  Quality,
+  People,
+  DataGovernance,
+} from "./pages/glx-dashboard";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -40,6 +52,19 @@ function Router() {
       <Route path={"/admin/security"} component={AdminUsers} />
       <Route path={"/admin/system"} component={AdminErrors} />
       <Route path={"/admin/settings"} component={AdminDashboard} />
+      
+      {/* GLX Dashboard Routes */}
+      <Route path={"/glx"} component={HomeCEO} />
+      <Route path={"/glx/ceo"} component={HomeCEO} />
+      <Route path={"/glx/financials"} component={Financials} />
+      <Route path={"/glx/operations"} component={Operations} />
+      <Route path={"/glx/no-show"} component={NoShow} />
+      <Route path={"/glx/funnel"} component={SalesFunnel} />
+      <Route path={"/glx/marketing"} component={MarketingROI} />
+      <Route path={"/glx/protocols"} component={Protocols} />
+      <Route path={"/glx/quality"} component={Quality} />
+      <Route path={"/glx/people"} component={People} />
+      <Route path={"/glx/data"} component={DataGovernance} />
       
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

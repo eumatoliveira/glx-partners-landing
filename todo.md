@@ -116,3 +116,45 @@
 - [x] Top Bar com busca global e seletor de ambiente
 - [x] Cards modulares com design dark mode
 - [x] Feature Flags (God Mode)
+
+## Versão 8.0 - Dashboard GLX Partners (Performance Analytics)
+
+### Estrutura Base
+- [x] Criar novo layout GLXDashboardLayout com sidebar e tema light/dark
+- [x] Implementar toggle de tema (light/dark mode)
+- [x] Criar utilitários de exportação PDF e CSV
+- [x] Instalar dependências (Chart.js, jsPDF, etc.)
+
+### Telas do Dashboard
+- [x] Home CEO (Scorecard + Alertas + Ações + Forecast)
+- [x] Receita/Margem/Caixa (Financials)
+- [x] Operação (Agenda/Capacidade)
+- [x] No-show (Waste Analysis)
+- [x] Funil Comercial (Sales Funnel)
+- [x] Marketing ROI (Growth Engine)
+- [x] Protocolos/Forecast
+- [x] Qualidade/NPS
+- [x] Pessoas (HR Analytics)
+- [x] Data Governance
+
+### Componentes Visuais
+- [x] Cards de KPI com indicadores de tendência
+- [x] Gráficos de linha (tendências)
+- [x] Gráficos de barra (comparativos)
+- [x] Gráficos de pizza/donut (distribuição)
+- [x] Heatmaps (frequência por dia/hora)
+- [x] Funil visual (conversão)
+- [x] Tabelas com ordenação e filtros
+
+### Indicadores Lean Six Sigma
+- [x] Sigma Level (σ)
+- [x] DPMO (Defects Per Million Opportunities)
+- [x] Cp/Cpk (Process Capability)
+- [x] OEE (Overall Equipment Effectiveness)
+- [x] Yield e First Pass Yield
+
+### Funcionalidades
+- [x] Exportar relatório PDF de cada tela
+- [x] Exportar dados CSV de cada tela
+- [x] Filtro de período (7d, 30d, 90d, 12m)
+- [x] Alertas visuais para métricas críticas
