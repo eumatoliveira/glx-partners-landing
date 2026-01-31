@@ -31,9 +31,9 @@ export default function Navbar() {
         {/* Logo - menor em mobile */}
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
           <img 
-            src="/images/logo-white-on-black.jpg" 
+            src="/images/logo-transparent.png" 
             alt="GLX Partners" 
-            className="h-16 md:h-28 w-auto mix-blend-screen" 
+            className="h-16 md:h-28 w-auto" 
           />
         </Link>
 
