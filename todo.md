@@ -80,3 +80,39 @@
 
 - [x] Adicionar área de vídeo única para o plano GLX Control Tower
 - [x] Remover vídeos individuais dos tiers (Essentials, Pro, Enterprise)
+
+## Versão 7.0 - Dashboard Administrativo (Centro de Comando)
+
+### Estrutura Base
+- [x] Configurar schema do banco de dados para admin
+- [x] Criar tabelas: audit_logs, system_metrics, feature_flags, subscriptions
+- [x] Configurar autenticação admin (email: dev.glxpartners@gmail.com)
+
+### Painel Financeiro
+- [x] Card MRR/ARR com gráfico de linha
+- [x] Card Churn Rate com alerta visual
+- [x] Card LTV comparativo com CAC
+- [x] Lista de Inadimplência com ações
+
+### Controle de Acessos & Segurança
+- [x] User Impersonation (Logar como usuário)
+- [x] Gestão de Roles (Admin, Editor, Viewer, Financeiro)
+- [x] Audit Log (histórico de alterações)
+- [x] MFA Status (visualização 2FA)
+
+### Saúde do Sistema & Cloud
+- [x] Status dos Serviços (API, DB, Workers, CDN)
+- [x] Consumo de Recursos (CPU, Memória, Armazenamento)
+- [x] Previsão de Gastos Cloud
+- [x] Latência Média
+
+### Identificação de Erros
+- [x] Error Rate (gráfico 4xx/5xx)
+- [x] Live Logs (feed em tempo real)
+- [x] Alertas Inteligentes
+
+### UI/UX
+- [x] Sidebar com navegação (Dashboard, Usuários, Billing, Logs, Settings)
+- [x] Top Bar com busca global e seletor de ambiente
+- [x] Cards modulares com design dark mode
+- [x] Feature Flags (God Mode)

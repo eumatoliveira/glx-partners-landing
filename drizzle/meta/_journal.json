@@ -8,6 +8,13 @@
       "when": 1769878840154,
       "tag": "0000_lush_galactus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1769890032623,
+      "tag": "0001_wise_galactus",
+      "breakpoints": true
     }
   ]
 }
