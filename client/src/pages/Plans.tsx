@@ -236,7 +236,7 @@ export default function Plans() {
             <div className="text-center">
               <Button 
                 onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-12 py-6 text-lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-12 py-6 text-lg" style={{paddingRight: '24px', paddingLeft: '24px', width: '250px'}}
               >
                 {t.plans.requestProposal}
               </Button>
