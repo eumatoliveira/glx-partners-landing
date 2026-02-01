@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { FileDown } from "lucide-react";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import PDFReportGenerator from "@/components/client/PDFReportGenerator";
+import PDFExportButton from "@/components/client/PDFExportButton";
 
 interface ClientDashboardLayoutProps {
   children: React.ReactNode;
@@ -51,7 +50,6 @@ export default function ClientDashboardLayout({ children }: ClientDashboardLayou
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
-  const [pdfModalOpen, setPdfModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -221,17 +219,7 @@ export default function ClientDashboardLayout({ children }: ClientDashboardLayou
             </Button>
 
             {/* Export Button */}
-            <Button
-              variant="default"
-              className="bg-orange-500 hover:bg-orange-600 text-white gap-2"
-              onClick={() => setPdfModalOpen(true)}
-            >
-              <FileDown className="w-4 h-4" />
-              <span className="hidden sm:inline">Export Report</span>
-            </Button>
-
-            {/* PDF Report Generator Modal */}
-            <PDFReportGenerator open={pdfModalOpen} onOpenChange={setPdfModalOpen} />
+            <PDFExportButton />
 
             {/* User Menu */}
             <DropdownMenu>
