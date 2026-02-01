@@ -247,7 +247,7 @@ export const pt = {
     // Final CTA
     finalTitle: "Pronto para transformar sua clínica?",
     finalSubtitle: "Agende um diagnóstico gratuito e descubra qual plano é ideal para o momento da sua operação.",
-    finalCta: "AGENDAR DIAGNÓSTICO GRATUITO",
+    finalCta: "AGENDAR DIAGNÓSTICO",
     finalSecondary: "VOLTAR AO SITE",
     copyright: "© 2025 GLX Partners. Todos os direitos reservados.",
   },

@@ -249,7 +249,7 @@ export const es: Translations = {
     // Final CTA
     finalTitle: "¿Listo para transformar tu clínica?",
     finalSubtitle: "Agenda un diagnóstico gratuito y descubre cuál plan es ideal para tu operación.",
-    finalCta: "AGENDAR DIAGNÓSTICO GRATUITO",
+    finalCta: "AGENDAR DIAGNÓSTICO",
     finalSecondary: "VOLVER AL SITIO",
     copyright: "© 2025 GLX Partners. Todos los derechos reservados.",
   },
