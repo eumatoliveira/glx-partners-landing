@@ -439,3 +439,9 @@
 - [x] Corrigir bug: "Login realizado com sucesso!" aparece mas não redireciona para /admin (SameSite=Lax para Safari)
 - [x] Garantir redirecionamento correto para /admin após autenticação
 - [x] Testar fluxo completo de login
+
+## Versão 15.2 - Correção do Redirecionamento no Safari
+
+- [x] Corrigir tela travada em "Redirecionando..." no Safari (removido polling complexo)
+- [x] Simplificar fluxo de redirecionamento após login (window.location.href direto)
+- [ ] Testar fluxo completo de login no Safari (aguardando confirmação do usuário)

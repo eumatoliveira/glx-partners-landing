@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,72 +21,25 @@ type LoginFormValues = {
 export default function Login() {
   const { language } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
-  const { user, isAuthenticated, loading, refresh } = useAuth();
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(false);
-  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
-  const utils = trpc.useUtils();
-  const pollCountRef = useRef(0);
-
-  // Polling para verificar se o cookie foi setado corretamente
-  useEffect(() => {
-    if (!pendingRedirect) return;
-
-    const pollAuth = async () => {
-      pollCountRef.current += 1;
-      console.log("[Login] Polling auth status, attempt:", pollCountRef.current);
-      
-      try {
-        // Forçar uma nova requisição para auth.me
-        await utils.auth.me.invalidate();
-        const result = await utils.auth.me.fetch();
-        
-        console.log("[Login] Poll result:", result);
-        
-        if (result && result.email) {
-          console.log("[Login] Auth confirmed, redirecting to:", pendingRedirect);
-          // Usar window.location.href para um redirecionamento completo
-          window.location.href = pendingRedirect;
-          return;
-        }
-      } catch (error) {
-        console.error("[Login] Poll error:", error);
-      }
-
-      // Se ainda não autenticado após 10 tentativas, tentar redirecionar mesmo assim
-      if (pollCountRef.current >= 10) {
-        console.log("[Login] Max polls reached, forcing redirect to:", pendingRedirect);
-        window.location.href = pendingRedirect;
-        return;
-      }
-    };
-
-    const timer = setTimeout(pollAuth, 300);
-    return () => clearTimeout(timer);
-  }, [pendingRedirect, utils.auth.me, pollCountRef.current]);
+  const { user, isAuthenticated, loading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loginMutation = trpc.emailAuth.login.useMutation({
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       console.log("[Login] Login successful:", data);
       toast.success("Login realizado com sucesso!");
-      setLoginSuccess(true);
-      setIsRedirecting(true);
       
-      // Determinar URL de destino
+      // Determinar URL de destino e redirecionar imediatamente
       const targetUrl = data.user.role === "admin" ? "/admin" : "/dashboard";
-      console.log("[Login] Target URL:", targetUrl);
+      console.log("[Login] Redirecting to:", targetUrl);
       
-      // Invalidar o cache e iniciar o polling
-      await utils.auth.me.invalidate();
-      pollCountRef.current = 0;
-      setPendingRedirect(targetUrl);
+      // Redirecionamento direto e simples
+      window.location.href = targetUrl;
     },
     onError: (error) => {
       console.error("[Login] Login error:", error);
       toast.error(error.message || "Erro ao fazer login");
-      setIsRedirecting(false);
-      setLoginSuccess(false);
-      setPendingRedirect(null);
+      setIsSubmitting(false);
     },
   });
 
@@ -106,6 +59,7 @@ export default function Login() {
       submit: "Acessar Plataforma",
       submitting: "Entrando...",
       redirecting: "Redirecionando...",
+      verifying: "Verificando...",
       notClient: "Ainda não é cliente?",
       schedule: "Agende um diagnóstico",
       plans: "Conheça nossos planos",
@@ -129,6 +83,7 @@ export default function Login() {
       submit: "Access Platform",
       submitting: "Logging in...",
       redirecting: "Redirecting...",
+      verifying: "Verifying...",
       notClient: "Not a client yet?",
       schedule: "Schedule a diagnosis",
       plans: "See our plans",
@@ -152,6 +107,7 @@ export default function Login() {
       submit: "Acceder a la Plataforma",
       submitting: "Entrando...",
       redirecting: "Redirigiendo...",
+      verifying: "Verificando...",
       notClient: "¿Aún no eres cliente?",
       schedule: "Agenda un diagnóstico",
       plans: "Conoce nuestros planes",
@@ -179,32 +135,41 @@ export default function Login() {
 
   // Se o usuário já está autenticado, redireciona para o dashboard apropriado
   useEffect(() => {
-    if (!loading && isAuthenticated && user && !loginSuccess && !isRedirecting && !pendingRedirect) {
+    if (!loading && isAuthenticated && user) {
       console.log("[Login] User already authenticated, redirecting...", user);
-      setIsRedirecting(true);
       const targetUrl = user.role === "admin" ? "/admin" : "/dashboard";
-      // Usar um pequeno delay para evitar problemas de render
-      setTimeout(() => {
-        window.location.href = targetUrl;
-      }, 100);
+      window.location.href = targetUrl;
     }
-  }, [isAuthenticated, user, loading, loginSuccess, isRedirecting, pendingRedirect]);
+  }, [isAuthenticated, user, loading]);
 
   function onSubmit(data: LoginFormValues) {
     console.log("[Login] Submitting login form:", data.email);
+    setIsSubmitting(true);
     loginMutation.mutate({
       email: data.email,
       password: data.password,
     });
   }
 
-  // Mostra loading enquanto verifica autenticação ou está redirecionando
-  if (loading || isRedirecting) {
+  // Mostra loading enquanto verifica autenticação inicial
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">{isRedirecting ? t.redirecting : "Verificando..."}</p>
+          <p className="text-muted-foreground">{t.verifying}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se já está autenticado, mostra tela de redirecionamento
+  if (isAuthenticated && user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">{t.redirecting}</p>
         </div>
       </div>
     );
@@ -327,17 +292,12 @@ export default function Login() {
               <Button 
                 type="submit" 
                 className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-6 text-lg"
-                disabled={loginMutation.isPending || isRedirecting}
+                disabled={isSubmitting || loginMutation.isPending}
               >
-                {loginMutation.isPending ? (
+                {isSubmitting || loginMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {t.submitting}
-                  </>
-                ) : isRedirecting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t.redirecting}
                   </>
                 ) : (
                   t.submit
