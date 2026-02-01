@@ -445,3 +445,10 @@
 - [x] Corrigir tela travada em "Redirecionando..." no Safari (removido polling complexo)
 - [x] Simplificar fluxo de redirecionamento após login (window.location.href direto)
 - [ ] Testar fluxo completo de login no Safari (aguardando confirmação do usuário)
+
+## Versão 15.3 - Reversão para Versão Funcional
+
+- [x] Reverter Login.tsx para usar setLocation do wouter (navegação SPA)
+- [x] Reverter cookies.ts para usar SameSite=None (como na versão funcional)
+- [x] Atualizar teste de logout para SameSite=None
+- [ ] Testar fluxo completo de login no Safari

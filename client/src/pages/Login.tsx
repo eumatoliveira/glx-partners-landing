@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useLocation } from "wouter";
 import { ArrowLeft, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -21,25 +22,21 @@ type LoginFormValues = {
 export default function Login() {
   const { language } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
+  const [, setLocation] = useLocation();
   const { user, isAuthenticated, loading } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loginMutation = trpc.emailAuth.login.useMutation({
     onSuccess: (data) => {
-      console.log("[Login] Login successful:", data);
       toast.success("Login realizado com sucesso!");
-      
-      // Determinar URL de destino e redirecionar imediatamente
-      const targetUrl = data.user.role === "admin" ? "/admin" : "/dashboard";
-      console.log("[Login] Redirecting to:", targetUrl);
-      
-      // Redirecionamento direto e simples
-      window.location.href = targetUrl;
+      // Redireciona baseado no role do usuário
+      if (data.user.role === "admin") {
+        setLocation("/admin");
+      } else {
+        setLocation("/dashboard");
+      }
     },
     onError: (error) => {
-      console.error("[Login] Login error:", error);
       toast.error(error.message || "Erro ao fazer login");
-      setIsSubmitting(false);
     },
   });
 
@@ -58,8 +55,6 @@ export default function Login() {
       forgot: "Esqueceu a senha?",
       submit: "Acessar Plataforma",
       submitting: "Entrando...",
-      redirecting: "Redirecionando...",
-      verifying: "Verificando...",
       notClient: "Ainda não é cliente?",
       schedule: "Agende um diagnóstico",
       plans: "Conheça nossos planos",
@@ -82,8 +77,6 @@ export default function Login() {
       forgot: "Forgot password?",
       submit: "Access Platform",
       submitting: "Logging in...",
-      redirecting: "Redirecting...",
-      verifying: "Verifying...",
       notClient: "Not a client yet?",
       schedule: "Schedule a diagnosis",
       plans: "See our plans",
@@ -106,8 +99,6 @@ export default function Login() {
       forgot: "¿Olvidaste la contraseña?",
       submit: "Acceder a la Plataforma",
       submitting: "Entrando...",
-      redirecting: "Redirigiendo...",
-      verifying: "Verificando...",
       notClient: "¿Aún no eres cliente?",
       schedule: "Agenda un diagnóstico",
       plans: "Conoce nuestros planes",
@@ -135,42 +126,26 @@ export default function Login() {
 
   // Se o usuário já está autenticado, redireciona para o dashboard apropriado
   useEffect(() => {
-    if (!loading && isAuthenticated && user) {
-      console.log("[Login] User already authenticated, redirecting...", user);
-      const targetUrl = user.role === "admin" ? "/admin" : "/dashboard";
-      window.location.href = targetUrl;
+    if (isAuthenticated && user && !loading) {
+      if (user.role === "admin") {
+        setLocation("/admin");
+      } else {
+        setLocation("/dashboard");
+      }
     }
-  }, [isAuthenticated, user, loading]);
+  }, [isAuthenticated, user, loading, setLocation]);
 
   function onSubmit(data: LoginFormValues) {
-    console.log("[Login] Submitting login form:", data.email);
-    setIsSubmitting(true);
     loginMutation.mutate({
       email: data.email,
       password: data.password,
     });
   }
 
-  // Mostra loading enquanto verifica autenticação inicial
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">{t.verifying}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Se já está autenticado, mostra tela de redirecionamento
-  if (isAuthenticated && user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">{t.redirecting}</p>
-        </div>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -214,7 +189,7 @@ export default function Login() {
         <Button 
           variant="ghost" 
           className="absolute top-4 left-4 md:top-8 md:left-8 text-muted-foreground hover:text-white z-20"
-          onClick={() => window.location.href = "/"}
+          onClick={() => setLocation("/")}
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> <span className="hidden md:inline">{t.back}</span><span className="md:hidden">{t.backMobile}</span>
         </Button>
@@ -292,9 +267,9 @@ export default function Login() {
               <Button 
                 type="submit" 
                 className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-6 text-lg"
-                disabled={isSubmitting || loginMutation.isPending}
+                disabled={loginMutation.isPending}
               >
-                {isSubmitting || loginMutation.isPending ? (
+                {loginMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {t.submitting}
