@@ -1,5 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Redirect, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
 
 interface AdminRouteProps {
@@ -24,7 +24,19 @@ export default function AdminRoute({ children }: AdminRouteProps) {
 
   // Redirect to login if not authenticated
   if (!isAuthenticated || !user) {
-    return <Redirect to="/login" />;
+    console.log("[AdminRoute] Not authenticated, redirecting to login");
+    // Usar window.location para garantir redirecionamento completo
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    return (
+      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+          <p className="text-gray-400">Redirecionando para login...</p>
+        </div>
+      </div>
+    );
   }
 
   // Check if user has admin role

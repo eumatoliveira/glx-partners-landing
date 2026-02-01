@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,43 +21,72 @@ type LoginFormValues = {
 export default function Login() {
   const { language } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, refresh } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
+  const utils = trpc.useUtils();
+  const pollCountRef = useRef(0);
 
-  // Função de redirecionamento separada para evitar problemas de render
-  const redirectToAdmin = useCallback(() => {
-    console.log("[Login] Redirecting to /admin...");
-    window.location.replace("/admin");
-  }, []);
+  // Polling para verificar se o cookie foi setado corretamente
+  useEffect(() => {
+    if (!pendingRedirect) return;
 
-  const redirectToDashboard = useCallback(() => {
-    console.log("[Login] Redirecting to /dashboard...");
-    window.location.replace("/dashboard");
-  }, []);
+    const pollAuth = async () => {
+      pollCountRef.current += 1;
+      console.log("[Login] Polling auth status, attempt:", pollCountRef.current);
+      
+      try {
+        // Forçar uma nova requisição para auth.me
+        await utils.auth.me.invalidate();
+        const result = await utils.auth.me.fetch();
+        
+        console.log("[Login] Poll result:", result);
+        
+        if (result && result.email) {
+          console.log("[Login] Auth confirmed, redirecting to:", pendingRedirect);
+          // Usar window.location.href para um redirecionamento completo
+          window.location.href = pendingRedirect;
+          return;
+        }
+      } catch (error) {
+        console.error("[Login] Poll error:", error);
+      }
+
+      // Se ainda não autenticado após 10 tentativas, tentar redirecionar mesmo assim
+      if (pollCountRef.current >= 10) {
+        console.log("[Login] Max polls reached, forcing redirect to:", pendingRedirect);
+        window.location.href = pendingRedirect;
+        return;
+      }
+    };
+
+    const timer = setTimeout(pollAuth, 300);
+    return () => clearTimeout(timer);
+  }, [pendingRedirect, utils.auth.me, pollCountRef.current]);
 
   const loginMutation = trpc.emailAuth.login.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       console.log("[Login] Login successful:", data);
       toast.success("Login realizado com sucesso!");
       setLoginSuccess(true);
       setIsRedirecting(true);
       
-      // Armazenar a role para o redirecionamento
+      // Determinar URL de destino
       const targetUrl = data.user.role === "admin" ? "/admin" : "/dashboard";
       console.log("[Login] Target URL:", targetUrl);
       
-      // Usar setTimeout para garantir que o cookie foi setado
-      setTimeout(() => {
-        console.log("[Login] Executing redirect to:", targetUrl);
-        window.location.replace(targetUrl);
-      }, 500);
+      // Invalidar o cache e iniciar o polling
+      await utils.auth.me.invalidate();
+      pollCountRef.current = 0;
+      setPendingRedirect(targetUrl);
     },
     onError: (error) => {
       console.error("[Login] Login error:", error);
       toast.error(error.message || "Erro ao fazer login");
       setIsRedirecting(false);
       setLoginSuccess(false);
+      setPendingRedirect(null);
     },
   });
 
@@ -150,20 +179,16 @@ export default function Login() {
 
   // Se o usuário já está autenticado, redireciona para o dashboard apropriado
   useEffect(() => {
-    if (!loading && isAuthenticated && user && !loginSuccess) {
+    if (!loading && isAuthenticated && user && !loginSuccess && !isRedirecting && !pendingRedirect) {
       console.log("[Login] User already authenticated, redirecting...", user);
       setIsRedirecting(true);
-      // Usa setTimeout para evitar problemas de render
-      const timer = setTimeout(() => {
-        if (user.role === "admin") {
-          redirectToAdmin();
-        } else {
-          redirectToDashboard();
-        }
+      const targetUrl = user.role === "admin" ? "/admin" : "/dashboard";
+      // Usar um pequeno delay para evitar problemas de render
+      setTimeout(() => {
+        window.location.href = targetUrl;
       }, 100);
-      return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, user, loading, loginSuccess, redirectToAdmin, redirectToDashboard]);
+  }, [isAuthenticated, user, loading, loginSuccess, isRedirecting, pendingRedirect]);
 
   function onSubmit(data: LoginFormValues) {
     console.log("[Login] Submitting login form:", data.email);

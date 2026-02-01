@@ -433,3 +433,9 @@
 ### Responsividade Mobile
 - [x] Ajustar todas as telas para mobile
 - [x] Testar em diferentes resoluções
+
+## Versão 15.1 - Correção do Login
+
+- [x] Corrigir bug: "Login realizado com sucesso!" aparece mas não redireciona para /admin (SameSite=Lax para Safari)
+- [x] Garantir redirecionamento correto para /admin após autenticação
+- [x] Testar fluxo completo de login
