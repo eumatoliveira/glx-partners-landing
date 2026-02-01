@@ -34,7 +34,7 @@ function KPICard({ title, value, change, changeLabel, subtitle, highlight }: KPI
       "border-[#2a2a2a]",
       highlight ? "bg-gradient-to-br from-orange-500/20 to-orange-600/10 border-orange-500/30" : "bg-[#1E1E1E]"
     )}>
-      <CardContent className="p-5">
+      <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -77,44 +77,44 @@ interface FunnelStageProps {
 }
 
 function FunnelStage({ stage, title, value, change, target, conversion, revenue, isLast, alert }: FunnelStageProps) {
-  const widthPercent = isLast ? 60 : 100 - (stage - 1) * 12;
+  const widthPercent = isLast ? 70 : 100 - (stage - 1) * 8;
   
   return (
     <div className="relative">
       {/* Conversion rate connector */}
       {conversion && (
-        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 bg-[#2a2a2a] px-2 py-0.5 rounded">
+        <div className="absolute -top-5 sm:-top-6 left-1/2 transform -translate-x-1/2 text-[10px] sm:text-xs text-gray-400 bg-[#2a2a2a] px-1.5 sm:px-2 py-0.5 rounded">
           {conversion}% Conversion
         </div>
       )}
       
       <div 
         className={cn(
-          "relative rounded-lg p-4 transition-all",
+          "relative rounded-lg p-3 sm:p-4 transition-all",
           isLast 
             ? "bg-gradient-to-r from-orange-500 to-orange-600" 
             : "bg-[#2a2a2a] border border-[#3a3a3a]"
         )}
         style={{ width: `${widthPercent}%`, marginLeft: `${(100 - widthPercent) / 2}%` }}
       >
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
             <span className={cn(
-              "text-xs font-medium uppercase tracking-wide",
+              "text-[10px] sm:text-xs font-medium uppercase tracking-wide",
               isLast ? "text-orange-200" : "text-gray-400"
             )}>
               Stage {stage}
             </span>
             <h3 className={cn(
-              "text-lg font-semibold mt-1",
+              "text-sm sm:text-lg font-semibold mt-0.5 sm:mt-1 truncate",
               isLast ? "text-white" : "text-white"
             )}>
               {title}
             </h3>
           </div>
-          <div className="text-right">
+          <div className="text-right flex-shrink-0">
             <p className={cn(
-              "text-2xl font-bold",
+              "text-lg sm:text-2xl font-bold",
               isLast ? "text-white" : "text-white"
             )}>
               {value.toLocaleString()}

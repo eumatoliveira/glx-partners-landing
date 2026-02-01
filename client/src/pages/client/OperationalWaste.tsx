@@ -155,11 +155,11 @@ function KPICard({ title, value, change, changeLabel, subtitle, icon, status }: 
   
   return (
     <Card className="bg-[#1E1E1E] border-[#2a2a2a]">
-      <CardContent className="p-5">
+      <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <p className="text-gray-400 text-sm">{title}</p>
+              <p className="text-gray-400 text-xs sm:text-sm">{title}</p>
               {change !== undefined && (
                 <span className={cn(
                   "text-xs font-medium flex items-center gap-1",
@@ -171,7 +171,7 @@ function KPICard({ title, value, change, changeLabel, subtitle, icon, status }: 
               )}
             </div>
             <p className={cn(
-              "text-3xl font-bold",
+              "text-2xl sm:text-3xl font-bold",
               status === "high" ? "text-red-500" : status === "good" ? "text-green-500" : "text-white"
             )}>
               {value}
@@ -180,7 +180,7 @@ function KPICard({ title, value, change, changeLabel, subtitle, icon, status }: 
           </div>
           {status && (
             <span className={cn(
-              "px-2 py-1 rounded text-xs font-medium",
+              "px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-medium hidden sm:block",
               statusColors[status]
             )}>
               {status === "high" ? "High Impact" : status === "good" ? "Good" : "Warning"}
@@ -248,18 +248,18 @@ export default function OperationalWaste() {
           {/* Heatmap */}
           <div className="lg:col-span-2">
             <Card className="bg-[#1E1E1E] border-[#2a2a2a] h-full">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 gap-2">
                 <div>
-                  <CardTitle className="text-white text-lg">No-show Frequency</CardTitle>
-                  <p className="text-gray-400 text-sm">Heatmap by Day & Time</p>
+                  <CardTitle className="text-white text-base sm:text-lg">No-show Frequency</CardTitle>
+                  <p className="text-gray-400 text-xs sm:text-sm">Heatmap by Day & Time</p>
                 </div>
-                <div className="flex items-center gap-4 text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-orange-500/30" />
+                <div className="flex items-center gap-3 sm:gap-4 text-xs">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-orange-500/30" />
                     <span className="text-gray-400">Low</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-orange-500" />
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-orange-500" />
                     <span className="text-gray-400">High</span>
                   </div>
                 </div>
@@ -269,9 +269,9 @@ export default function OperationalWaste() {
                   <table className="w-full">
                     <thead>
                       <tr>
-                        <th className="w-28"></th>
+                        <th className="w-20 sm:w-28"></th>
                         {heatmapData.days.map((day) => (
-                          <th key={day} className="text-center text-gray-400 text-sm font-medium pb-3 px-2">
+                          <th key={day} className="text-center text-gray-400 text-xs sm:text-sm font-medium pb-2 sm:pb-3 px-1 sm:px-2">
                             {day}
                           </th>
                         ))}
@@ -280,9 +280,9 @@ export default function OperationalWaste() {
                     <tbody>
                       {heatmapData.times.map((time, rowIndex) => (
                         <tr key={time.label}>
-                          <td className="py-2 pr-4">
-                            <div className="text-white text-sm font-medium">{time.label}</div>
-                            <div className="text-gray-500 text-xs">{time.sublabel}</div>
+                          <td className="py-1 sm:py-2 pr-2 sm:pr-4">
+                            <div className="text-white text-xs sm:text-sm font-medium">{time.label}</div>
+                            <div className="text-gray-500 text-[10px] sm:text-xs">{time.sublabel}</div>
                           </td>
                           {heatmapData.values[rowIndex].map((value, colIndex) => (
                             <td key={colIndex} className="p-1">

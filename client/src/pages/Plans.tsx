@@ -76,7 +76,7 @@ export default function Plans() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/50 rounded-lg p-8 md:p-12"
+            className="bg-white/5 border border-white/10 rounded-lg p-8 md:p-12"
           >
             {/* Video Space */}
             <div 
@@ -103,7 +103,7 @@ export default function Plans() {
             {/* Plan Phases */}
             <div className="grid md:grid-cols-3 gap-6 mb-10">
               {/* Diagnóstico */}
-              <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+              <div className="bg-[#1a1a1a] rounded-lg p-6 border border-white/10">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 rounded-lg bg-primary/20 text-primary">
                     <Target className="h-5 w-5" />
@@ -138,7 +138,7 @@ export default function Plans() {
               </div>
 
               {/* Setup */}
-              <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+              <div className="bg-[#1a1a1a] rounded-lg p-6 border border-white/10">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 rounded-lg bg-primary/20 text-primary">
                     <Zap className="h-5 w-5" />
@@ -192,8 +192,8 @@ export default function Plans() {
                 </div>
               </div>
 
-              {/* Gestão Contínua */}
-              <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+              {/* Gestão Contínua - DESTACADO */}
+              <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg p-6 border-2 border-primary/50 relative">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 rounded-lg bg-primary/20 text-primary">
                     <BarChart3 className="h-5 w-5" />

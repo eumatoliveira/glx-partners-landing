@@ -390,3 +390,16 @@
 ### Integração com Dashboard
 - [x] Endpoint clientDashboard.getMyDashboard para clientes
 - [x] Estrutura de dados preparada para conexão
+
+## Versão 14.1 - Correções de UI
+
+### Página de Planos
+- [x] Corrigir destaque do plano GLX Partners - apenas "Gestão Contínua" deve estar em laranja
+
+### Responsividade Mobile
+- [x] Revisar Home/Landing page
+- [x] Revisar página de Login
+- [x] Revisar Dashboard Admin
+- [x] Revisar Dashboard Cliente (todas as 8 telas)
+- [x] Revisar página de Gestão de Dados
+- [x] Ajustar tamanhos de fonte, cards e quadros para mobile

@@ -76,29 +76,29 @@ function KPICard({ title, value, change, changeLabel, icon, sparklineData, trend
   
   return (
     <Card className="bg-[#1E1E1E] border-[#2a2a2a] hover:border-orange-500/50 transition-all">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
+          <div className="p-1.5 sm:p-2 rounded-lg bg-orange-500/10 text-orange-500">
             {icon}
           </div>
           <Sparkline data={sparklineData} color={trendColor} />
         </div>
         <div className="space-y-1">
-          <p className="text-gray-400 text-sm font-medium uppercase tracking-wide">{title}</p>
-          <p className="text-3xl font-bold text-white">{value}</p>
-          <div className="flex items-center gap-2">
+          <p className="text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wide">{title}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-white">{value}</p>
+          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
             {isPositive ? (
-              <TrendingUp className="w-4 h-4 text-green-500" />
+              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
             ) : (
-              <TrendingDown className="w-4 h-4 text-red-500" />
+              <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
             )}
             <span className={cn(
-              "text-sm font-medium",
+              "text-xs sm:text-sm font-medium",
               isPositive ? "text-green-500" : "text-red-500"
             )}>
               {isPositive ? "+" : ""}{change}%
             </span>
-            <span className="text-gray-500 text-sm">{changeLabel}</span>
+            <span className="text-gray-500 text-xs sm:text-sm">{changeLabel}</span>
           </div>
         </div>
       </CardContent>
@@ -122,25 +122,25 @@ function AlertItem({ type, message, time, action }: AlertItemProps) {
   };
   
   const icons = {
-    critical: <AlertTriangle className="w-5 h-5" />,
-    warning: <Clock className="w-5 h-5" />,
-    info: <CheckCircle className="w-5 h-5" />,
+    critical: <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />,
+    warning: <Clock className="w-4 h-4 sm:w-5 sm:h-5" />,
+    info: <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />,
   };
 
   return (
     <div className={cn(
-      "flex items-start gap-4 p-4 rounded-lg border",
+      "flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border",
       colors[type]
     )}>
       <div className="flex-shrink-0 mt-0.5">{icons[type]}</div>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium">{message}</p>
+        <p className="text-white text-xs sm:text-sm font-medium leading-tight">{message}</p>
         <p className="text-gray-500 text-xs mt-1">{time}</p>
       </div>
       {action && (
-        <Button size="sm" variant="ghost" className="text-orange-500 hover:text-orange-400 hover:bg-orange-500/10">
+        <Button size="sm" variant="ghost" className="text-orange-500 hover:text-orange-400 hover:bg-orange-500/10 text-xs sm:text-sm px-2 sm:px-3 hidden sm:flex">
           {action}
-          <ArrowRight className="w-4 h-4 ml-1" />
+          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
         </Button>
       )}
     </div>
