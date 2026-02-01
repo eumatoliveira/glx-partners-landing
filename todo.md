@@ -403,3 +403,33 @@
 - [x] Revisar Dashboard Cliente (todas as 8 telas)
 - [x] Revisar página de Gestão de Dados
 - [x] Ajustar tamanhos de fonte, cards e quadros para mobile
+
+## Versão 15.0 - Redesign Dashboard e Exportação PDF LSS
+
+### Redesign No-show & Operational Waste
+- [x] Header com "Live Data • Last updated X mins ago"
+- [x] 4 KPIs com barras de progresso coloridas (No-show Rate, Financial Loss, Idle Capacity, Efficiency Score)
+- [x] Heatmap de No-show Frequency idêntico à referência
+- [x] Donut chart de Waste Breakdown com legenda
+- [x] Tabela Department Impact com colunas corretas
+- [x] Recovery Actions com ícones e status
+
+### Redesign Growth & Marketing ROI
+- [x] Header com badge "Campaigns Active"
+- [x] 4 KPIs de marketing (Total Spend, CPL, CAC, Marketing ROI)
+- [x] Funil comercial visual com 4 estágios e taxas de conversão
+- [x] Gráfico ROI Forecast vs Actual com linha e pontos
+- [x] Card de Insights com melhor canal e canal para otimizar
+- [x] Tabela Channel Performance com ícones
+
+### Exportação PDF Profissional
+- [x] Implementar geração real de PDF com jsPDF
+- [x] Incluir logo GLX em todos os relatórios
+- [x] Adicionar descrições técnicas LSS Master Black Belt
+- [x] Explicar significado de cada gráfico/tabela
+- [x] Incluir aplicação prática para CEOs
+- [x] Remover opção de exportar CSV
+
+### Responsividade Mobile
+- [x] Ajustar todas as telas para mobile
+- [x] Testar em diferentes resoluções

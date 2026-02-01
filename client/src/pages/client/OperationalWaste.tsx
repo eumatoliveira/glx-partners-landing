@@ -1,24 +1,17 @@
 import { useState } from "react";
 import ClientDashboardLayout from "@/components/client/ClientDashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
   CheckCircle,
   Clock,
-  DollarSign,
-  Activity,
-  ArrowRight,
   MessageSquare,
   Calendar,
-  Users,
-  Zap,
+  Bot,
 } from "lucide-react";
 
-// Heatmap data
+// Heatmap data - valores de intensidade por dia/hora
 const heatmapData = {
   days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
   times: [
@@ -27,9 +20,9 @@ const heatmapData = {
     { label: "Evening", sublabel: "5pm-8pm" },
   ],
   values: [
-    [0.8, 0.4, 0.3, 0.5, 0.7],
-    [0.3, 0.5, 0.6, 0.4, 0.8],
-    [0.5, 0.3, 0.7, 0.4, 0.3],
+    [0.85, 0.45, 0.35, 0.55, 0.75], // Morning
+    [0.35, 0.50, 0.65, 0.55, 0.90], // Afternoon
+    [0.55, 0.30, 0.70, 0.45, 0.35], // Evening
   ],
 };
 
@@ -37,8 +30,8 @@ const heatmapData = {
 const wasteBreakdown = [
   { label: "No-shows", value: 45, color: "#f97316" },
   { label: "Late Cancels", value: 25, color: "#ef4444" },
-  { label: "Idle Equip", value: 15, color: "#eab308" },
-  { label: "Overstaffing", value: 15, color: "#6b7280" },
+  { label: "Idle Equip", value: 15, color: "#ea580c" },
+  { label: "Overstaffing", value: 15, color: "#4b5563" },
 ];
 
 // Department data
@@ -46,7 +39,6 @@ const departmentData = [
   { name: "Dermatology", doctor: "Dr. Sarah Kline", appts: 420, noShowRate: 18.5, estLoss: 12450, trend: "up" },
   { name: "Orthopedics", doctor: "Dr. Michael Chen", appts: 380, noShowRate: 12.3, estLoss: 8920, trend: "down" },
   { name: "Cardiology", doctor: "Dr. Ana Silva", appts: 290, noShowRate: 8.7, estLoss: 5680, trend: "stable" },
-  { name: "Pediatrics", doctor: "Dr. João Santos", appts: 520, noShowRate: 15.2, estLoss: 9840, trend: "up" },
 ];
 
 // Recovery actions
@@ -64,368 +56,396 @@ const recoveryActions = [
     description: "Sent 142 confirmations for tomorrow.",
     time: "1h ago",
   },
-  {
-    type: "pending",
-    title: "Overbooking Applied",
-    description: "Added 2 buffer slots in Orthopedics.",
-    time: "3h ago",
-  },
 ];
 
-// Heatmap cell component
-function HeatmapCell({ value }: { value: number }) {
-  const intensity = Math.round(value * 100);
-  const bgColor = value > 0.6 
-    ? "bg-orange-500" 
-    : value > 0.4 
-      ? "bg-orange-500/60" 
-      : "bg-orange-500/30";
-  
+// KPI Card com barra de progresso
+interface KPICardProps {
+  title: string;
+  value: string;
+  change?: number;
+  subtitle?: string;
+  status?: "high" | "good" | "warning" | "neutral";
+  progressColor?: string;
+  progressValue?: number;
+  icon?: React.ReactNode;
+}
+
+function KPICard({ title, value, change, subtitle, status, progressColor, progressValue, icon }: KPICardProps) {
+  const getStatusBadge = () => {
+    if (!status) return null;
+    const styles = {
+      high: "bg-red-500/20 text-red-400 border border-red-500/30",
+      good: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+      warning: "bg-orange-500/20 text-orange-400 border border-orange-500/30",
+      neutral: "hidden",
+    };
+    const labels = {
+      high: "High Impact",
+      good: "Good",
+      warning: "Warning",
+      neutral: "",
+    };
+    return (
+      <span className={cn("px-2 py-0.5 rounded text-[10px] font-semibold", styles[status])}>
+        {labels[status]}
+      </span>
+    );
+  };
+
   return (
-    <div 
-      className={cn(
-        "h-12 rounded-lg flex items-center justify-center transition-all hover:scale-105 cursor-pointer",
-        bgColor
+    <div className="bg-[#1a1a1a] rounded-xl p-4 sm:p-5 border border-[#2a2a2a]">
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-gray-400 text-xs sm:text-sm font-medium">{title}</span>
+          {change !== undefined && (
+            <span className={cn(
+              "flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold",
+              change >= 0 ? "text-red-400" : "text-emerald-400"
+            )}>
+              {change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {change >= 0 ? "+" : ""}{change}%
+            </span>
+          )}
+        </div>
+        {getStatusBadge()}
+        {icon && <div className="text-gray-500">{icon}</div>}
+      </div>
+      
+      <div className={cn(
+        "text-2xl sm:text-3xl font-bold mb-1",
+        status === "high" ? "text-red-500" : 
+        status === "good" ? "text-emerald-400" : "text-white"
+      )}>
+        {value}
+      </div>
+      
+      {subtitle && (
+        <p className="text-gray-500 text-[10px] sm:text-xs mb-2">{subtitle}</p>
       )}
-      title={`${intensity}% no-show rate`}
-    >
-      <span className="text-xs font-medium text-white/80">{intensity}%</span>
+      
+      {progressValue !== undefined && progressColor && (
+        <div className="h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden mt-2">
+          <div 
+            className="h-full rounded-full transition-all duration-500"
+            style={{ 
+              width: `${progressValue}%`, 
+              backgroundColor: progressColor 
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
 
-// Donut chart component
-function DonutChart({ data, total }: { data: typeof wasteBreakdown; total: string }) {
-  const radius = 80;
-  const strokeWidth = 24;
-  const circumference = 2 * Math.PI * radius;
-  
-  let currentOffset = 0;
+// Heatmap Cell
+function HeatmapCell({ value }: { value: number }) {
+  // Cores baseadas na intensidade - laranja/marrom como na referência
+  const getBgColor = () => {
+    if (value >= 0.8) return "bg-orange-500";
+    if (value >= 0.6) return "bg-orange-600/80";
+    if (value >= 0.4) return "bg-amber-700/60";
+    return "bg-amber-800/40";
+  };
   
   return (
-    <div className="relative w-48 h-48 mx-auto">
-      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
+    <div 
+      className={cn(
+        "h-10 sm:h-12 rounded-lg transition-all hover:scale-105 cursor-pointer",
+        getBgColor()
+      )}
+    />
+  );
+}
+
+// Donut Chart SVG
+function DonutChart({ data, total }: { data: typeof wasteBreakdown; total: string }) {
+  const size = 180;
+  const strokeWidth = 28;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  
+  let cumulativePercentage = 0;
+  
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="transform -rotate-90">
         {data.map((item, index) => {
           const percentage = item.value / 100;
-          const strokeDasharray = `${circumference * percentage} ${circumference * (1 - percentage)}`;
-          const strokeDashoffset = -currentOffset;
-          currentOffset += circumference * percentage;
+          const strokeDasharray = circumference * percentage;
+          const strokeDashoffset = -circumference * cumulativePercentage;
+          cumulativePercentage += percentage;
           
           return (
             <circle
               key={index}
-              cx="100"
-              cy="100"
+              cx={size / 2}
+              cy={size / 2}
               r={radius}
               fill="none"
               stroke={item.color}
               strokeWidth={strokeWidth}
-              strokeDasharray={strokeDasharray}
+              strokeDasharray={`${strokeDasharray} ${circumference - strokeDasharray}`}
               strokeDashoffset={strokeDashoffset}
-              className="transition-all hover:opacity-80"
+              strokeLinecap="round"
             />
           );
         })}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-gray-400 text-xs">Total Waste</span>
-        <span className="text-3xl font-bold text-white">{total}</span>
+        <span className="text-gray-500 text-xs">Total Waste</span>
+        <span className="text-2xl sm:text-3xl font-bold text-white">{total}</span>
       </div>
     </div>
-  );
-}
-
-// KPI Card component
-interface KPICardProps {
-  title: string;
-  value: string;
-  change?: number;
-  changeLabel?: string;
-  subtitle?: string;
-  icon?: React.ReactNode;
-  status?: "high" | "good" | "warning";
-}
-
-function KPICard({ title, value, change, changeLabel, subtitle, icon, status }: KPICardProps) {
-  const statusColors = {
-    high: "text-red-500 bg-red-500/10",
-    good: "text-green-500 bg-green-500/10",
-    warning: "text-orange-500 bg-orange-500/10",
-  };
-  
-  return (
-    <Card className="bg-[#1E1E1E] border-[#2a2a2a]">
-      <CardContent className="p-4 sm:p-5">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <p className="text-gray-400 text-xs sm:text-sm">{title}</p>
-              {change !== undefined && (
-                <span className={cn(
-                  "text-xs font-medium flex items-center gap-1",
-                  change >= 0 ? "text-red-500" : "text-green-500"
-                )}>
-                  {change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  {change >= 0 ? "+" : ""}{change}%
-                </span>
-              )}
-            </div>
-            <p className={cn(
-              "text-2xl sm:text-3xl font-bold",
-              status === "high" ? "text-red-500" : status === "good" ? "text-green-500" : "text-white"
-            )}>
-              {value}
-            </p>
-            {subtitle && <p className="text-gray-500 text-xs">{subtitle}</p>}
-          </div>
-          {status && (
-            <span className={cn(
-              "px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-medium hidden sm:block",
-              statusColors[status]
-            )}>
-              {status === "high" ? "High Impact" : status === "good" ? "Good" : "Warning"}
-            </span>
-          )}
-          {icon && (
-            <div className="p-2 rounded-lg bg-[#2a2a2a]">
-              {icon}
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 
 export default function OperationalWaste() {
   return (
     <ClientDashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-5 sm:space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white">No-show & Operational Waste</h1>
-            <div className="flex items-center gap-3 mt-2">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-red-500 font-medium">Live Data</span>
-              </div>
-              <span className="text-gray-500 text-sm">• Last updated 12 mins ago</span>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
+              No-show & Operational Waste
+            </h1>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-red-500 text-xs sm:text-sm font-medium">Live Data</span>
+              <span className="text-gray-500 text-xs sm:text-sm">• Last updated 12 mins ago</span>
             </div>
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI Cards - 4 colunas */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <KPICard
             title="No-show Rate %"
             value="12.5%"
             change={1.2}
             subtitle="vs 11.3% prev. period"
+            progressColor="#f97316"
+            progressValue={65}
           />
           <KPICard
             title="Financial Loss (Est.)"
             value="$42,500"
             subtitle="~ $1,416 daily avg."
             status="high"
+            progressColor="#ef4444"
+            progressValue={85}
           />
           <KPICard
             title="Idle Capacity"
             value="145 Hrs"
             subtitle="Across 3 departments"
-            icon={<Clock className="w-5 h-5 text-gray-400" />}
+            icon={<Clock className="w-5 h-5" />}
+            progressColor="#6b7280"
+            progressValue={45}
           />
           <KPICard
             title="Efficiency Score"
             value="84/100"
             subtitle="Top 15% of peers"
             status="good"
+            progressColor="#10b981"
+            progressValue={84}
           />
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Heatmap */}
-          <div className="lg:col-span-2">
-            <Card className="bg-[#1E1E1E] border-[#2a2a2a] h-full">
-              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 gap-2">
-                <div>
-                  <CardTitle className="text-white text-base sm:text-lg">No-show Frequency</CardTitle>
-                  <p className="text-gray-400 text-xs sm:text-sm">Heatmap by Day & Time</p>
+        {/* Main Grid - Heatmap + Waste Breakdown */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+          {/* Heatmap - 2 colunas */}
+          <div className="lg:col-span-2 bg-[#1a1a1a] rounded-xl p-4 sm:p-6 border border-[#2a2a2a]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+              <div>
+                <h3 className="text-white font-semibold text-base sm:text-lg">No-show Frequency</h3>
+                <p className="text-gray-500 text-xs sm:text-sm">Heatmap by Day & Time</p>
+              </div>
+              <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-amber-800/40" />
+                  <span className="text-gray-400">Low</span>
                 </div>
-                <div className="flex items-center gap-3 sm:gap-4 text-xs">
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-orange-500/30" />
-                    <span className="text-gray-400">Low</span>
-                  </div>
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-orange-500" />
-                    <span className="text-gray-400">High</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-orange-500" />
+                  <span className="text-gray-400">High</span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr>
-                        <th className="w-20 sm:w-28"></th>
-                        {heatmapData.days.map((day) => (
-                          <th key={day} className="text-center text-gray-400 text-xs sm:text-sm font-medium pb-2 sm:pb-3 px-1 sm:px-2">
-                            {day}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {heatmapData.times.map((time, rowIndex) => (
-                        <tr key={time.label}>
-                          <td className="py-1 sm:py-2 pr-2 sm:pr-4">
-                            <div className="text-white text-xs sm:text-sm font-medium">{time.label}</div>
-                            <div className="text-gray-500 text-[10px] sm:text-xs">{time.sublabel}</div>
-                          </td>
-                          {heatmapData.values[rowIndex].map((value, colIndex) => (
-                            <td key={colIndex} className="p-1">
-                              <HeatmapCell value={value} />
-                            </td>
-                          ))}
-                        </tr>
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[400px]">
+                <thead>
+                  <tr>
+                    <th className="w-24 sm:w-32"></th>
+                    {heatmapData.days.map((day) => (
+                      <th key={day} className="text-center text-gray-400 text-xs sm:text-sm font-medium pb-3 px-1.5">
+                        {day}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {heatmapData.times.map((time, rowIndex) => (
+                    <tr key={time.label}>
+                      <td className="py-1.5 pr-3">
+                        <div className="text-white text-xs sm:text-sm font-medium">{time.label}</div>
+                        <div className="text-gray-600 text-[10px] sm:text-xs">{time.sublabel}</div>
+                      </td>
+                      {heatmapData.values[rowIndex].map((value, colIndex) => (
+                        <td key={colIndex} className="p-1">
+                          <HeatmapCell value={value} />
+                        </td>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {/* Waste Breakdown */}
-          <div>
-            <Card className="bg-[#1E1E1E] border-[#2a2a2a] h-full">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white text-lg">Waste Breakdown</CardTitle>
-                <p className="text-gray-400 text-sm">Monetary Value Distribution</p>
-              </CardHeader>
-              <CardContent>
-                <DonutChart data={wasteBreakdown} total="$58.2k" />
-                <div className="mt-6 space-y-3">
-                  {wasteBreakdown.map((item) => (
-                    <div key={item.label} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span className="text-gray-300 text-sm">{item.label}</span>
-                      </div>
-                      <span className="text-white font-medium">{item.value}%</span>
-                    </div>
-                  ))}
+          {/* Waste Breakdown - 1 coluna */}
+          <div className="bg-[#1a1a1a] rounded-xl p-4 sm:p-6 border border-[#2a2a2a]">
+            <div className="mb-4">
+              <h3 className="text-white font-semibold text-base sm:text-lg">Waste Breakdown</h3>
+              <p className="text-gray-500 text-xs sm:text-sm">Monetary Value Distribution</p>
+            </div>
+            
+            <div className="flex justify-center mb-5">
+              <DonutChart data={wasteBreakdown} total="$58.2k" />
+            </div>
+            
+            <div className="space-y-2.5">
+              {wasteBreakdown.map((item, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-gray-300 text-xs sm:text-sm">{item.label}</span>
+                  </div>
+                  <span className="text-white font-semibold text-xs sm:text-sm">{item.value}%</span>
                 </div>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Department Impact & Recovery Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Department Impact Table */}
-          <div className="lg:col-span-2">
-            <Card className="bg-[#1E1E1E] border-[#2a2a2a]">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div>
-                  <CardTitle className="text-white text-lg">Department Impact</CardTitle>
-                  <p className="text-gray-400 text-sm">Ranked by revenue loss</p>
-                </div>
-                <Button variant="ghost" className="text-orange-500 hover:text-orange-400 hover:bg-orange-500/10">
-                  View Full Report
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-[#2a2a2a]">
-                        <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wide py-3">Department</th>
-                        <th className="text-center text-gray-400 text-xs font-medium uppercase tracking-wide py-3">Appts</th>
-                        <th className="text-center text-gray-400 text-xs font-medium uppercase tracking-wide py-3">No-show Rate</th>
-                        <th className="text-center text-gray-400 text-xs font-medium uppercase tracking-wide py-3">Est. Loss</th>
-                        <th className="text-center text-gray-400 text-xs font-medium uppercase tracking-wide py-3">Trend</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {departmentData.map((dept, index) => (
-                        <tr key={index} className="border-b border-[#2a2a2a] hover:bg-[#2a2a2a]/50 transition-colors">
-                          <td className="py-4">
-                            <div className="text-white font-medium">{dept.name}</div>
-                            <div className="text-gray-500 text-xs">{dept.doctor}</div>
-                          </td>
-                          <td className="text-center text-gray-300">{dept.appts}</td>
-                          <td className="text-center">
-                            <span className={cn(
-                              "font-medium",
-                              dept.noShowRate > 15 ? "text-red-500" : dept.noShowRate > 10 ? "text-orange-500" : "text-green-500"
-                            )}>
-                              {dept.noShowRate}%
-                            </span>
-                          </td>
-                          <td className="text-center text-white font-medium">${dept.estLoss.toLocaleString()}</td>
-                          <td className="text-center">
-                            {dept.trend === "up" ? (
-                              <TrendingUp className="w-4 h-4 text-red-500 mx-auto" />
-                            ) : dept.trend === "down" ? (
-                              <TrendingDown className="w-4 h-4 text-green-500 mx-auto" />
-                            ) : (
-                              <span className="text-gray-500">—</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Department Impact + Recovery Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+          {/* Department Impact - 2 colunas */}
+          <div className="lg:col-span-2 bg-[#1a1a1a] rounded-xl p-4 sm:p-6 border border-[#2a2a2a]">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-white font-semibold text-base sm:text-lg">Department Impact</h3>
+                <p className="text-gray-500 text-xs sm:text-sm">Ranked by revenue loss</p>
+              </div>
+              <button className="text-orange-500 hover:text-orange-400 text-xs sm:text-sm font-medium transition-colors">
+                View Full Report
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[500px]">
+                <thead>
+                  <tr className="border-b border-[#2a2a2a]">
+                    <th className="text-left text-gray-400 text-[10px] sm:text-xs font-medium pb-3 uppercase tracking-wider">
+                      Department
+                    </th>
+                    <th className="text-center text-gray-400 text-[10px] sm:text-xs font-medium pb-3 uppercase tracking-wider">
+                      Appts
+                    </th>
+                    <th className="text-center text-gray-400 text-[10px] sm:text-xs font-medium pb-3 uppercase tracking-wider">
+                      No-Show Rate
+                    </th>
+                    <th className="text-center text-gray-400 text-[10px] sm:text-xs font-medium pb-3 uppercase tracking-wider">
+                      Est. Loss
+                    </th>
+                    <th className="text-center text-gray-400 text-[10px] sm:text-xs font-medium pb-3 uppercase tracking-wider">
+                      Trend
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {departmentData.map((dept, index) => (
+                    <tr key={index} className="border-b border-[#2a2a2a]/50 last:border-0">
+                      <td className="py-3 sm:py-4">
+                        <div className="text-white text-xs sm:text-sm font-medium">{dept.name}</div>
+                        <div className="text-gray-500 text-[10px] sm:text-xs">{dept.doctor}</div>
+                      </td>
+                      <td className="text-center text-gray-300 text-xs sm:text-sm">{dept.appts}</td>
+                      <td className="text-center">
+                        <span className={cn(
+                          "text-xs sm:text-sm font-semibold",
+                          dept.noShowRate > 15 ? "text-red-500" : 
+                          dept.noShowRate > 10 ? "text-orange-500" : "text-emerald-500"
+                        )}>
+                          {dept.noShowRate}%
+                        </span>
+                      </td>
+                      <td className="text-center text-gray-300 text-xs sm:text-sm">
+                        ${dept.estLoss.toLocaleString()}
+                      </td>
+                      <td className="text-center">
+                        {dept.trend === "up" && <TrendingUp className="w-4 h-4 text-red-500 mx-auto" />}
+                        {dept.trend === "down" && <TrendingDown className="w-4 h-4 text-emerald-500 mx-auto" />}
+                        {dept.trend === "stable" && <span className="text-gray-500">—</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {/* Recovery Actions */}
-          <div>
-            <Card className="bg-[#1E1E1E] border-[#2a2a2a] h-full">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div>
-                  <CardTitle className="text-white text-lg">Recovery Actions</CardTitle>
-                  <p className="text-gray-400 text-sm">Automated interventions</p>
-                </div>
-                <Zap className="w-5 h-5 text-orange-500" />
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {recoveryActions.map((action, index) => (
-                  <div key={index} className="flex items-start gap-3">
+          {/* Recovery Actions - 1 coluna */}
+          <div className="bg-[#1a1a1a] rounded-xl p-4 sm:p-6 border border-[#2a2a2a]">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-white font-semibold text-base sm:text-lg">Recovery Actions</h3>
+                <p className="text-gray-500 text-xs sm:text-sm">Automated interventions</p>
+              </div>
+              <div className="p-2 bg-orange-500/20 rounded-lg">
+                <Bot className="w-4 h-4 text-orange-500" />
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {recoveryActions.map((action, index) => (
+                <div 
+                  key={index} 
+                  className="bg-[#242424] rounded-lg p-3 sm:p-4 border border-[#2a2a2a]"
+                >
+                  <div className="flex items-start gap-3">
                     <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-                      action.type === "success" ? "bg-green-500/20" : "bg-gray-500/20"
+                      "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
+                      action.type === "success" ? "bg-emerald-500/20" : "bg-gray-500/20"
                     )}>
                       {action.type === "success" ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
                       ) : (
-                        <MessageSquare className="w-4 h-4 text-gray-400" />
+                        <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white text-sm font-medium">{action.title}</span>
-                        <span className="text-gray-500 text-xs">{action.time}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-white text-xs sm:text-sm font-medium">{action.title}</span>
+                        <span className="text-gray-500 text-[10px] sm:text-xs flex-shrink-0">{action.time}</span>
                       </div>
-                      <p className="text-gray-400 text-xs mt-0.5">{action.description}</p>
+                      <p className="text-gray-400 text-[10px] sm:text-xs mt-0.5">{action.description}</p>
                       {action.recovered && (
-                        <span className="inline-block mt-1 text-xs text-green-500 bg-green-500/10 px-2 py-0.5 rounded">
+                        <span className="inline-block mt-2 px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-medium rounded">
                           {action.recovered}
                         </span>
                       )}
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
