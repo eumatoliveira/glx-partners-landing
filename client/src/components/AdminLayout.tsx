@@ -16,7 +16,7 @@ import {
   Moon,
   Sun,
   Server,
-  Database
+  Settings
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useState, createContext, useContext, useEffect } from "react";
+import { useState, createContext, useContext } from "react";
 
 // Theme context for admin
 interface ThemeContextType {
@@ -50,7 +50,6 @@ interface AdminLayoutProps {
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Gestão de Dados", href: "/admin/data-management", icon: Database },
   { name: "Financeiro", href: "/admin/financeiro", icon: CreditCard },
   { name: "Usuários", href: "/admin/usuarios", icon: Users },
   { name: "Sistema", href: "/admin/sistema", icon: Server },
@@ -65,7 +64,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [environment, setEnvironment] = useState<"production" | "staging">("production");
   const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [notifications, setNotifications] = useState([
+  const [notifications] = useState([
     { id: 1, title: "Churn acima de 5%", type: "warning", time: "2min" },
     { id: 2, title: "Novo usuário cadastrado", type: "info", time: "15min" },
     { id: 3, title: "Erro 500 detectado", type: "error", time: "1h" },
@@ -87,19 +86,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   };
 
-  // Theme classes
-  const bgMain = theme === "dark" ? "bg-[#0a0a0a]" : "bg-gray-50";
-  const bgSidebar = theme === "dark" ? "bg-[#111111]" : "bg-white";
-  const bgHeader = theme === "dark" ? "bg-[#0a0a0a]/80" : "bg-white/80";
-  const textPrimary = theme === "dark" ? "text-white" : "text-gray-900";
-  const textSecondary = theme === "dark" ? "text-gray-400" : "text-gray-600";
+  // New design system inspired by the provided dashboards
+  // Sidebar is always dark, content area changes based on theme
+  const sidebarBg = "bg-[#1a1410]"; // Dark brown/black
+  const sidebarText = "text-gray-300";
+  const sidebarTextActive = "text-white";
+  const sidebarHover = "hover:bg-white/5";
+  const accentColor = "bg-[#e67e22]"; // Orange accent
+  const accentColorText = "text-[#e67e22]";
+  
+  // Content area theme
+  const contentBg = theme === "dark" ? "bg-[#0f0d0a]" : "bg-[#f8f6f3]";
+  const contentText = theme === "dark" ? "text-white" : "text-gray-900";
+  const contentTextSecondary = theme === "dark" ? "text-gray-400" : "text-gray-600";
+  const headerBg = theme === "dark" ? "bg-[#1a1410]/95" : "bg-white/95";
   const borderColor = theme === "dark" ? "border-white/10" : "border-gray-200";
-  const hoverBg = theme === "dark" ? "hover:bg-white/5" : "hover:bg-gray-100";
   const inputBg = theme === "dark" ? "bg-white/5" : "bg-gray-100";
+  const cardBg = theme === "dark" ? "bg-[#1a1410]/50" : "bg-white";
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <div className={cn("min-h-screen", bgMain, textPrimary)}>
+      <div className={cn("min-h-screen", contentBg, contentText)}>
         {/* Mobile sidebar backdrop */}
         {sidebarOpen && (
           <div 
@@ -108,27 +115,28 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           />
         )}
 
-        {/* Sidebar */}
+        {/* Sidebar - Always dark */}
         <aside className={cn(
-          "fixed top-0 left-0 z-50 h-full w-64 border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0",
-          bgSidebar,
-          borderColor,
+          "fixed top-0 left-0 z-50 h-full w-64 transform transition-transform duration-200 ease-in-out lg:translate-x-0",
+          sidebarBg,
+          "border-r border-white/5",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="flex flex-col h-full">
             {/* Logo */}
-            <div className={cn("flex items-center justify-between h-16 px-4 border-b", borderColor)}>
-              <Link href="/admin" className="flex items-center gap-2">
-                <img 
-                  src="/images/logo-transparent.png" 
-                  alt="GLX Partners" 
-                  className="h-10 w-auto" 
-                />
-                <span className="font-bold text-sm text-primary">ADMIN</span>
+            <div className="flex items-center justify-between h-16 px-4 border-b border-white/5">
+              <Link href="/admin" className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-[#e67e22] flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">GLX</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-white text-sm">PERFORMANCE</span>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">Admin Panel</span>
+                </div>
               </Link>
               <button 
                 onClick={() => setSidebarOpen(false)}
-                className={cn("lg:hidden p-1 rounded", hoverBg)}
+                className={cn("lg:hidden p-1 rounded", sidebarHover, sidebarText)}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -144,10 +152,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <li key={item.name}>
                       <Link href={item.href}>
                         <div className={cn(
-                          "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer",
+                          "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer",
                           isActive 
-                            ? "bg-primary text-primary-foreground" 
-                            : cn(textSecondary, hoverBg, "hover:text-primary")
+                            ? cn(accentColor, "text-white shadow-lg shadow-orange-500/20") 
+                            : cn(sidebarText, sidebarHover, "hover:text-white")
                         )}>
                           <item.icon className="h-5 w-5 flex-shrink-0" />
                           {item.name}
@@ -160,16 +168,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </nav>
 
             {/* Environment Selector */}
-            <div className={cn("p-4 border-t", borderColor)}>
+            <div className="p-4 border-t border-white/5">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="outline" 
                     className={cn(
-                      "w-full justify-between",
-                      inputBg,
-                      borderColor,
-                      hoverBg
+                      "w-full justify-between bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"
                     )}
                   >
                     <span className="flex items-center gap-2">
@@ -195,20 +200,39 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </DropdownMenu>
             </div>
 
-            {/* Quick Links */}
-            <div className={cn("p-4 border-t", borderColor)}>
+            {/* Bottom Links */}
+            <div className="p-4 border-t border-white/5 space-y-1">
               <Link href="/performance">
-                <Button variant="ghost" className={cn("w-full justify-start gap-2", textSecondary, hoverBg)}>
+                <Button variant="ghost" className={cn("w-full justify-start gap-2", sidebarText, sidebarHover, "hover:text-white")}>
                   <Activity className="h-4 w-4" />
                   Dashboard GLX
                 </Button>
               </Link>
               <Link href="/">
-                <Button variant="ghost" className={cn("w-full justify-start gap-2", textSecondary, hoverBg)}>
+                <Button variant="ghost" className={cn("w-full justify-start gap-2", sidebarText, sidebarHover, "hover:text-white")}>
                   <LayoutDashboard className="h-4 w-4" />
                   Voltar ao Site
                 </Button>
               </Link>
+              <Button variant="ghost" className={cn("w-full justify-start gap-2", sidebarText, sidebarHover, "hover:text-white")}>
+                <Settings className="h-4 w-4" />
+                Settings
+              </Button>
+            </div>
+
+            {/* User Profile at bottom */}
+            <div className="p-4 border-t border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-[#e67e22]/20 flex items-center justify-center ring-2 ring-[#e67e22]/30">
+                  <span className="text-sm font-bold text-[#e67e22]">
+                    {user?.name?.charAt(0) || "A"}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{user?.name || "Admin"}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email || "admin@glx.com"}</p>
+                </div>
+              </div>
             </div>
           </div>
         </aside>
@@ -218,14 +242,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {/* Top bar */}
           <header className={cn(
             "sticky top-0 z-30 h-16 backdrop-blur-md border-b",
-            bgHeader,
+            headerBg,
             borderColor
           )}>
             <div className="flex items-center justify-between h-full px-4 lg:px-6">
               {/* Mobile menu button */}
               <button 
                 onClick={() => setSidebarOpen(true)}
-                className={cn("lg:hidden p-2 rounded-lg", hoverBg)}
+                className={cn("lg:hidden p-2 rounded-lg", theme === "dark" ? "hover:bg-white/5" : "hover:bg-gray-100")}
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -233,13 +257,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               {/* Search */}
               <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                  <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4", contentTextSecondary)} />
                   <Input
                     type="search"
                     placeholder="Buscar usuários por email ou ID..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={cn("pl-10", inputBg, borderColor, "focus:border-primary")}
+                    className={cn(
+                      "pl-10 border-0",
+                      inputBg,
+                      "focus:ring-2 focus:ring-[#e67e22]/50"
+                    )}
                   />
                 </div>
               </form>
@@ -251,7 +279,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   variant="ghost" 
                   size="icon" 
                   onClick={toggleTheme}
-                  className={hoverBg}
+                  className={theme === "dark" ? "hover:bg-white/5" : "hover:bg-gray-100"}
                 >
                   {theme === "dark" ? (
                     <Sun className="h-5 w-5" />
@@ -263,10 +291,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {/* Notifications */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className={cn("relative", hoverBg)}>
+                    <Button variant="ghost" size="icon" className={cn("relative", theme === "dark" ? "hover:bg-white/5" : "hover:bg-gray-100")}>
                       <Bell className="h-5 w-5" />
                       {notifications.length > 0 && (
-                        <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
+                        <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-[#e67e22]" />
                       )}
                     </Button>
                   </DropdownMenuTrigger>
@@ -278,7 +306,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         <span className={cn(
                           "h-2 w-2 rounded-full mt-1.5 flex-shrink-0",
                           notif.type === "error" ? "bg-red-500" :
-                          notif.type === "warning" ? "bg-yellow-500" : "bg-blue-500"
+                          notif.type === "warning" ? "bg-[#e67e22]" : "bg-blue-500"
                         )} />
                         <div className="flex-1">
                           <p className="text-sm font-medium">{notif.title}</p>
@@ -297,9 +325,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {/* User menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className={cn("flex items-center gap-2", hoverBg)}>
-                      <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                        <span className="text-sm font-bold text-primary">
+                    <Button variant="ghost" className={cn("flex items-center gap-2", theme === "dark" ? "hover:bg-white/5" : "hover:bg-gray-100")}>
+                      <div className="h-8 w-8 rounded-full bg-[#e67e22]/20 flex items-center justify-center">
+                        <span className="text-sm font-bold text-[#e67e22]">
                           {user?.name?.charAt(0) || "A"}
                         </span>
                       </div>

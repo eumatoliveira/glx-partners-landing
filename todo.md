@@ -413,3 +413,24 @@
 - [x] Adicionar canonical URL
 - [x] Alterar lang para pt-BR
 - [x] Testar e validar SEO
+
+## Versão 15.0 - Refatoração do Painel Admin
+
+### Remoções
+- [x] Remover "Gestão de Dados" da sidebar
+- [x] Remover rota /admin/data-management
+
+### Dados Reais
+- [x] Conectar lista de usuários ao banco de dados real
+- [ ] Conectar métricas financeiras ao banco de dados real
+- [x] Implementar CRUD de usuários funcional
+
+### Entrada de Dados
+- [x] Permitir adicionar usuários manualmente (via dialog)
+- [x] Permitir editar usuários existentes (alterar role)
+- [ ] Implementar importação via Excel (opcion### Redesign Visual
+- [x] Aplicar novo design inspirado nos dashboards fornecidos
+- [x] Sidebar escura com conteúdo light mode
+- [x] Toggle dark/light mode funcional
+- [x] Cores de destaque laranja/verdedestaques
+- [ ] Toggle dark/light mode

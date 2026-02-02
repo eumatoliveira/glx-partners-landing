@@ -20,7 +20,6 @@ import {
   AdminErros,
   AdminFeatureFlags,
 } from "./pages/admin";
-import DataManagement from "./pages/admin/data-management/DataManagement";
 
 // Client Dashboard Pages
 import CEOScorecard from "./pages/client/CEOScorecard";
@@ -60,9 +59,6 @@ function Router() {
       </Route>
       <Route path={"/admin/flags"}>
         <AdminRoute><AdminFeatureFlags /></AdminRoute>
-      </Route>
-      <Route path={"/admin/data-management"}>
-        <AdminRoute><DataManagement /></AdminRoute>
       </Route>
       
       {/* Client Dashboard Routes (Protected) - GLX Performance */}
