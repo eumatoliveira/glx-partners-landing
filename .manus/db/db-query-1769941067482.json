@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, email, name, role, LENGTH(passwordHash) as hash_length FROM users ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute SELECT id, email, name, role, LENGTH(passwordHash) as hash_length FROM users ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "dev.glxpartners@gmail.com",
+      "name": "GLX Admin",
+      "role": "admin",
+      "hash_length": "60"
+    },
+    {
+      "id": "90009",
+      "email": "dev.glxpartners@gmail.com",
+      "name": "GLX Admin",
+      "role": "admin",
+      "hash_length": "60"
+    },
+    {
+      "id": "90101",
+      "email": "cliente.teste@glxpartners.com",
+      "name": "Cliente Teste GLX",
+      "role": "user",
+      "hash_length": "60"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\thash_length\n1\tdev.glxpartners@gmail.com\tGLX Admin\tadmin\t60\n90009\tdev.glxpartners@gmail.com\tGLX Admin\tadmin\t60\n90101\tcliente.teste@glxpartners.com\tCliente Teste GLX\tuser\t60\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

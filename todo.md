@@ -403,3 +403,13 @@
 - [x] Revisar Dashboard Cliente (todas as 8 telas)
 - [x] Revisar página de Gestão de Dados
 - [x] Ajustar tamanhos de fonte, cards e quadros para mobile
+
+## Versão 14.2 - Correção de SEO
+
+- [x] Adicionar meta description à página inicial (50-160 caracteres)
+- [x] Adicionar meta keywords à página inicial
+- [x] Adicionar Open Graph tags para redes sociais
+- [x] Adicionar Twitter Card tags
+- [x] Adicionar canonical URL
+- [x] Alterar lang para pt-BR
+- [x] Testar e validar SEO

@@ -1,0 +1,52 @@
+{
+  "query": "SELECT * FROM users LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute SELECT * FROM users LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "Chs2FHWmvGBY8zHxNmVWnm",
+      "name": "GLX Admin",
+      "email": "dev.glxpartners@gmail.com",
+      "loginMethod": "email",
+      "role": "admin",
+      "createdAt": "2026-01-31 17:04:01",
+      "updatedAt": "2026-02-01 10:14:49",
+      "lastSignedIn": "2026-02-01 10:14:49",
+      "mfaEnabled": "0",
+      "passwordHash": "$2b$12$YsCyve2LE5mTwpg.9EMRSuI9XvrCLOwXVqn6SoMf1W7UVIR6UdTUW",
+      "isActive": "1"
+    },
+    {
+      "id": "90009",
+      "openId": "email_1769892696779_6og7c",
+      "name": "GLX Admin",
+      "email": "dev.glxpartners@gmail.com",
+      "loginMethod": "email",
+      "role": "admin",
+      "createdAt": "2026-01-31 20:51:36",
+      "updatedAt": "2026-01-31 20:59:56",
+      "lastSignedIn": "2026-01-31 20:59:56",
+      "mfaEnabled": "0",
+      "passwordHash": "$2b$12$.eGZQ2rhXgqEnZpz94YeoeF53aOMhS1o8TOKGlDC/ysu4yo29Bbei",
+      "isActive": "1"
+    },
+    {
+      "id": "90101",
+      "openId": "email_1769899283716_4yp4vf",
+      "name": "Cliente Teste GLX",
+      "email": "cliente.teste@glxpartners.com",
+      "loginMethod": "email",
+      "role": "user",
+      "createdAt": "2026-01-31 22:41:23",
+      "updatedAt": "2026-01-31 22:52:26",
+      "lastSignedIn": "2026-01-31 22:52:26",
+      "mfaEnabled": "0",
+      "passwordHash": "$2b$12$V.sKb5jEaE.IZVsfRK45fe4XgxeEUWPJ..gIZUOjEr4bXMopcweVK",
+      "isActive": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\tloginMethod\trole\tcreatedAt\tupdatedAt\tlastSignedIn\tmfaEnabled\tpasswordHash\tisActive\n1\tChs2FHWmvGBY8zHxNmVWnm\tGLX Admin\tdev.glxpartners@gmail.com\temail\tadmin\t2026-01-31 17:04:01\t2026-02-01 10:14:49\t2026-02-01 10:14:49\t0\t$2b$12$YsCyve2LE5mTwpg.9EMRSuI9XvrCLOwXVqn6SoMf1W7UVIR6UdTUW\t1\n90009\temail_1769892696779_6og7c\tGLX Admin\tdev.glxpartners@gmail.com\temail\tadmin\t2026-01-31 20:51:36\t2026-01-31 20:59:56\t2026-01-31 20:59:56\t0\t$2b$12$.eGZQ2rhXgqEnZpz94YeoeF53aOMhS1o8TOKGlDC/ysu4yo29Bbei\t1\n90101\temail_1769899283716_4yp4vf\tCliente Teste GLX\tcliente.teste@glxpartners.com\temail\tuser\t2026-01-31 22:41:23\t2026-01-31 22:52:26\t2026-01-31 22:52:26\t0\t$2b$12$V.sKb5jEaE.IZVsfRK45fe4XgxeEUWPJ..gIZUOjEr4bXMopcweVK\t1\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET passwordHash = '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.S8oqXVxBKW.Kq2' WHERE email = 'dev.glxpartners@gmail.com' AND role = 'admin' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute UPDATE users SET passwordHash = '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.S8oqXVxBKW.Kq2' WHERE email = 'dev.glxpartners@gmail.com' AND role = 'admin' LIMIT 1;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 58
+}
