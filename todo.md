@@ -493,3 +493,25 @@
 - [x] Trocar ícone "G" pela logo da GLX no sidebar
 - [x] Renomear "GLX Workspace" para "GLX CONTROL TOWER"
 - [x] Exibir foto, nome e email do cliente logado no sidebar (dados reais do usuário)
+
+## Versão 17.3 - Verificação Export PDF
+
+- [x] Verificar se o botão Exportar PDF está funcionando corretamente
+
+## Versão 17.4 - Lógica Dashboard + Integrações + PDF
+
+- [x] Implementar geração real de PDF (jspdf) no botão Exportar PDF
+- [x] Zerar todos os dados do dashboard (valores iniciais em 0, prontos para API/manual)
+- [x] Criar schema de integrações no banco (integrations table)
+- [x] Criar procedures tRPC para CRUD de integrações
+- [x] Expandir seção Integrações com lógica completa:
+  - [x] Google Sheets API (URL da planilha, conectar/desconectar)
+  - [x] Google Tag Manager (GTM-ID, salvar, status)
+  - [x] Meta Pixel + Conversion API (CAPI) com destaque
+  - [x] Google Ads (Enhanced Conversions com destaque)
+  - [x] Excel / Microsoft Graph API
+  - [x] Power BI (embed URL, DirectQuery)
+  - [x] CRM HubSpot (Enterprise)
+  - [x] Server-Side GTM → CAPI + Google Ads API (arquitetura destacada)
+- [x] Salvar/carregar configurações de integrações do banco de dados
+- [x] Verificar funcionamento completo do dashboard com dados zerados

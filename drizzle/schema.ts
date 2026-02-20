@@ -502,3 +502,30 @@ export const dataImports = mysqlTable("data_imports", {
 
 export type DataImport = typeof dataImports.$inferSelect;
 export type InsertDataImport = typeof dataImports.$inferInsert;
+
+
+/**
+ * Integrações configuradas pelo cliente (tokens, APIs, etc.)
+ */
+export const integrations = mysqlTable("integrations", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").references(() => clients.id).notNull(),
+  userId: int("userId").references(() => users.id).notNull(),
+  type: mysqlEnum("type", [
+    "google_sheets", "gtm", "meta_pixel", "meta_capi",
+    "google_ads", "google_ads_enhanced", "excel_graph_api",
+    "power_bi", "crm_hubspot", "crm_rd_station", "server_side_gtm"
+  ]).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  token: text("token"),
+  apiUrl: text("apiUrl"),
+  config: json("config"), // extra config like version, container ID, etc.
+  status: mysqlEnum("status", ["active", "inactive", "error", "pending"]).default("pending").notNull(),
+  lastSyncAt: timestamp("lastSyncAt"),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Integration = typeof integrations.$inferSelect;
+export type InsertIntegration = typeof integrations.$inferInsert;
