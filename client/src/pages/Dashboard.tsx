@@ -22,7 +22,8 @@ const CSS = `
 .D h1,.D h2,.D h3,.D h4,.D h5,.gf{font-family:'Google Sans','Roboto',sans-serif}
 .sb{width:var(--sw);background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;transition:background-color .3s,border-color .3s}
 .sb-l{padding:20px 24px;display:flex;align-items:center;gap:12px;height:var(--th);border-bottom:1px solid transparent}
-.sb-i{width:32px;height:32px;border-radius:8px;background:var(--gb);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Google Sans'}
+.sb-i{width:32px;height:32px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Google Sans'}
+.sb-i img{width:100%;height:100%;object-fit:contain}
 .sb-n{font-size:18px;font-weight:500;color:var(--tp);font-family:'Google Sans'}
 .sb-nv{flex:1;padding:12px 0;overflow-y:auto}.sb-nv::-webkit-scrollbar{width:4px}.sb-nv::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}
 .sb-gl{font-size:11px;font-weight:500;text-transform:uppercase;color:var(--ts);padding:8px 24px;margin-top:8px;letter-spacing:.8px}
@@ -34,6 +35,7 @@ const CSS = `
 .av{width:32px;height:32px;border-radius:50%;background:var(--tp);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--bg)}
 .un{font-size:13px;font-weight:500;color:var(--tp);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
 .ue{font-size:11px;color:var(--ts)}
+.sb-lo{padding:8px 16px;margin-top:8px}.sb-lo button{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--gr);color:var(--gr);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Google Sans'}.sb-lo button:hover{background:var(--grb);border-color:var(--grt)}
 .mn{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
 .tb{height:var(--th);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:100;transition:background-color .3s,border-color .3s}
 .tb-t{font-size:20px;font-weight:500;color:var(--tp);font-family:'Google Sans'}
@@ -99,7 +101,7 @@ const CSS = `
 `;
 
 export default function Dashboard() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const [, setLocation] = useLocation();
   const [app, setApp] = useState<AppState>(INIT);
   const [scr, setScr] = useState("dashboard");
@@ -226,7 +228,7 @@ export default function Dashboard() {
     {pdf && <div className="pm"><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24, maxWidth: 800, margin: "0 auto 24px" }}><h2 style={{ color: "white", fontFamily: "'Google Sans'" }}>Pré-visualização do PDF Comercial</h2><div style={{ display: "flex", gap: 12 }}><button className="bt bs" onClick={() => setPdf(false)}>Voltar</button><button className="bt bp" onClick={() => { toast("PDF gerado e salvo com sucesso!"); setPdf(false); }}>Confirmar e Baixar</button></div></div><div className="pp"><h1 style={{ borderBottom: "2px solid #1a73e8", paddingBottom: 16, marginBottom: 32, fontFamily: "'Google Sans'" }}>GLX Report Executivo</h1><div style={{ display: "flex", gap: 24, marginBottom: 32 }}><div style={{ flex: 1, background: "#f8f9fa", padding: 20, borderRadius: 8, border: "1px solid #dadce0" }}><div style={{ fontSize: 12, color: "#5f6368" }}>Faturamento Mês</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#202124" }}>R$ {app.faturamento_bruto.toLocaleString("pt-BR")}</div></div><div style={{ flex: 1, background: "#fce8e6", padding: 20, borderRadius: 8, border: "1px solid #fad2cf" }}><div style={{ fontSize: 12, color: "#c5221f" }}>Taxa de No-Show</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#c5221f" }}>{txN.toFixed(1)}%</div></div></div><div style={{ height: 300, background: "#f8f9fa", border: "1px solid #dadce0", borderRadius: 8, padding: 10 }}><Bar data={pCD} options={{ ...pO, scales: { ...pO.scales, y: { ...pO.scales.y, grid: { color: "#e8eaed" }, ticks: { color: "#5f6368" } }, y1: { ...pO.scales.y1, grid: { drawOnChartArea: false }, ticks: { color: "#5f6368", callback: (v: any) => v + "%" } }, x: { grid: { display: false }, ticks: { color: "#5f6368" } } }, plugins: { legend: { labels: { color: "#5f6368" } } } }} /></div><div className="pl"><h4>Dicionário de Interpretação (Glossário Comercial)</h4><ul style={{ listStyle: "none", padding: 0 }}><li><strong>Faturamento Bruto:</strong> Receita total de consultas finalizadas.</li><li><strong>Taxa de No-Show:</strong> Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo da operação.</li><li><strong>Pareto de Cancelamento:</strong> Princípio 80/20. Identifica os motivos principais de perda comercial para ação imediata na gestão.</li></ul></div></div></div>}
 
     {/* SIDEBAR */}
-    <aside className="sb"><div className="sb-l"><div className="sb-i">G</div><div className="sb-n">GLX Workspace</div></div><nav className="sb-nv">{nav.map(g => <div key={g.g}><div className="sb-gl">{g.g}</div>{g.items.map(it => <div key={it.id} className={`ni ${scr === it.id ? "a" : ""}`} onClick={() => setScr(it.id)}>{it.i} {it.l}</div>)}</div>)}</nav><div className="sb-bt"><div className="uc"><div className="av">{uI}</div><div><div className="un">{uN}</div><div className="ue">Workspace Híbrido</div></div></div></div></aside>
+    <aside className="sb"><div className="sb-l"><div className="sb-i"><img src="/images/logo-transparent.png" alt="GLX" /></div><div className="sb-n">GLX CONTROL TOWER</div></div><nav className="sb-nv">{nav.map(g => <div key={g.g}><div className="sb-gl">{g.g}</div>{g.items.map(it => <div key={it.id} className={`ni ${scr === it.id ? "a" : ""}`} onClick={() => setScr(it.id)}>{it.i} {it.l}</div>)}</div>)}</nav><div className="sb-bt"><div className="uc"><div className="av">{uI}</div><div><div className="un">{uN}</div><div className="ue">{user.email || "cliente@glx.com"}</div></div></div><div className="sb-lo"><button onClick={() => { logout(); setLocation("/"); }}><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair</button></div></div></aside>
 
     {/* MAIN */}
     <main className="mn">

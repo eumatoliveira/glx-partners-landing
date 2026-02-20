@@ -486,3 +486,10 @@
 - [x] Remover card "Motor de IA (GLX)" da seção de Integrações
 - [x] Corrigir fontes para usar Roboto + Google Sans via Google Fonts API
 - [x] Aplicar font-family: 'Google Sans', 'Roboto', sans-serif corretamente
+
+## Versão 17.2 - Ajustes Sidebar Dashboard
+
+- [x] Criar botão de sair (logout) no dashboard
+- [x] Trocar ícone "G" pela logo da GLX no sidebar
+- [x] Renomear "GLX Workspace" para "GLX CONTROL TOWER"
+- [x] Exibir foto, nome e email do cliente logado no sidebar (dados reais do usuário)
