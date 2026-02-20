@@ -7,6 +7,8 @@ import {
 } from "chart.js";
 import { Bar, Line, Doughnut } from "react-chartjs-2";
 import jsPDF from "jspdf";
+import { type Lang, LANG_LABELS, LANG_FLAGS, t } from "@/lib/i18n";
+import { parseClinicFile, buildRoutingLog, buildWarnings, type ParseResult } from "@/lib/clinicParser";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -14,8 +16,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointEleme
 interface ParetoItem { motivo: string; freq: number; }
 interface AppState { faturamento_bruto: number; total_pacientes: number; no_shows_abs: number; cac: number; ltv: number; roi: number; churn: number; lucro: number; pareto: ParetoItem[]; }
 interface IntegrationConfig { id: string; type: string; name: string; token: string; apiUrl: string; status: "active" | "inactive" | "pending" | "error"; lastSync: string | null; config: Record<string, string>; }
+interface ManualRecord { id: string; type: "financial" | "attendance"; label: string; value: number | string; detail: string; createdAt: string; }
 
-/* ─── INITIAL STATE (ZEROED — ready for API/manual input) ─── */
+/* ─── INITIAL STATE (ZEROED) ─── */
 const INIT: AppState = { faturamento_bruto: 0, total_pacientes: 0, no_shows_abs: 0, cac: 0, ltv: 0, roi: 0, churn: 0, lucro: 0, pareto: [] };
 
 /* ─── CSS ─── */
@@ -41,6 +44,9 @@ const CSS = `
 .un{font-size:13px;font-weight:500;color:var(--tp);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
 .ue{font-size:11px;color:var(--ts)}
 .sb-lo{padding:8px 16px;margin-top:8px}.sb-lo button{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--gr);color:var(--gr);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Google Sans'}.sb-lo button:hover{background:var(--grb);border-color:var(--grt)}
+.lang-sel{padding:8px 16px;margin-bottom:4px}
+.lang-sel .lang-opts{display:flex;gap:6px;flex-wrap:wrap}.lang-sel .lang-btn{flex:1;background:var(--sfh);border:1px solid var(--bd);color:var(--ts);font-family:'Google Sans',sans-serif;font-size:12px;padding:6px 8px;border-radius:8px;cursor:pointer;transition:all .2s;text-align:center;white-space:nowrap}.lang-sel .lang-btn:hover{border-color:var(--gb);color:var(--tp)}.lang-sel .lang-btn.active{background:var(--gb);border-color:var(--gb);color:#fff;font-weight:500}
+.lang-sel label{font-size:11px;font-weight:500;color:var(--ts);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.5px}
 .mn{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
 .tb{height:var(--th);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:100;transition:background-color .3s,border-color .3s}
 .tb-t{font-size:20px;font-weight:500;color:var(--tp);font-family:'Google Sans'}
@@ -78,6 +84,7 @@ const CSS = `
 .bgh{background:transparent;color:var(--tp);border:1px solid transparent}.bgh:hover{background:var(--sfh);border-color:var(--bd)}
 .bu{background:linear-gradient(135deg,var(--gp),var(--gb));color:#fff;font-weight:bold;border-radius:var(--rb);border:none;padding:10px 24px;cursor:pointer}.bu:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(197,138,249,.3)}
 .bai{background:linear-gradient(135deg,var(--gp),var(--gb));color:#000;font-weight:600;border-radius:var(--rb);border:none;padding:10px 24px;cursor:pointer}.bai:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.bd{background:transparent;color:var(--gr);border:1px solid var(--gr);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Google Sans'}.bd:hover{background:var(--grb)}
 .fl{font-size:13px;font-weight:500;color:var(--ts);margin-bottom:8px;display:block;text-align:left}
 .fi,.fs{width:100%;background:var(--sfh);border:1px solid var(--bd);color:var(--tp);font-family:'Roboto',sans-serif;font-size:14px;padding:12px 16px;border-radius:8px;outline:none;transition:border .2s;margin-bottom:16px}.fi:focus,.fs:focus{border-color:var(--gb)}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -91,7 +98,7 @@ const CSS = `
 .ml-b{padding:24px}
 .ml-f{padding:16px 24px;background:rgba(0,0,0,.1);display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--bd)}
 .tc{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px}
-.tt{background:var(--gbt);color:#000;padding:12px 24px;border-radius:100px;font-size:14px;font-weight:bold;display:flex;align-items:center;gap:12px;animation:ti .3s ease;box-shadow:0 8px 16px rgba(138,180,248,.2)}
+.tt{background:var(--sf);color:var(--tp);padding:14px 28px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:var(--s2);border:1px solid var(--bd);animation:ti .3s ease;font-family:'Google Sans'}
 .rt{background:#0f1115;border:1px solid var(--bd);border-radius:8px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gg);min-height:150px;text-align:left}
 .pm{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10000;padding:40px;overflow-y:auto;backdrop-filter:blur(4px)}
 .pp{background:#fff;color:#000;max-width:800px;margin:0 auto;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,.5);border-radius:4px}
@@ -105,6 +112,9 @@ const CSS = `
 .rec-box{background:linear-gradient(135deg,rgba(138,180,248,.08),rgba(197,138,249,.08));border:1px solid var(--bdl);border-radius:12px;padding:20px;margin-top:24px}
 .rec-box h4{color:var(--gp);margin-bottom:8px;font-size:14px;font-family:'Google Sans'}
 .rec-box p{font-size:12px;color:var(--ts);line-height:1.6}
+.dz{border:2px dashed var(--bdl);border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}.dz:hover{border-color:var(--gb);background:var(--gbb)}
+.dz.over{border-color:var(--gb);background:var(--gbb)}
+.rec-tbl{width:100%;border-collapse:collapse;text-align:left;margin-top:16px}.rec-tbl th{font-size:11px;font-weight:600;color:var(--ts);padding:10px 12px;border-bottom:1px solid var(--bd);text-transform:uppercase;letter-spacing:.5px}.rec-tbl td{font-size:13px;color:var(--tp);padding:12px;border-bottom:1px solid var(--sfh)}.rec-tbl tr:hover td{background:rgba(255,255,255,.02)}
 @keyframes fi{from{opacity:0}to{opacity:1}}
 @keyframes su{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes ti{from{transform:translateY(100px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -119,6 +129,7 @@ export default function Dashboard() {
   const [scr, setScr] = useState("dashboard");
   const plan: string = "Pro";
   const [lt, setLt] = useState(false);
+  const [lang, setLang] = useState<Lang>("pt");
   const [toasts, setToasts] = useState<string[]>([]);
   const [modal, setModal] = useState<string | null>(null);
   const [rLogs, setRLogs] = useState<string[]>([]);
@@ -132,7 +143,10 @@ export default function Dashboard() {
   const [pSt, setPSt] = useState("Compareceu");
   const [pMot, setPMot] = useState("");
   const [pdf, setPdf] = useState(false);
+  const [records, setRecords] = useState<ManualRecord[]>([]);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const rRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   /* ─── INTEGRATIONS STATE ─── */
   const [integrations, setIntegrations] = useState<IntegrationConfig[]>([]);
@@ -142,6 +156,7 @@ export default function Dashboard() {
   useEffect(() => { if (!loading && !user) setLocation("/login"); }, [loading, user, setLocation]);
 
   const toast = useCallback((m: string) => { setToasts(p => [...p, m]); setTimeout(() => setToasts(p => p.slice(1)), 3000); }, []);
+  const _ = useCallback((key: Parameters<typeof t>[0]) => t(key, lang), [lang]);
 
   const txN = app.total_pacientes > 0 ? (app.no_shows_abs / app.total_pacientes) * 100 : 0;
   const txC = app.total_pacientes > 0 ? ((app.total_pacientes - app.no_shows_abs) / app.total_pacientes) * 100 : 0;
@@ -150,8 +165,8 @@ export default function Dashboard() {
 
   const pareto = useCallback(() => {
     const s = [...app.pareto].sort((a, b) => b.freq - a.freq);
-    const t = s.reduce((x, i) => x + i.freq, 0); let ac = 0;
-    return s.map(i => { const p = t > 0 ? (i.freq / t) * 100 : 0; ac += p; return { ...i, pct: p, acum: ac }; });
+    const total = s.reduce((x, i) => x + i.freq, 0); let ac = 0;
+    return s.map(i => { const p = total > 0 ? (i.freq / total) * 100 : 0; ac += p; return { ...i, pct: p, acum: ac }; });
   }, [app.pareto]);
 
   const gc = lt ? "#e8eaed" : "#2e3540", tc = lt ? "#5f6368" : "#94a3b8", lc = lt ? "#1a73e8" : "#8ab4f8", dc = lt ? "#f1f3f4" : "#2e3540";
@@ -178,9 +193,53 @@ export default function Dashboard() {
     else if (type === "sheets") steps = ["Conectando à Google Sheets API...", "Validando URL da planilha...", "Lendo cabeçalhos: [Data, Paciente, Valor, Status]", "=> Roteando dados para módulos correspondentes", "Sincronização automática configurada (a cada 15 min)."];
     else if (type === "meta_capi") steps = ["Inicializando Meta Conversions API (CAPI)...", "Validando Access Token e Pixel ID...", "Configurando eventos server-side: [Purchase, Lead, ViewContent]", "=> Enhanced matching ativado para melhor atribuição", "CAPI configurada com sucesso. Eventos server-side ativos."];
     else if (type === "google_ads") steps = ["Conectando Google Ads API...", "Validando Customer ID e OAuth Token...", "=> Configurando Enhanced Conversions (first-party data)", "=> Mapeando conversões: [Lead, Purchase, Appointment]", "Google Ads Enhanced Conversions ativo."];
+    else if (type === "file_import") steps = steps; // handled separately
     let i = 0;
-    const nx = () => { if (i < steps.length) { setRLogs(p => [...p, `> ${steps[i]}`]); i++; rRef.current = setTimeout(nx, 800); } else { setRLogs(p => [...p, "> Roteamento Finalizado. O Dashboard foi alimentado."]); setRDone(true); } };
+    const nx = () => { if (i < steps.length) { setRLogs(p => [...p, `> ${steps[i]}`]); i++; rRef.current = setTimeout(nx, 800); } else { setRLogs(p => [...p, "> " + _("ai.routingDone")]); setRDone(true); } };
     rRef.current = setTimeout(nx, 800);
+  };
+
+  /* ─── FILE IMPORT (Clinic Parser) ─── */
+  const handleFileImport = async (file: File) => {
+    toast(_("file.analyzing"));
+    try {
+      const parsed = await parseClinicFile(file);
+      // Update appState with parsed data
+      setApp(prev => {
+        const n = { ...prev };
+        if (parsed.faturamento_bruto > 0) n.faturamento_bruto = parsed.faturamento_bruto;
+        if (parsed.total_pacientes > 0) n.total_pacientes = parsed.total_pacientes;
+        if (parsed.no_shows_abs > 0) n.no_shows_abs = parsed.no_shows_abs;
+        if (parsed.pareto_array.length > 0) n.pareto = parsed.pareto_array;
+        if (parsed.investimento_ads > 0 && parsed.total_pacientes > 0) {
+          n.cac = parseFloat((parsed.investimento_ads / parsed.total_pacientes).toFixed(2));
+        }
+        return n;
+      });
+
+      // Open AI Router with real routing logs
+      const routingSteps = buildRoutingLog(parsed, parsed.investimento_ads > 0 && parsed.total_pacientes > 0 ? parseFloat((parsed.investimento_ads / parsed.total_pacientes).toFixed(2)) : undefined);
+      const warnings = buildWarnings(parsed);
+
+      setModal("ai"); setRLogs([]); setRDone(false);
+      let i = 0;
+      const allSteps = [...routingSteps];
+      if (warnings.length > 0) {
+        allSteps.push("⚠️ Alertas de Auditoria:");
+        warnings.forEach(w => allSteps.push(`  — ${w}`));
+      }
+      allSteps.push("✅ " + _("file.success"));
+
+      const nx = () => {
+        if (i < allSteps.length) {
+          setRLogs(p => [...p, `> ${allSteps[i]}`]); i++;
+          rRef.current = setTimeout(nx, 700);
+        } else { setRDone(true); }
+      };
+      rRef.current = setTimeout(nx, 700);
+    } catch (err: any) {
+      toast(`Erro: ${err.message}`);
+    }
   };
 
   /* ─── REAL PDF GENERATION ─── */
@@ -189,26 +248,14 @@ export default function Dashboard() {
     const w = doc.internal.pageSize.getWidth();
     const m = 20;
     let y = 20;
-
-    // Header
-    doc.setFillColor(15, 17, 21);
-    doc.rect(0, 0, w, 40, "F");
-    doc.setTextColor(138, 180, 248);
-    doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
+    doc.setFillColor(15, 17, 21); doc.rect(0, 0, w, 40, "F");
+    doc.setTextColor(138, 180, 248); doc.setFontSize(22); doc.setFont("helvetica", "bold");
     doc.text("GLX Report Executivo", m, 26);
-    doc.setFontSize(10);
-    doc.setTextColor(148, 163, 184);
+    doc.setFontSize(10); doc.setTextColor(148, 163, 184);
     doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}`, m, 34);
     y = 50;
-
-    // KPIs Section
-    doc.setTextColor(32, 33, 36);
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("Métricas Essenciais", m, y);
-    y += 10;
-
+    doc.setTextColor(32, 33, 36); doc.setFontSize(14); doc.setFont("helvetica", "bold");
+    doc.text("Métricas Essenciais", m, y); y += 10;
     const kpis = [
       { label: "Faturamento Bruto", value: `R$ ${app.faturamento_bruto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` },
       { label: "Total Agendamentos", value: String(app.total_pacientes) },
@@ -219,93 +266,54 @@ export default function Dashboard() {
       { label: "ROI", value: `${app.roi}x` },
       { label: "Churn", value: `${app.churn}%` },
     ];
-
     const colW = (w - 2 * m) / 2;
     kpis.forEach((kpi, i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      const x = m + col * colW;
-      const ky = y + row * 18;
-      doc.setFillColor(248, 249, 250);
-      doc.roundedRect(x, ky, colW - 4, 14, 2, 2, "F");
-      doc.setFontSize(9);
-      doc.setTextColor(95, 99, 104);
-      doc.setFont("helvetica", "normal");
+      const col = i % 2; const row = Math.floor(i / 2);
+      const x = m + col * colW; const ky = y + row * 18;
+      doc.setFillColor(248, 249, 250); doc.roundedRect(x, ky, colW - 4, 14, 2, 2, "F");
+      doc.setFontSize(9); doc.setTextColor(95, 99, 104); doc.setFont("helvetica", "normal");
       doc.text(kpi.label, x + 4, ky + 5);
-      doc.setFontSize(12);
-      doc.setTextColor(32, 33, 36);
-      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12); doc.setTextColor(32, 33, 36); doc.setFont("helvetica", "bold");
       doc.text(kpi.value, x + 4, ky + 11);
     });
     y += Math.ceil(kpis.length / 2) * 18 + 10;
-
-    // Pareto Section
     const pd = pareto();
     if (pd.length > 0) {
-      doc.setFontSize(14);
-      doc.setTextColor(32, 33, 36);
-      doc.setFont("helvetica", "bold");
-      doc.text("Pareto de Cancelamento", m, y);
-      y += 8;
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(95, 99, 104);
-      doc.text("Motivo", m, y);
-      doc.text("Freq.", m + 80, y);
-      doc.text("% Acum.", m + 100, y);
-      y += 2;
-      doc.setDrawColor(218, 220, 224);
-      doc.line(m, y, w - m, y);
-      y += 5;
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(32, 33, 36);
-      pd.forEach(item => {
-        doc.text(item.motivo, m, y);
-        doc.text(String(item.freq), m + 80, y);
-        doc.text(`${item.acum.toFixed(1)}%`, m + 100, y);
-        y += 6;
-      });
+      doc.setFontSize(14); doc.setTextColor(32, 33, 36); doc.setFont("helvetica", "bold");
+      doc.text("Pareto de Cancelamento", m, y); y += 8;
+      doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(95, 99, 104);
+      doc.text("Motivo", m, y); doc.text("Freq.", m + 80, y); doc.text("% Acum.", m + 100, y);
+      y += 2; doc.setDrawColor(218, 220, 224); doc.line(m, y, w - m, y); y += 5;
+      doc.setFont("helvetica", "normal"); doc.setTextColor(32, 33, 36);
+      pd.forEach(item => { doc.text(item.motivo, m, y); doc.text(String(item.freq), m + 80, y); doc.text(`${item.acum.toFixed(1)}%`, m + 100, y); y += 6; });
       y += 8;
     }
-
-    // Glossary
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(26, 115, 232);
-    doc.text("Glossário Comercial", m, y);
-    y += 7;
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(95, 99, 104);
-    const glossary = [
-      "Faturamento Bruto: Receita total de consultas finalizadas.",
-      "Taxa de No-Show: Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo.",
-      "Pareto: Princípio 80/20. Identifica motivos principais de perda comercial.",
-      "CAC: Custo de Aquisição de Clientes. Valor gasto para trazer 1 novo paciente.",
-      "LTV: Lifetime Value. Quanto um paciente gasta durante todo o relacionamento.",
-      "ROI: Retorno sobre Investimento. Para cada R$1 investido, o multiplicador de retorno.",
-    ];
-    glossary.forEach(line => {
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.text(line, m, y, { maxWidth: w - 2 * m });
-      y += 5;
-    });
-
-    // Footer
-    doc.setFillColor(15, 17, 21);
-    doc.rect(0, 285, w, 12, "F");
-    doc.setTextColor(148, 163, 184);
-    doc.setFontSize(8);
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(26, 115, 232);
+    doc.text("Glossário Comercial", m, y); y += 7;
+    doc.setFontSize(8); doc.setFont("helvetica", "normal"); doc.setTextColor(95, 99, 104);
+    const glossary = ["Faturamento Bruto: Receita total de consultas finalizadas.", "Taxa de No-Show: Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo.", "Pareto: Princípio 80/20. Identifica motivos principais de perda comercial.", "CAC: Custo de Aquisição de Clientes.", "LTV: Lifetime Value.", "ROI: Retorno sobre Investimento."];
+    glossary.forEach(line => { if (y > 270) { doc.addPage(); y = 20; } doc.text(line, m, y, { maxWidth: w - 2 * m }); y += 5; });
+    doc.setFillColor(15, 17, 21); doc.rect(0, 285, w, 12, "F");
+    doc.setTextColor(148, 163, 184); doc.setFontSize(8);
     doc.text("GLX Partners — Growth. Lean. Execution. | Documento confidencial", m, 292);
-
     doc.save(`GLX_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
-    toast("PDF gerado e baixado com sucesso!");
-    setPdf(false);
-  }, [app, txN, txC, pareto, toast]);
+    toast(_("toast.pdfGenerated")); setPdf(false);
+  }, [app, txN, txC, pareto, toast, _]);
 
-  const regFin = () => { const v = parseFloat(fVal); if (isNaN(v) || v <= 0) { toast("Insira um valor válido."); return; } if (fTipo === "Receita") { setApp(p => ({ ...p, faturamento_bruto: p.faturamento_bruto + v })); toast("Receita computada com sucesso! Gráficos atualizados."); } else toast("Custo registrado."); setFVal(""); };
+  /* ─── DATA ENTRY HANDLERS ─── */
+  const regFin = () => {
+    const v = parseFloat(fVal);
+    if (isNaN(v) || v <= 0) { toast(_("toast.invalidValue")); return; }
+    const rec: ManualRecord = { id: crypto.randomUUID(), type: "financial", label: fTipo, value: v, detail: `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, createdAt: new Date().toISOString() };
+    setRecords(p => [rec, ...p]);
+    if (fTipo === "Receita") { setApp(p => ({ ...p, faturamento_bruto: p.faturamento_bruto + v })); toast(_("toast.revenueAdded")); }
+    else toast(_("toast.costAdded"));
+    setFVal("");
+  };
 
   const salvarAt = () => {
+    const rec: ManualRecord = { id: crypto.randomUUID(), type: "attendance", label: pSt, value: 1, detail: pMot || "—", createdAt: new Date().toISOString() };
+    setRecords(p => [rec, ...p]);
     setApp(p => {
       const n = { ...p, total_pacientes: p.total_pacientes + 1 };
       if (pSt === "No-Show" || pSt === "Cancelada") {
@@ -314,28 +322,54 @@ export default function Dashboard() {
         const np = [...p.pareto]; const f = np.find(x => x.motivo.toLowerCase() === m.toLowerCase());
         if (f) f.freq++; else np.push({ motivo: m, freq: 1 }); n.pareto = np;
       } return n;
-    }); toast("Atendimento computado! Analisando impacto..."); setPMot("");
+    }); toast(_("toast.attendanceAdded")); setPMot("");
+  };
+
+  const deleteRecord = (id: string) => {
+    const rec = records.find(r => r.id === id);
+    if (!rec) return;
+    // Reverse the effect on appState
+    if (rec.type === "financial" && rec.label === "Receita") {
+      setApp(p => ({ ...p, faturamento_bruto: Math.max(0, p.faturamento_bruto - (rec.value as number)) }));
+    } else if (rec.type === "attendance") {
+      setApp(p => {
+        const n = { ...p, total_pacientes: Math.max(0, p.total_pacientes - 1) };
+        if (rec.label === "No-Show" || rec.label === "Cancelada") {
+          n.no_shows_abs = Math.max(0, p.no_shows_abs - 1);
+          // Remove from pareto
+          const motivo = rec.detail === "—" ? "Não Identificado" : rec.detail;
+          const np = [...p.pareto];
+          const f = np.find(x => x.motivo.toLowerCase() === motivo.toLowerCase());
+          if (f) { f.freq--; if (f.freq <= 0) { const idx = np.indexOf(f); np.splice(idx, 1); } }
+          n.pareto = np;
+        }
+        return n;
+      });
+    }
+    setRecords(p => p.filter(r => r.id !== id));
+    setDeleteConfirm(null);
+    toast(_("toast.recordDeleted"));
   };
 
   /* ─── INTEGRATION HELPERS ─── */
   const saveIntegration = (type: string, name: string) => {
     const token = intForm[`${type}_token`] || "";
     const apiUrl = intForm[`${type}_url`] || "";
-    if (!token && !apiUrl) { toast("Preencha pelo menos um campo."); return; }
+    if (!token && !apiUrl) { toast(_("toast.fillField")); return; }
     const existing = integrations.find(i => i.type === type);
     if (existing) {
       setIntegrations(prev => prev.map(i => i.type === type ? { ...i, token, apiUrl, status: "active" as const, lastSync: new Date().toISOString() } : i));
     } else {
       setIntegrations(prev => [...prev, { id: crypto.randomUUID(), type, name, token, apiUrl, status: "active", lastSync: new Date().toISOString(), config: {} }]);
     }
-    toast(`${name} configurado com sucesso!`);
+    toast(`${name} ${_("toast.integrationSaved")}`);
     startAI(type === "meta_pixel" || type === "meta_capi" ? "meta_capi" : type === "google_ads" || type === "google_ads_enhanced" ? "google_ads" : type === "google_sheets" ? "sheets" : "token");
   };
 
   const removeIntegration = (type: string) => {
     setIntegrations(prev => prev.filter(i => i.type !== type));
     setIntForm(prev => { const n = { ...prev }; delete n[`${type}_token`]; delete n[`${type}_url`]; return n; });
-    toast("Integração removida.");
+    toast(_("toast.integrationRemoved"));
   };
 
   const getIntStatus = (type: string) => integrations.find(i => i.type === type)?.status || "inactive";
@@ -343,11 +377,15 @@ export default function Dashboard() {
 
   const StatusBadge = ({ type }: { type: string }) => {
     const st = getIntStatus(type);
-    const labels: Record<string, string> = { active: "Ativo", inactive: "Inativo", pending: "Pendente", error: "Erro" };
+    const labels: Record<string, string> = { active: _("int.active"), inactive: _("int.inactive"), pending: _("int.pending"), error: _("int.error") };
     return <span className={`int-st ${st === "active" ? "act" : st === "pending" ? "pen" : st === "error" ? "err" : "ina"}`}><span className={`int-dot ${st === "active" ? "act" : st === "pending" ? "pen" : st === "error" ? "err" : "ina"}`} />{labels[st]}</span>;
   };
 
-  const titles: Record<string, string> = { dashboard: "Visão Geral", realtime: "Tempo Real", agenda: "Agenda & Capacidade", equipe: "Equipe", sprints: "Sprints & OKRs", funil: "Funil Comercial", canais: "Canais", integracoes: "Integrações", dados: "Entrada Manual", relatorios: "Exportações", diagnostico: "Diagnóstico GLX", configuracoes: "Configurações" };
+  const titles: Record<string, string> = {
+    dashboard: _("title.dashboard"), realtime: _("title.realtime"), agenda: _("title.agenda"), equipe: _("title.equipe"),
+    sprints: _("title.sprints"), funil: _("title.funil"), canais: _("title.canais"), integracoes: _("title.integracoes"),
+    dados: _("title.dados"), relatorios: _("title.relatorios"), diagnostico: _("title.diagnostico"), configuracoes: _("title.configuracoes"),
+  };
 
   const pd = pareto();
   const hasParetoData = pd.length > 0;
@@ -359,7 +397,7 @@ export default function Dashboard() {
   const dCD = { labels: ["Mês 1", "Mês 2", "Mês 3", "Mês 4", "Mês 5", "Mês 6"], datasets: [{ label: "Valores", data: [0, 0, 0, 0, 0, 0], backgroundColor: lc, borderRadius: 4 }] };
   const bO: any = { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: gc }, ticks: { color: tc } }, x: { grid: { display: false }, ticks: { color: tc } } }, plugins: { legend: { labels: { color: tc } } } };
 
-  if (loading) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0f1115", color: "#e2e8f0" }}><p>Carregando...</p></div>;
+  if (loading) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0f1115", color: "#e2e8f0" }}><p>{_("misc.loading")}</p></div>;
   if (!user) return null;
 
   const uN = user.name || "Cliente";
@@ -370,185 +408,189 @@ export default function Dashboard() {
   );
 
   const nav = [
-    { g: "Visão Geral", items: [{ id: "dashboard", l: "Dashboard", i: <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> }, { id: "realtime", l: "Tempo Real", i: <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> }] },
-    { g: "Operação & Equipe", items: [{ id: "agenda", l: "Agenda & Capacidade", i: <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> }, { id: "equipe", l: "Equipe", i: <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> }, { id: "sprints", l: "Sprints & OKRs", i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h5v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }] },
-    { g: "Comercial", items: [{ id: "funil", l: "Funil de Vendas", i: <svg viewBox="0 0 24 24"><path d="M3 4l9 16 9-16H3zm3.38 2h11.25L12 16 6.38 6z"/></svg> }, { id: "canais", l: "Canais", i: <svg viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27z"/></svg> }] },
-    { g: "Gestão e Integrações", items: [{ id: "integracoes", l: "Integrações / CRM", i: <svg viewBox="0 0 24 24"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }, { id: "dados", l: "Entrada de Dados", i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }, { id: "relatorios", l: "Relatórios PDF", i: <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H5v-8h14v8z"/><path d="M18 4l-4-4h-4l-4 4h12z"/></svg> }, { id: "diagnostico", l: "Diagnóstico GLX", i: <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" fill="currentColor" stroke="none"/></svg> }, { id: "configuracoes", l: "Configurações", i: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }] },
+    { g: _("nav.overview"), items: [{ id: "dashboard", l: _("nav.dashboard"), i: <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> }, { id: "realtime", l: _("nav.realtime"), i: <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> }] },
+    { g: _("nav.operations"), items: [{ id: "agenda", l: _("nav.agenda"), i: <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> }, { id: "equipe", l: _("nav.equipe"), i: <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> }, { id: "sprints", l: _("nav.sprints"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h5v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }] },
+    { g: _("nav.commercial"), items: [{ id: "funil", l: _("nav.funil"), i: <svg viewBox="0 0 24 24"><path d="M3 4l9 16 9-16H3zm3.38 2h11.25L12 16 6.38 6z"/></svg> }, { id: "canais", l: _("nav.canais"), i: <svg viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27z"/></svg> }] },
+    { g: _("nav.management"), items: [{ id: "integracoes", l: _("nav.integracoes"), i: <svg viewBox="0 0 24 24"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }, { id: "dados", l: _("nav.dados"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }, { id: "relatorios", l: _("nav.relatorios"), i: <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H5v-8h14v8z"/><path d="M18 4l-4-4h-4l-4 4h12z"/></svg> }, { id: "diagnostico", l: _("nav.diagnostico"), i: <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" fill="currentColor" stroke="none"/></svg> }, { id: "configuracoes", l: _("nav.configuracoes"), i: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }] },
   ];
 
   return (<><style>{CSS}</style><div className={`D ${lt ? "lt" : ""}`}>
     <div className="tc">{toasts.map((t, i) => <div key={i} className="tt">{t}</div>)}</div>
 
     {/* MODAL: AI ROUTER */}
-    {modal === "ai" && <div className="mo" onClick={() => setModal(null)}><div className="ml" style={{ maxWidth: 600, borderColor: "var(--gp)" }} onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t" style={{ color: "var(--gp)" }}>🧠 IA GLX: Roteador de Dados</div></div><div className="ml-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Analisando payload recebido e distribuindo informações pelos módulos estratégicos do Dashboard...</p><div className="rt">{rLogs.map((l, i) => <div key={i} style={{ color: i === rLogs.length - 1 && rDone ? "var(--gb)" : undefined, marginTop: i === rLogs.length - 1 && rDone ? 16 : 0 }}>{l}</div>)}</div></div>{rDone && <div className="ml-f"><button className="bt bp" onClick={() => { setModal(null); setScr("dashboard"); }}>Ver Dashboard Atualizado</button></div>}</div></div>}
+    {modal === "ai" && <div className="mo" onClick={() => setModal(null)}><div className="ml" style={{ maxWidth: 600, borderColor: "var(--gp)" }} onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t" style={{ color: "var(--gp)" }}>{_("ai.title")}</div></div><div className="ml-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("ai.analyzing")}</p><div className="rt">{rLogs.map((l, i) => <div key={i} style={{ color: i === rLogs.length - 1 && rDone ? "var(--gb)" : l.includes("⚠️") ? "var(--gy)" : l.includes("—") && rLogs[i-1]?.includes("⚠️") ? "var(--gy)" : l.includes("✅") ? "var(--gb)" : undefined, marginTop: l.includes("⚠️") || l.includes("✅") ? 12 : 0 }}>{l}</div>)}</div></div>{rDone && <div className="ml-f"><button className="bt bp" onClick={() => { setModal(null); setScr("dashboard"); }}>{_("btn.viewDashboard")}</button></div>}</div></div>}
 
     {/* MODAL: PROFISSIONAL */}
-    {modal === "prof" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">Adicionar Profissional</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Nome Completo</label><input type="text" className="fi" placeholder="Ex: Dr. João Silva" /></div><div><label className="fl">Função / Especialidade</label><select className="fs"><option>Médico(a)</option><option>Recepção</option><option>Comercial</option><option>Gerência</option></select></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>Cancelar</button><button className="bt bp" onClick={() => { setModal(null); toast("Profissional adicionado com sucesso!"); }}>Salvar</button></div></div></div>}
+    {modal === "prof" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.addProfessional")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Nome Completo</label><input type="text" className="fi" placeholder="Ex: Dr. João Silva" /></div><div><label className="fl">Função / Especialidade</label><select className="fs"><option>Médico(a)</option><option>Recepção</option><option>Comercial</option><option>Gerência</option></select></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.professionalAdded")); }}>{_("btn.save")}</button></div></div></div>}
 
     {/* MODAL: SPRINT */}
-    {modal === "sprint" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">Nova Iniciativa (Sprint)</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Nome da Iniciativa</label><input type="text" className="fi" placeholder="Ex: Reduzir No-Show em 10%" /></div><div className="fr"><div><label className="fl">Responsável</label><input type="text" className="fi" /></div><div><label className="fl">Prazo</label><input type="date" className="fi" /></div></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>Cancelar</button><button className="bt bp" onClick={() => { setModal(null); toast("Sprint criado! Vamos à execução."); }}>Criar Sprint</button></div></div></div>}
+    {modal === "sprint" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.newSprint")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Nome da Iniciativa</label><input type="text" className="fi" placeholder="Ex: Reduzir No-Show em 10%" /></div><div className="fr"><div><label className="fl">Responsável</label><input type="text" className="fi" /></div><div><label className="fl">Prazo</label><input type="date" className="fi" /></div></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.sprintCreated")); }}>Criar Sprint</button></div></div></div>}
 
     {/* MODAL: OKR */}
-    {modal === "okr" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">Definir Novo OKR</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Objetivo (O)</label><input type="text" className="fi" placeholder="Ex: Escalar a Clínica" /></div><div><label className="fl">Resultado Chave (KR)</label><input type="text" className="fi" placeholder="Ex: Atingir 500k de faturamento" /></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>Cancelar</button><button className="bt bp" onClick={() => { setModal(null); toast("OKR registrado para o trimestre."); }}>Salvar OKR</button></div></div></div>}
+    {modal === "okr" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.newOkr")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Objetivo (O)</label><input type="text" className="fi" placeholder="Ex: Escalar a Clínica" /></div><div><label className="fl">Resultado Chave (KR)</label><input type="text" className="fi" placeholder="Ex: Atingir 500k de faturamento" /></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.okrSaved")); }}>{_("btn.save")} OKR</button></div></div></div>}
 
     {/* MODAL: AGENDA CSV */}
-    {modal === "agenda" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">Importar Agenda (CSV)</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div className="es" style={{ padding: 30 }}><div style={{ fontSize: 24, marginBottom: 12 }}>📁</div><p style={{ fontSize: 14, color: "var(--ts)" }}>Arraste seu arquivo .CSV aqui ou clique para selecionar.</p><input type="file" style={{ marginTop: 16, color: "var(--tp)" }} /></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>Cancelar</button><button className="bt bp" onClick={() => startAI("csv", "agenda")}>Importar via IA Router</button></div></div></div>}
+    {modal === "agenda" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.importAgenda")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div className="es" style={{ padding: 30 }}><div style={{ fontSize: 24, marginBottom: 12 }}>📁</div><p style={{ fontSize: 14, color: "var(--ts)" }}>{_("file.dropzone")}</p><input type="file" accept=".xlsx,.xls,.csv" style={{ marginTop: 16, color: "var(--tp)" }} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileImport(f); }} /></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => startAI("csv", "agenda")}>{_("btn.iaRouter")}</button></div></div></div>}
+
+    {/* MODAL: DELETE CONFIRM */}
+    {deleteConfirm && <div className="mo" onClick={() => setDeleteConfirm(null)}><div className="ml" style={{ maxWidth: 400 }} onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t" style={{ color: "var(--gr)" }}>Confirmar Exclusão</div></div><div className="ml-b"><p style={{ fontSize: 14, color: "var(--ts)" }}>{_("data.confirmDelete")}</p></div><div className="ml-f"><button className="bt bs" onClick={() => setDeleteConfirm(null)}>{_("btn.cancel")}</button><button className="bt bp" style={{ background: "var(--gr)" }} onClick={() => deleteRecord(deleteConfirm)}>{_("btn.delete")}</button></div></div></div>}
 
     {/* PDF PREVIEW */}
-    {pdf && <div className="pm"><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24, maxWidth: 800, margin: "0 auto 24px" }}><h2 style={{ color: "white", fontFamily: "'Google Sans'" }}>Pré-visualização do PDF Comercial</h2><div style={{ display: "flex", gap: 12 }}><button className="bt bs" onClick={() => setPdf(false)}>Voltar</button><button className="bt bp" onClick={generatePDF}>Confirmar e Baixar PDF</button></div></div><div className="pp"><h1 style={{ borderBottom: "2px solid #1a73e8", paddingBottom: 16, marginBottom: 32, fontFamily: "'Google Sans'" }}>GLX Report Executivo</h1><div style={{ display: "flex", gap: 24, marginBottom: 32 }}><div style={{ flex: 1, background: "#f8f9fa", padding: 20, borderRadius: 8, border: "1px solid #dadce0" }}><div style={{ fontSize: 12, color: "#5f6368" }}>Faturamento Mês</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#202124" }}>R$ {app.faturamento_bruto.toLocaleString("pt-BR")}</div></div><div style={{ flex: 1, background: "#fce8e6", padding: 20, borderRadius: 8, border: "1px solid #fad2cf" }}><div style={{ fontSize: 12, color: "#c5221f" }}>Taxa de No-Show</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#c5221f" }}>{txN.toFixed(1)}%</div></div></div>{hasParetoData && <div style={{ height: 300, background: "#f8f9fa", border: "1px solid #dadce0", borderRadius: 8, padding: 10 }}><Bar data={pCD} options={{ ...pO, scales: { ...pO.scales, y: { ...pO.scales.y, grid: { color: "#e8eaed" }, ticks: { color: "#5f6368" } }, y1: { ...pO.scales.y1, grid: { drawOnChartArea: false }, ticks: { color: "#5f6368", callback: (v: any) => v + "%" } }, x: { grid: { display: false }, ticks: { color: "#5f6368" } } }, plugins: { legend: { labels: { color: "#5f6368" } } } }} /></div>}<div className="pl"><h4>Dicionário de Interpretação (Glossário Comercial)</h4><ul style={{ listStyle: "none", padding: 0 }}><li><strong>Faturamento Bruto:</strong> Receita total de consultas finalizadas.</li><li><strong>Taxa de No-Show:</strong> Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo da operação.</li><li><strong>Pareto de Cancelamento:</strong> Princípio 80/20. Identifica os motivos principais de perda comercial para ação imediata na gestão.</li><li><strong>CAC:</strong> Custo de Aquisição de Clientes. Valor gasto em marketing para trazer 1 novo paciente.</li><li><strong>LTV:</strong> Lifetime Value. Quanto um paciente gasta durante todo o relacionamento com a clínica.</li></ul></div></div></div>}
+    {pdf && <div className="pm"><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24, maxWidth: 800, margin: "0 auto 24px" }}><h2 style={{ color: "white", fontFamily: "'Google Sans'" }}>Pré-visualização do PDF Comercial</h2><div style={{ display: "flex", gap: 12 }}><button className="bt bs" onClick={() => setPdf(false)}>{_("btn.back")}</button><button className="bt bp" onClick={generatePDF}>{_("btn.download")}</button></div></div><div className="pp"><h1 style={{ borderBottom: "2px solid #1a73e8", paddingBottom: 16, marginBottom: 32, fontFamily: "'Google Sans'" }}>GLX Report Executivo</h1><div style={{ display: "flex", gap: 24, marginBottom: 32 }}><div style={{ flex: 1, background: "#f8f9fa", padding: 20, borderRadius: 8, border: "1px solid #dadce0" }}><div style={{ fontSize: 12, color: "#5f6368" }}>{_("kpi.revenue")}</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#202124" }}>R$ {app.faturamento_bruto.toLocaleString("pt-BR")}</div></div><div style={{ flex: 1, background: "#fce8e6", padding: 20, borderRadius: 8, border: "1px solid #fad2cf" }}><div style={{ fontSize: 12, color: "#c5221f" }}>{_("kpi.noshow")}</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#c5221f" }}>{txN.toFixed(1)}%</div></div></div>{hasParetoData && <div style={{ height: 300, background: "#f8f9fa", border: "1px solid #dadce0", borderRadius: 8, padding: 10 }}><Bar data={pCD} options={{ ...pO, scales: { ...pO.scales, y: { ...pO.scales.y, grid: { color: "#e8eaed" }, ticks: { color: "#5f6368" } }, y1: { ...pO.scales.y1, grid: { drawOnChartArea: false }, ticks: { color: "#5f6368", callback: (v: any) => v + "%" } }, x: { grid: { display: false }, ticks: { color: "#5f6368" } } }, plugins: { legend: { labels: { color: "#5f6368" } } } }} /></div>}<div className="pl"><h4>Dicionário de Interpretação (Glossário Comercial)</h4><ul style={{ listStyle: "none", padding: 0 }}><li><strong>Faturamento Bruto:</strong> Receita total de consultas finalizadas.</li><li><strong>Taxa de No-Show:</strong> Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo da operação.</li><li><strong>Pareto de Cancelamento:</strong> Princípio 80/20. Identifica os motivos principais de perda comercial.</li><li><strong>CAC:</strong> Custo de Aquisição de Clientes.</li><li><strong>LTV:</strong> Lifetime Value.</li></ul></div></div></div>}
 
     {/* SIDEBAR */}
-    <aside className="sb"><div className="sb-l"><div className="sb-i"><img src="/images/logo-transparent.png" alt="GLX" /></div><div className="sb-n">GLX CONTROL TOWER</div></div><nav className="sb-nv">{nav.map(g => <div key={g.g}><div className="sb-gl">{g.g}</div>{g.items.map(it => <div key={it.id} className={`ni ${scr === it.id ? "a" : ""}`} onClick={() => setScr(it.id)}>{it.i} {it.l}</div>)}</div>)}</nav><div className="sb-bt"><div className="uc"><div className="av">{uI}</div><div><div className="un">{uN}</div><div className="ue">{user.email || "cliente@glx.com"}</div></div></div><div className="sb-lo"><button onClick={() => { logout(); setLocation("/"); }}><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair</button></div></div></aside>
+    <aside className="sb">
+      <div className="sb-l"><div className="sb-i"><img src="/images/logo-transparent.png" alt="GLX" /></div><div className="sb-n">GLX CONTROL TOWER</div></div>
+      <nav className="sb-nv">{nav.map(g => <div key={g.g}><div className="sb-gl">{g.g}</div>{g.items.map(it => <div key={it.id} className={`ni ${scr === it.id ? "a" : ""}`} onClick={() => setScr(it.id)}>{it.i} {it.l}</div>)}</div>)}</nav>
+      <div className="lang-sel">
+        <label>{_("misc.language")}</label>
+        <div className="lang-opts">
+          {(Object.keys(LANG_LABELS) as Lang[]).map(l => <button key={l} className={`lang-btn ${lang === l ? "active" : ""}`} onClick={() => setLang(l)}>{LANG_FLAGS[l]} {LANG_LABELS[l]}</button>)}
+        </div>
+      </div>
+      <div className="sb-bt">
+        <div className="uc"><div className="av">{uI}</div><div><div className="un">{uN}</div><div className="ue">{user.email || "cliente@glx.com"}</div></div></div>
+        <div className="sb-lo"><button onClick={() => { logout(); setLocation("/"); }}><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>{_("btn.logout")}</button></div>
+      </div>
+    </aside>
 
     {/* MAIN */}
     <main className="mn">
-      <header className="tb"><div className="tb-t">{titles[scr] || "Workspace"}</div><div style={{ display: "flex", gap: 16, alignItems: "center" }}><button className="bt bp" onClick={() => setPdf(true)}>Exportar PDF</button><button className="bt bgh" onClick={() => setLt(!lt)} style={{ fontSize: 16 }}>☀️ / 🌙</button></div></header>
+      <header className="tb"><div className="tb-t">{titles[scr] || "Workspace"}</div><div style={{ display: "flex", gap: 16, alignItems: "center" }}><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.exportPdf")}</button><button className="bt bgh" onClick={() => setLt(!lt)} style={{ fontSize: 16 }}>☀️ / 🌙</button></div></header>
 
       {/* DASHBOARD */}
       <div className={`ct ${scr === "dashboard" ? "a" : ""}`}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }} className="fu"><div><h1 className="gf" style={{ marginBottom: 4 }}>Visão Geral</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Acompanhamento estratégico. Os dados serão preenchidos via integrações ou entrada manual.</div></div><select className="fs" style={{ margin: 0, width: 200 }} onChange={() => toast("Filtrando dados pelo período selecionado...")}><option>Este Mês (Atual)</option><option>Mês Passado</option><option>Últimos 90 dias</option></select></div>
-        <div className="cd hv fu s1"><div className="cd-h" style={{ background: "rgba(138,180,248,.05)" }}><div className="cd-t">Análise Guiada GLX</div><select className="fs" style={{ width: "auto", margin: 0 }} onChange={e => ansQ(e.target.value)}><option value="">Selecione uma pergunta estratégica...</option><option value="cac">Qual é o CAC atual?</option><option value="ltv">Qual é o LTV projetado?</option><option value="roi">Qual é o ROI das campanhas?</option><option value="churn">Qual é o Churn (Cancelamento)?</option><option value="lucro">Qual é a Margem de Lucro?</option></select></div><div className="cd-b"><h2 style={{ fontSize: 28, color: "var(--gb)", fontFamily: "'Google Sans'" }}>{qA}</h2><p style={{ fontSize: 13, color: "var(--ts)", marginTop: 8 }}>{qL}</p></div></div>
-        {audit && <div className="ab"><strong className="gf">⚠️ Atenção (Auditoria GLX):</strong> Seus dados manuais possuem cancelamentos sem motivos preenchidos.</div>}
-        <h3 style={{ marginBottom: 16, color: "var(--ts)" }} className="gf fu s1">Métricas Essenciais</h3>
-        <div className="kg fu s1"><div className="kp hv"><div className="kl">Faturamento Mês</div><div className="kv">R$ {app.faturamento_bruto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div><div className="km"><span className="bg nt">Aguardando dados</span></div></div><div className="kp hv"><div className="kl">Total Agendamentos</div><div className="kv">{app.total_pacientes}</div><div className="km"><span className="bg nt">Aguardando dados</span></div></div><div className="kp hv"><div className="kl">Taxa de No-Show</div><div className="kv" style={{ color: txN > 10 ? "var(--gr)" : "var(--tp)" }}>{txN.toFixed(1)}%</div><div className="km"><span className="bg in">Meta &lt; 10%</span></div></div><div className="kp hv"><div className="kl">Conversão Geral</div><div className="kv">{txC.toFixed(1)}%</div><div className="km"><span className="bg nt">Aguardando dados</span></div></div></div>
-        <div className="cd hv fu s2"><div className="cd-h"><div className="cd-t">Tendência Mensal</div></div><div className="cd-b" style={{ height: 250 }}><Bar data={dCD} options={{ ...bO, plugins: { legend: { display: false } } }} /></div></div>
-        <h3 style={{ marginTop: 32, marginBottom: 16, color: "var(--ts)" }} className="gf">Análises Pro (Avançado)</h3>
-        <div className="kg fu s2"><div className="kp hv"><div className="kl">Projeção Faturamento</div><div className="kv">R$ {(app.faturamento_bruto * 1.3).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}</div></div><div className="kp hv"><div className="kl">LTV Projetado</div><div className="kv">R$ {app.ltv.toLocaleString("pt-BR")}</div></div><div className="kp hv"><div className="kl">CAC Médio</div><div className="kv">R$ {app.cac.toLocaleString("pt-BR")}</div></div></div>
-        {hasParetoData && <div className="cd hv fu s2"><div className="cd-h"><div className="cd-t">Gráfico de Pareto: Motivos de Cancelamento</div></div><div className="cd-b" style={{ height: 300 }}><Bar data={pCD} options={pO} /></div></div>}
-        <h3 style={{ marginTop: 32, marginBottom: 16, color: "var(--ts)" }} className="gf">Governança Enterprise (Redes)</h3>
-        <Lk locked={nE} title="Escalabilidade para Redes" msg="Exclusivo para clínicas com múltiplas unidades. Obtenha o DRE consolidado e comparações." btn="Falar com Especialista GLX"><div className="cd" style={{ marginBottom: 0 }}><div className="cd-h"><div className="cd-t">Comparativo Consolidado Multi-Unidades</div></div><div className="cd-b" style={{ height: 250 }}><Bar data={eCD} options={bO} /></div></div></Lk>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }} className="fu"><div><h1 className="gf" style={{ marginBottom: 4 }}>{_("dash.overview")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("dash.subtitle")}</div></div><select className="fs" style={{ margin: 0, width: 200 }} onChange={() => toast("Filtrando dados pelo período selecionado...")}><option>{_("misc.thisMonth")}</option><option>{_("misc.lastMonth")}</option><option>{_("misc.last90days")}</option></select></div>
+        <div className="cd hv fu s1"><div className="cd-h" style={{ background: "rgba(138,180,248,.05)" }}><div className="cd-t">{_("dash.guidedAnalysis")}</div><select className="fs" style={{ width: "auto", margin: 0 }} onChange={e => ansQ(e.target.value)}><option value="">{_("dash.selectQuestion")}</option><option value="cac">Qual é o CAC atual?</option><option value="ltv">Qual é o LTV projetado?</option><option value="roi">Qual é o ROI das campanhas?</option><option value="churn">Qual é o Churn (Cancelamento)?</option><option value="lucro">Qual é a Margem de Lucro?</option></select></div><div className="cd-b"><h2 style={{ fontSize: 28, color: "var(--gb)", fontFamily: "'Google Sans'" }}>{qA}</h2><p style={{ fontSize: 13, color: "var(--ts)", marginTop: 8 }}>{qL}</p></div></div>
+        {audit && <div className="ab"><strong className="gf">⚠️ Atenção (Auditoria GLX):</strong> {_("misc.auditWarning")}</div>}
+        <h3 style={{ marginBottom: 16, color: "var(--ts)" }} className="gf fu s1">{_("dash.essentialMetrics")}</h3>
+        <div className="kg fu s2">
+          <div className="kp"><div className="kl">{_("kpi.revenue")}</div><div className="kv">R$ {app.faturamento_bruto.toLocaleString("pt-BR")}</div><div className="km">{_("dash.waitingData")}</div></div>
+          <div className="kp"><div className="kl">{_("kpi.appointments")}</div><div className="kv">{app.total_pacientes}</div><div className="km">{_("dash.waitingData")}</div></div>
+          <div className="kp"><div className="kl">{_("kpi.noshow")}</div><div className="kv" style={{ color: txN > 10 ? "var(--gr)" : "var(--tp)" }}>{txN.toFixed(1)}%</div><div className="km">{txN > 10 ? "Acima do limite" : "Dentro da meta"}</div></div>
+          <div className="kp"><div className="kl">{_("kpi.conversion")}</div><div className="kv" style={{ color: "var(--gg)" }}>{txC.toFixed(1)}%</div><div className="km">{_("dash.waitingData")}</div></div>
+        </div>
+
+        <div className="cd hv fu s2" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">{_("dash.monthlyTrend")}</div></div><div className="cd-b" style={{ height: 280 }}><Bar data={dCD} options={bO} /></div></div>
+
+        <Lk locked={isE} title="Pareto de Cancelamento" msg="Disponível nos planos Pro e Enterprise." btn="Upgrade para Pro">
+          <div className="cd hv"><div className="cd-h"><div className="cd-t">Pareto de Cancelamento (80/20)</div></div><div className="cd-b" style={{ height: 300 }}>{hasParetoData ? <Bar data={pCD} options={pO} /> : <div className="es">{_("dash.waitingData")}</div>}</div></div>
+        </Lk>
+
+        <Lk locked={isE} title={_("dash.proAnalytics")} msg="Métricas avançadas para tomada de decisão." btn="Upgrade para Pro">
+          <div className="kg">
+            <div className="kp"><div className="kl">{_("kpi.projRevenue")}</div><div className="kv">R$ {(app.faturamento_bruto * 1.1).toLocaleString("pt-BR")}</div></div>
+            <div className="kp"><div className="kl">{_("kpi.ltvProj")}</div><div className="kv">R$ {app.ltv.toLocaleString("pt-BR")}</div></div>
+            <div className="kp"><div className="kl">{_("kpi.cacAvg")}</div><div className="kv">R$ {app.cac.toLocaleString("pt-BR")}</div></div>
+          </div>
+        </Lk>
+
+        <Lk locked={nE} title={_("dash.enterprise")} msg="Governança multi-unidades para redes." btn="Upgrade para Enterprise">
+          <div className="cd hv"><div className="cd-h"><div className="cd-t">{_("dash.enterprise")}</div></div><div className="cd-b" style={{ height: 280 }}><Bar data={eCD} options={bO} /></div></div>
+        </Lk>
       </div>
 
       {/* TEMPO REAL */}
-      <div className={`ct ${scr === "realtime" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Métricas em Tempo Real</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Aguardando conexão com integrações de calendário e recepção.</div></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Fluxo de Recepção Hoje</div></div><div className="cd-b" style={{ height: 300 }}><Line data={lvCD} options={{ ...bO, plugins: { legend: { display: false } } }} /></div></div></div>
+      <div className={`ct ${scr === "realtime" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.realtime")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fluxo de atendimentos em tempo real.</div></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Fluxo de Atendimentos (Hoje)</div><span className="bg sc">Live</span></div><div className="cd-b" style={{ height: 300 }}><Line data={lvCD} options={bO} /></div></div></div>
 
       {/* AGENDA */}
-      <div className={`ct ${scr === "agenda" ? "a" : ""}`}><div className="fu" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}><div><h1 className="gf">Agenda &amp; Capacidade</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Gerencie a ocupação e importe seus dados de agendamento.</div></div><button className="bt bs" onClick={() => setModal("agenda")}>Importar Agenda (CSV)</button></div><div className="kg fu s1" style={{ marginBottom: 24 }}><div className="kp hv"><div className="kl">Utilização da Agenda</div><div className="kv">0%</div></div><div className="kp hv"><div className="kl">Faltas (No-Show)</div><div className="kv">0</div></div><div className="kp hv"><div className="kl">Tempo Médio Espera</div><div className="kv">0 min</div></div><div className="kp hv"><div className="kl">Slots Livres</div><div className="kv">0</div></div></div><Lk locked={isE} title="Mapa da Agenda (PRO)" msg="Visualize os slots ocupados graficamente." btn="Ver Planos"><div className="cd hv" style={{ margin: 0 }}><div className="cd-h"><div className="cd-t">Mapa de Calor da Agenda</div></div><div className="cd-b"><div className="es"><div style={{ fontSize: 14, color: "var(--ts)" }}>Importe um CSV ou conecte o CRM para visualizar a ocupação visualmente.</div></div></div></div></Lk></div>
+      <div className={`ct ${scr === "agenda" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.agenda")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Mapa de calor de ocupação e capacidade.</div></div><div className="g2 fu s1"><div className="kp"><div className="kl">Slots Disponíveis</div><div className="kv">0</div></div><div className="kp"><div className="kl">Taxa de Ocupação</div><div className="kv">0%</div></div></div><div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">Mapa de Calor Semanal</div><button className="bt bs" onClick={() => setModal("agenda")}>{_("btn.importCsv")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")} — Importe dados via CSV ou integração.</div></div></div></div>
 
       {/* EQUIPE */}
-      <div className={`ct ${scr === "equipe" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Equipe &amp; Produtividade</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Acompanhamento do corpo clínico e administrativo.</div></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Membros Cadastrados</div><button className="bt bp" style={{ fontSize: 13, padding: "6px 16px" }} onClick={() => setModal("prof")}>+ Adicionar Profissional</button></div><div className="cd-b" style={{ padding: 0 }}><table className="dt"><thead><tr><th>Profissional</th><th>Função</th><th>Aderência Processual</th><th>Status</th></tr></thead><tbody><tr><td colSpan={4} style={{ textAlign: "center", padding: 32, color: "var(--ts)" }}>A equipe está vazia. Adicione profissionais.</td></tr></tbody></table></div></div></div>
+      <div className={`ct ${scr === "equipe" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.equipe")}</h1></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Profissionais Cadastrados</div><button className="bt bp" onClick={() => setModal("prof")}>{_("btn.addProfessional")}</button></div><div className="cd-b"><table className="dt"><thead><tr><th>Nome</th><th>Função</th><th>Atendimentos</th><th>Conversão</th></tr></thead><tbody><tr><td colSpan={4} style={{ textAlign: "center", color: "var(--ts)" }}>{_("dash.waitingData")}</td></tr></tbody></table></div></div></div>
 
       {/* SPRINTS & OKRs */}
-      <div className={`ct ${scr === "sprints" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Sprints &amp; OKRs</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Central de execução estratégica e prestação de contas.</div></div><div className="g2 fu s1" style={{ marginBottom: 24 }}><div className="cd hv"><div className="cd-h"><div className="cd-t">Painel de Sprints</div><button className="bt bs" style={{ fontSize: 13, padding: "6px 16px" }} onClick={() => setModal("sprint")}>+ Add Sprint</button></div><div className="cd-b" style={{ padding: 0 }}><table className="dt"><thead><tr><th>Iniciativa</th><th>Dono</th><th>Status</th></tr></thead><tbody><tr><td colSpan={3} style={{ textAlign: "center", padding: 24, color: "var(--ts)" }}>Nenhum sprint ativo. Crie uma iniciativa para resolver gargalos.</td></tr></tbody></table></div></div><Lk locked={isE} title="Gestão de OKRs (PRO)" msg="Alinhe Sprints com metas globais." btn="Liberar OKRs"><div className="cd hv" style={{ margin: 0, height: "100%" }}><div className="cd-h"><div className="cd-t">Deck de OKRs (Trimestre)</div><button className="bt bs" style={{ fontSize: 13, padding: "6px 16px" }} onClick={() => setModal("okr")}>+ Add OKR</button></div><div className="cd-b" style={{ padding: 0 }}><table className="dt"><thead><tr><th>Objetivo</th><th>Key Result</th><th>Progresso</th></tr></thead><tbody><tr><td colSpan={3} style={{ textAlign: "center", padding: 24, color: "var(--ts)" }}>Sem metas globais definidas.</td></tr></tbody></table></div></div></Lk></div></div>
+      <div className={`ct ${scr === "sprints" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.sprints")}</h1></div><div className="g2 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">Sprints Ativos</div><button className="bt bp" onClick={() => setModal("sprint")}>{_("btn.addSprint")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">OKRs do Trimestre</div><button className="bt bp" onClick={() => setModal("okr")}>{_("btn.addOkr")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
 
       {/* FUNIL */}
-      <div className={`ct ${scr === "funil" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Funil Comercial</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Acompanhe a jornada do paciente desde a captação até o retorno.</div></div><div className="g21 fu s1"><Lk locked={isE} title="Gráfico Visual (PRO)" msg="Mapeamento visual da jornada." btn="Fazer Upgrade"><div className="cd hv" style={{ margin: 0 }}><div className="cd-h"><div className="cd-t">Visão do Funil</div></div><div className="cd-b" style={{ height: 300 }}><Doughnut data={fCD} options={{ responsive: true, maintainAspectRatio: false, plugins: { tooltip: { enabled: false }, legend: { display: false } }, cutout: "75%" } as any} /></div></div></Lk><div className="cd hv" style={{ margin: 0 }}><div className="cd-h"><div className="cd-t">Detalhamento</div></div><div className="cd-b">{["1. Leads (Contatos)", "2. Agendamentos", "3. Comparecimento", "4. Convertidos (Venda)", "5. Retorno / LTV"].map((l, i, a) => <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: i < a.length - 1 ? 14 : 0, borderBottom: i < a.length - 1 ? "1px solid var(--bd)" : "none", paddingBottom: i < a.length - 1 ? 10 : 0 }}><span>{l}</span><b>0</b></div>)}</div></div></div></div>
+      <div className={`ct ${scr === "funil" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.funil")}</h1></div><div className="g21 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">Funil de Vendas</div></div><div className="cd-b" style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ width: 260 }}><Doughnut data={fCD} options={{ responsive: true, plugins: { legend: { labels: { color: tc } } } }} /></div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">Resumo</div></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
 
       {/* CANAIS */}
-      <div className={`ct ${scr === "canais" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Canais de Aquisição</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Investimento, ROI e Custo de Aquisição (CAC)</div></div><div className="kg fu s1"><div className="kp hv"><div className="kl">Investimento (Ads)</div><div className="kv">R$ 0,00</div></div><div className="kp hv"><div className="kl">Custo por Lead (CPL)</div><div className="kv">R$ 0,00</div></div><div className="kp hv"><div className="kl">CAC Médio</div><div className="kv">R$ 0,00</div></div><div className="kp hv"><div className="kl">ROAS</div><div className="kv">0x</div></div></div></div>
+      <div className={`ct ${scr === "canais" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.canais")}</h1></div><div className="kg fu s1"><div className="kp"><div className="kl">{_("kpi.adsInvestment")}</div><div className="kv">R$ 0</div></div><div className="kp"><div className="kl">{_("kpi.cpl")}</div><div className="kv">R$ 0</div></div><div className="kp"><div className="kl">{_("kpi.roas")}</div><div className="kv">0x</div></div></div></div>
 
       {/* INTEGRAÇÕES */}
       <div className={`ct ${scr === "integracoes" ? "a" : ""}`}>
-        <div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Integrações de API e Token</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Toda API e Token leva os dados para o sistema e distribui onde deve ser alocado.</div></div>
-
-        {/* Integration Tabs */}
-        <div className="tn fu s1" style={{ marginBottom: 0 }}>
-          <button className={`tbn ${intTab === "tracking" ? "a" : ""}`} onClick={() => setIntTab("tracking")}>Tracking & Ads</button>
-          <button className={`tbn ${intTab === "data" ? "a" : ""}`} onClick={() => setIntTab("data")}>Dados & Planilhas</button>
-          <button className={`tbn ${intTab === "crm" ? "a" : ""}`} onClick={() => setIntTab("crm")}>CRM & Automação</button>
+        <div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("int.title")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("int.subtitle")}</div></div>
+        <div className="tn">
+          <button className={`tbn ${intTab === "tracking" ? "a" : ""}`} onClick={() => setIntTab("tracking")}>{_("int.trackingTab")}</button>
+          <button className={`tbn ${intTab === "data" ? "a" : ""}`} onClick={() => setIntTab("data")}>{_("int.dataTab")}</button>
+          <button className={`tbn ${intTab === "crm" ? "a" : ""}`} onClick={() => setIntTab("crm")}>{_("int.crmTab")}</button>
+          <button className={`tbn ${intTab === "import" ? "a" : ""}`} onClick={() => setIntTab("import")}>{_("int.fileImportTab")}</button>
         </div>
 
-        {/* TAB: TRACKING & ADS */}
+        {/* TRACKING TAB */}
         {intTab === "tracking" && <div className="fu s1">
           {/* Google Ads */}
-          <div className="cd hv" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">Google Ads</div><StatusBadge type="google_ads" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Rastreie conversões de campanhas Google Ads. Enhanced Conversions recomendado para melhor atribuição com o fim dos cookies de terceiros.</p>
-            <div className="fr"><div><label className="fl">Customer ID</label><input type="text" className="fi" placeholder="xxx-xxx-xxxx" value={intForm.google_ads_token || ""} onChange={e => setIntForm(p => ({ ...p, google_ads_token: e.target.value }))} /></div><div><label className="fl">Conversion Action ID</label><input type="text" className="fi" placeholder="AW-XXXXXXXXX" value={intForm.google_ads_url || ""} onChange={e => setIntForm(p => ({ ...p, google_ads_url: e.target.value }))} /></div></div>
-            <div style={{ display: "flex", gap: 12 }}>{isIntActive("google_ads") ? <button className="bt bs" onClick={() => removeIntegration("google_ads")}>Desconectar</button> : <button className="bt bp" onClick={() => saveIntegration("google_ads", "Google Ads")}>Conectar Google Ads</button>}</div>
-            <div className="rec-box"><h4>Recomendação GLX</h4><p>Configure via <strong>Google Tag Manager (GTM)</strong> para máxima flexibilidade. Ative <strong>Enhanced Conversions</strong> (dados first-party) — essencial com o fim dos cookies de terceiros. Configurável diretamente no GTM sem esforço adicional.</p></div>
-          </div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Ads</div><StatusBadge type="google_ads" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Rastreie conversões e otimize campanhas com Enhanced Conversions.</p><div className="fr"><div><label className="fl">Customer ID</label><input type="text" className="fi" placeholder="xxx-xxx-xxxx" value={intForm.google_ads_token || ""} onChange={e => setIntForm(p => ({ ...p, google_ads_token: e.target.value }))} /></div><div><label className="fl">OAuth Token</label><input type="text" className="fi" placeholder="Token de acesso" value={intForm.google_ads_url || ""} onChange={e => setIntForm(p => ({ ...p, google_ads_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("google_ads") ? <button className="bd" onClick={() => removeIntegration("google_ads")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("google_ads", "Google Ads")}>{_("btn.save")}</button>}</div><div className="rec-box"><h4>Recomendação GLX</h4><p>Enhanced Conversions é essencial com o fim dos cookies de terceiros. Configure via GTM para máxima eficiência. A arquitetura Server-Side GTM → Google Ads API é o padrão mais robusto atualmente.</p></div></div></div>
 
-          {/* Google Tag Manager */}
-          <div className="cd hv"><div className="cd-h"><div className="cd-t">Google Tag Manager (GTM)</div><StatusBadge type="gtm" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Container de tags para gerenciar todos os pixels e eventos de conversão em um só lugar.</p>
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}><input type="text" className="fi" style={{ margin: 0 }} placeholder="GTM-XXXXXXX" value={intForm.gtm_token || ""} onChange={e => setIntForm(p => ({ ...p, gtm_token: e.target.value }))} />{isIntActive("gtm") ? <button className="bt bs" onClick={() => removeIntegration("gtm")}>Remover</button> : <button className="bt bp" onClick={() => saveIntegration("gtm", "Google Tag Manager")}>Salvar GTM</button>}</div>
-          </div></div>
+          {/* GTM */}
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Tag Manager (GTM)</div><StatusBadge type="gtm" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Container de tags para gerenciar todos os pixels e eventos.</p><label className="fl">GTM Container ID</label><input type="text" className="fi" placeholder="GTM-XXXXXXX" value={intForm.gtm_token || ""} onChange={e => setIntForm(p => ({ ...p, gtm_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("gtm") ? <button className="bd" onClick={() => removeIntegration("gtm")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("gtm", "GTM")}>{_("btn.save")}</button>}</div></div></div>
 
           {/* Meta Pixel */}
-          <div className="cd hv"><div className="cd-h"><div className="cd-t">Meta Pixel (Facebook)</div><StatusBadge type="meta_pixel" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Rastreie conversões de anúncios Meta (Facebook/Instagram). Pixel client-side para eventos básicos.</p>
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}><input type="text" className="fi" style={{ margin: 0 }} placeholder="ID do Pixel (ex: 123456789)" value={intForm.meta_pixel_token || ""} onChange={e => setIntForm(p => ({ ...p, meta_pixel_token: e.target.value }))} />{isIntActive("meta_pixel") ? <button className="bt bs" onClick={() => removeIntegration("meta_pixel")}>Remover</button> : <button className="bt bp" onClick={() => saveIntegration("meta_pixel", "Meta Pixel")}>Salvar Pixel</button>}</div>
-          </div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Meta Pixel</div><StatusBadge type="meta_pixel" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Rastreie conversões de anúncios do Facebook/Instagram.</p><label className="fl">Pixel ID</label><input type="text" className="fi" placeholder="ID do Pixel" value={intForm.meta_pixel_token || ""} onChange={e => setIntForm(p => ({ ...p, meta_pixel_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("meta_pixel") ? <button className="bd" onClick={() => removeIntegration("meta_pixel")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("meta_pixel", "Meta Pixel")}>{_("btn.save")}</button>}</div></div></div>
 
-          {/* Meta Conversions API (CAPI) */}
-          <Lk locked={isE} title="Meta CAPI (PRO)" msg="Server-side tracking para máxima precisão de atribuição." btn="Upgrade para Pro">
-          <div className="cd hv" style={{ margin: 0 }}><div className="cd-h"><div className="cd-t">Meta Conversions API (CAPI)</div><StatusBadge type="meta_capi" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Server-side tracking — envia eventos diretamente do servidor para a Meta. Essencial para atribuição precisa sem depender de cookies do navegador.</p>
-            <div className="fr"><div><label className="fl">Access Token</label><input type="text" className="fi" placeholder="EAAGm..." value={intForm.meta_capi_token || ""} onChange={e => setIntForm(p => ({ ...p, meta_capi_token: e.target.value }))} /></div><div><label className="fl">Pixel ID</label><input type="text" className="fi" placeholder="123456789" value={intForm.meta_capi_url || ""} onChange={e => setIntForm(p => ({ ...p, meta_capi_url: e.target.value }))} /></div></div>
-            <div style={{ display: "flex", gap: 12 }}>{isIntActive("meta_capi") ? <button className="bt bs" onClick={() => removeIntegration("meta_capi")}>Desconectar</button> : <button className="bt bp" onClick={() => saveIntegration("meta_capi", "Meta CAPI")}>Ativar CAPI</button>}</div>
-            <div className="rec-box"><h4>Arquitetura Recomendada</h4><p><strong>Server-Side GTM → CAPI + Google Ads API</strong> é o padrão mais robusto atualmente. Eventos são enviados do servidor, garantindo precisão mesmo com bloqueadores de anúncios e restrições de cookies. A Meta depreca versões da API periodicamente — verifique sempre a versão vigente.</p></div>
-          </div></div></Lk>
+          {/* Meta CAPI */}
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Meta Conversions API (CAPI)</div><StatusBadge type="meta_capi" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Envie eventos server-side para melhor atribuição. Essencial com o fim dos cookies de terceiros.</p><div className="fr"><div><label className="fl">Access Token</label><input type="text" className="fi" placeholder="Token de acesso" value={intForm.meta_capi_token || ""} onChange={e => setIntForm(p => ({ ...p, meta_capi_token: e.target.value }))} /></div><div><label className="fl">Pixel ID</label><input type="text" className="fi" placeholder="ID do Pixel" value={intForm.meta_capi_url || ""} onChange={e => setIntForm(p => ({ ...p, meta_capi_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("meta_capi") ? <button className="bd" onClick={() => removeIntegration("meta_capi")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("meta_capi", "Meta CAPI")}>{_("btn.save")}</button>}</div><div className="rec-box"><h4>Recomendação GLX</h4><p>A CAPI usa a versão vigente da API do Graph (verifique periodicamente). Enhanced matching ativado melhora a atribuição. A arquitetura Server-Side GTM → CAPI é o padrão mais robusto para tracking profissional.</p></div></div></div>
 
           {/* Server-Side GTM */}
-          <Lk locked={nE} title="Server-Side GTM (ENTERPRISE)" msg="Arquitetura avançada de tracking server-side." btn="Falar com Especialista">
-          <div className="cd hv" style={{ margin: 0 }}><div className="cd-h"><div className="cd-t">Server-Side GTM</div><StatusBadge type="server_side_gtm" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Container GTM server-side para máxima privacidade e controle. Processa eventos no servidor antes de enviar para Google Ads, Meta CAPI e outros destinos.</p>
-            <div className="fr"><div><label className="fl">Server Container URL</label><input type="text" className="fi" placeholder="https://sgtm.seudominio.com" value={intForm.server_side_gtm_url || ""} onChange={e => setIntForm(p => ({ ...p, server_side_gtm_url: e.target.value }))} /></div><div><label className="fl">Container ID</label><input type="text" className="fi" placeholder="GTM-XXXXXXX" value={intForm.server_side_gtm_token || ""} onChange={e => setIntForm(p => ({ ...p, server_side_gtm_token: e.target.value }))} /></div></div>
-            <button className="bt bp" onClick={() => saveIntegration("server_side_gtm", "Server-Side GTM")}>Configurar sGTM</button>
-          </div></div></Lk>
+          <div className="cd hv" style={{ marginBottom: 24, border: "1px solid var(--gp)" }}><div className="cd-h" style={{ background: "linear-gradient(135deg,rgba(197,138,249,.1),rgba(138,180,248,.1))" }}><div className="cd-t" style={{ color: "var(--gp)" }}>Server-Side GTM → CAPI + Google Ads API</div><span className="bg in">Recomendado</span></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Arquitetura mais robusta para tracking profissional. Centraliza eventos server-side e distribui para Meta CAPI e Google Ads Enhanced Conversions.</p><div className="al"><div className="al-t">Arquitetura Recomendada</div><div className="al-d">Browser → GTM Web Container → Server-Side GTM → Meta CAPI + Google Ads API. Esta configuração garante máxima precisão de dados, resiliência a bloqueadores de anúncios e conformidade com LGPD/GDPR.</div></div></div></div>
         </div>}
 
-        {/* TAB: DADOS & PLANILHAS */}
+        {/* DATA TAB */}
         {intTab === "data" && <div className="fu s1">
           {/* Google Sheets */}
-          <div className="cd hv" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">Google Sheets API</div><StatusBadge type="google_sheets" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Puxe dados em tempo real da sua planilha. Ideal para operações que já usam Google Sheets como base de dados.</p>
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}><input type="text" className="fi" style={{ margin: 0 }} placeholder="URL da planilha ou ID..." value={intForm.google_sheets_url || ""} onChange={e => setIntForm(p => ({ ...p, google_sheets_url: e.target.value }))} />{isIntActive("google_sheets") ? <button className="bt bs" onClick={() => removeIntegration("google_sheets")}>Desconectar</button> : <button className="bt bp" onClick={() => saveIntegration("google_sheets", "Google Sheets")}>Conectar</button>}</div>
-            <div className="rec-box"><h4>Métodos Disponíveis</h4><p><strong>1. Apps Script Webhook</strong> — Simples mas com limitações de quota (não ideal para alto volume).<br/><strong>2. Sheets API Oficial</strong> — Mais robusta para produção com escala.<br/><strong>3. Zapier/Make</strong> — Automação sem código, ideal para equipes não-técnicas.<br/><strong>4. Importação CSV Manual</strong> — Use na seção Entrada de Dados.</p></div>
-          </div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Sheets API</div><StatusBadge type="google_sheets" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Puxe dados em tempo real da sua planilha. Ideal para operações que já usam Google Sheets como base de dados.</p><label className="fl">URL da planilha ou ID</label><div style={{ display: "flex", gap: 12, marginBottom: 16 }}><input type="text" className="fi" style={{ margin: 0, flex: 1 }} placeholder="URL da planilha ou ID..." value={intForm.google_sheets_url || ""} onChange={e => setIntForm(p => ({ ...p, google_sheets_url: e.target.value }))} />{isIntActive("google_sheets") ? <button className="bd" onClick={() => removeIntegration("google_sheets")}>{_("btn.disconnect")}</button> : <button className="bt bp" onClick={() => saveIntegration("google_sheets", "Google Sheets")}>{_("btn.connect")}</button>}</div><div className="rec-box"><h4>Métodos Disponíveis</h4><p>1. Apps Script Webhook — Simples mas com limitações de quota (não ideal para alto volume).<br/>2. Sheets API Oficial — Mais robusta para produção com escala.<br/>3. Zapier/Make — Automação sem código, ideal para equipes não-técnicas.<br/>4. Importação CSV Manual — Use na seção Entrada de Dados.</p></div></div></div>
 
-          {/* Excel / Microsoft Graph API */}
-          <div className="cd hv"><div className="cd-h"><div className="cd-t">Excel (Microsoft Graph API)</div><StatusBadge type="excel_graph_api" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Integração profissional com Excel Online via Microsoft Graph API. Para automação real no ecossistema Microsoft.</p>
-            <div className="fr"><div><label className="fl">Client ID (Azure AD)</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" value={intForm.excel_graph_api_token || ""} onChange={e => setIntForm(p => ({ ...p, excel_graph_api_token: e.target.value }))} /></div><div><label className="fl">Tenant ID</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" value={intForm.excel_graph_api_url || ""} onChange={e => setIntForm(p => ({ ...p, excel_graph_api_url: e.target.value }))} /></div></div>
-            <div style={{ display: "flex", gap: 12 }}>{isIntActive("excel_graph_api") ? <button className="bt bs" onClick={() => removeIntegration("excel_graph_api")}>Desconectar</button> : <button className="bt bp" onClick={() => saveIntegration("excel_graph_api", "Excel Graph API")}>Conectar Excel</button>}</div>
-            <div className="rec-box"><h4>Opções de Integração</h4><p><strong>1. Export CSV</strong> — Geração de arquivo manual (não é integração real, mas funciona para relatórios pontuais).<br/><strong>2. Microsoft Graph API</strong> — Abordagem mais profissional para automação real.<br/><strong>3. Power Automate</strong> — Muito poderoso para integrações no ecossistema Microsoft, subestimado mas altamente recomendado.<br/><strong>4. Zapier/Make</strong> — Alternativa no-code.</p></div>
-          </div></div>
+          {/* Excel */}
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Excel (Microsoft Graph API)</div><StatusBadge type="excel" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Integração profissional com Excel Online via Microsoft Graph API. Para automação real no ecossistema Microsoft.</p><div className="fr"><div><label className="fl">Client ID (Azure AD)</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" value={intForm.excel_token || ""} onChange={e => setIntForm(p => ({ ...p, excel_token: e.target.value }))} /></div><div><label className="fl">Tenant ID</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" value={intForm.excel_url || ""} onChange={e => setIntForm(p => ({ ...p, excel_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("excel") ? <button className="bd" onClick={() => removeIntegration("excel")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("excel", "Excel")}>{_("btn.connect")}</button>}</div><div className="rec-box"><h4>Opções de Integração</h4><p>1. Export CSV — Geração de arquivo manual (não é integração real, mas funciona para relatórios pontuais).<br/>2. Microsoft Graph API — Abordagem mais profissional para automação real.<br/>3. Power Automate — Muito poderosa para integrações no ecossistema Microsoft, subestimado mas altamente recomendado.<br/>4. Zapier/Make — Alternativa no-code.</p></div></div></div>
 
           {/* Power BI */}
-          <Lk locked={nE} title="Power BI (ENTERPRISE)" msg="Embed dashboards Power BI diretamente no sistema." btn="Ativar Enterprise">
-          <div className="cd hv" style={{ margin: 0 }}><div className="cd-h"><div className="cd-t">Power BI Embed</div><StatusBadge type="power_bi" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Incorpore relatórios Power BI diretamente no dashboard. DirectQuery para dados em tempo real.</p>
-            <div className="fr"><div><label className="fl">Workspace ID</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx" value={intForm.power_bi_token || ""} onChange={e => setIntForm(p => ({ ...p, power_bi_token: e.target.value }))} /></div><div><label className="fl">Report ID</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx" value={intForm.power_bi_url || ""} onChange={e => setIntForm(p => ({ ...p, power_bi_url: e.target.value }))} /></div></div>
-            <button className="bt bp" onClick={() => saveIntegration("power_bi", "Power BI")}>Conectar Power BI</button>
-            <div className="rec-box"><h4>Nota de Segurança</h4><p>O Embed público só funciona se o relatório for publicado na web com acesso anônimo — pode ser um problema de segurança em dados sensíveis. O <strong>DirectQuery</strong> é a abordagem mais robusta para dashboards em tempo real. Considere <strong>Row-Level Security (RLS)</strong> para controle de acesso granular.</p></div>
-          </div></div></Lk>
+          <Lk locked={nE} title="Power BI (Enterprise)" msg="Disponível no plano Enterprise." btn="Upgrade para Enterprise">
+            <div className="cd hv"><div className="cd-h"><div className="cd-t">Power BI</div><StatusBadge type="powerbi" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Embed de dashboards Power BI e conexão DirectQuery para dados em tempo real.</p><label className="fl">Embed URL</label><input type="text" className="fi" placeholder="URL do relatório Power BI" /><div className="rec-box"><h4>Métodos Disponíveis</h4><p>1. Embed Público — Só funciona se publicado na web (atenção: segurança de dados sensíveis).<br/>2. Embed Autenticado — Mais seguro, requer Azure AD.<br/>3. REST API — Acesso programático aos datasets.<br/>4. DirectQuery — Abordagem mais robusta para dashboards em tempo real.</p></div></div></div>
+          </Lk>
         </div>}
 
-        {/* TAB: CRM & AUTOMAÇÃO */}
+        {/* CRM TAB */}
         {intTab === "crm" && <div className="fu s1">
-          {/* HubSpot */}
-          <Lk locked={nE} title="CRM HubSpot (ENTERPRISE)" msg="Conexão nativa com HubSpot CRM." btn="Ativar Enterprise">
-          <div className="cd hv" style={{ margin: 0, marginTop: 24 }}><div className="cd-h"><div className="cd-t">HubSpot CRM</div><StatusBadge type="crm_hubspot" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Sincronize leads, deals e contatos do HubSpot. Distribuição automática para Funil Comercial e Canais.</p>
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}><input type="text" className="fi" style={{ margin: 0 }} placeholder="API Key ou Private App Token" value={intForm.crm_hubspot_token || ""} onChange={e => setIntForm(p => ({ ...p, crm_hubspot_token: e.target.value }))} /><button className="bt bp" onClick={() => saveIntegration("crm_hubspot", "HubSpot CRM")}>Autenticar</button></div>
-          </div></div></Lk>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">HubSpot CRM</div><StatusBadge type="hubspot" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Conexão nativa com HubSpot para sincronizar contatos, deals e pipeline.</p><label className="fl">API Key / Access Token</label><input type="text" className="fi" placeholder="Token de acesso HubSpot" value={intForm.hubspot_token || ""} onChange={e => setIntForm(p => ({ ...p, hubspot_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("hubspot") ? <button className="bd" onClick={() => removeIntegration("hubspot")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("hubspot", "HubSpot")}>{_("btn.save")}</button>}</div></div></div>
 
-          {/* RD Station */}
-          <Lk locked={nE} title="RD Station (ENTERPRISE)" msg="Conexão nativa com RD Station." btn="Ativar Enterprise">
-          <div className="cd hv" style={{ margin: 0 }}><div className="cd-h"><div className="cd-t">RD Station</div><StatusBadge type="crm_rd_station" /></div><div className="cd-b">
-            <p style={{ fontSize: 12, color: "var(--ts)", marginBottom: 16 }}>Integre leads e automações do RD Station Marketing e CRM.</p>
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}><input type="text" className="fi" style={{ margin: 0 }} placeholder="API Token RD Station" value={intForm.crm_rd_station_token || ""} onChange={e => setIntForm(p => ({ ...p, crm_rd_station_token: e.target.value }))} /><button className="bt bp" onClick={() => saveIntegration("crm_rd_station", "RD Station")}>Autenticar</button></div>
-          </div></div></Lk>
-
-          <div className="rec-box" style={{ marginTop: 24 }}><h4>Conclusão — Arquitetura Recomendada GLX</h4><p>A arquitetura <strong>Server-Side GTM → CAPI + Google Ads API</strong> é o padrão mais robusto atualmente para tracking profissional. Enhanced Conversions e CAPI são o futuro do tracking com menos cookies. Versões de API (especialmente Meta) devem ser tratadas como variáveis, não fixas. Para escala, prefira Sheets API oficial ou Zapier/Make sobre Apps Script Webhooks.</p></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">RD Station</div><StatusBadge type="rdstation" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Integração com RD Station Marketing e CRM para automação de marketing.</p><label className="fl">API Token</label><input type="text" className="fi" placeholder="Token RD Station" value={intForm.rdstation_token || ""} onChange={e => setIntForm(p => ({ ...p, rdstation_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("rdstation") ? <button className="bd" onClick={() => removeIntegration("rdstation")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("rdstation", "RD Station")}>{_("btn.save")}</button>}</div></div></div>
         </div>}
 
-        {/* Active Integrations Summary */}
-        {integrations.length > 0 && <div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">Integrações Ativas ({integrations.filter(i => i.status === "active").length}/{integrations.length})</div></div><div className="cd-b" style={{ padding: 0 }}><table className="dt"><thead><tr><th>Integração</th><th>Tipo</th><th>Status</th><th>Última Sync</th></tr></thead><tbody>{integrations.map(ig => <tr key={ig.id}><td style={{ fontWeight: 500 }}>{ig.name}</td><td>{ig.type.replace(/_/g, " ").toUpperCase()}</td><td><StatusBadge type={ig.type} /></td><td style={{ fontSize: 12, color: "var(--ts)" }}>{ig.lastSync ? new Date(ig.lastSync).toLocaleString("pt-BR") : "—"}</td></tr>)}</tbody></table></div></div>}
+        {/* FILE IMPORT TAB */}
+        {intTab === "import" && <div className="fu s1">
+          <div className="cd hv" style={{ marginBottom: 24, border: "1px solid var(--gp)" }}><div className="cd-h" style={{ background: "linear-gradient(135deg,rgba(197,138,249,.1),rgba(138,180,248,.1))" }}><div className="cd-t" style={{ color: "var(--gp)" }}>{_("file.title")}</div></div><div className="cd-b">
+            <p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>{_("file.subtitle")}</p>
+            <div className="dz" onClick={() => fileRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("over"); }} onDragLeave={e => e.currentTarget.classList.remove("over")} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) handleFileImport(f); }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>📊</div>
+              <p style={{ fontSize: 16, fontWeight: 500, color: "var(--tp)", marginBottom: 8 }}>{_("file.dropzone")}</p>
+              <p style={{ fontSize: 13, color: "var(--ts)" }}>{_("file.supported")}</p>
+              <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileImport(f); }} />
+            </div>
+            <div className="al" style={{ marginTop: 24 }}><div className="al-t">Como funciona?</div><div className="al-d">1. Faça upload de um arquivo .xlsx, .xls ou .csv<br/>2. A IA GLX identifica automaticamente as colunas (Faturamento, Pacientes, Status, Canal, etc.)<br/>3. Os dados são roteados para os módulos corretos do dashboard (Pareto, Funil, Canais, etc.)<br/>4. O dashboard é atualizado em tempo real com os novos dados.</div></div>
+          </div></div>
+        </div>}
       </div>
 
       {/* ENTRADA DE DADOS */}
-      <div className={`ct ${scr === "dados" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Entrada de Dados Manual</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Use quando não houver conexão automática de APIs. Atualiza gráficos em tempo real.</div></div><div className="al fu"><div className="al-t">Governança e Playbook GLX</div><div className="al-d">Sempre que não houver integração automática (API/CRM), a inserção de dados deverá seguir rigorosamente o Playbook. As inserções manuais são auditadas.</div></div><div className="cd hv fu s1"><div className="cd-h"><div className="tn" style={{ margin: 0, border: "none" }}><button className={`tbn ${dTab === "fin" ? "a" : ""}`} onClick={() => setDTab("fin")}>Lançamento Financeiro</button><button className={`tbn ${dTab === "pac" ? "a" : ""}`} onClick={() => setDTab("pac")}>Atendimento / Paciente</button></div></div><div className="cd-b" style={{ paddingTop: 24 }}>{dTab === "fin" && <div><div className="fr"><div><label className="fl">Tipo</label><select className="fs" value={fTipo} onChange={e => setFTipo(e.target.value)}><option value="Receita">Receita (Faturamento)</option><option value="Custo">Custo Fixo</option></select></div><div><label className="fl">Valor (R$)</label><input type="number" className="fi" value={fVal} onChange={e => setFVal(e.target.value)} placeholder="Ex: 500" /></div></div><button className="bt bp" onClick={regFin}>Registrar Financeiro</button></div>}{dTab === "pac" && <div><div className="fr"><div><label className="fl">Status do Agendamento</label><select className="fs" value={pSt} onChange={e => { setPSt(e.target.value); if (e.target.value === "Compareceu") setPMot(""); }}><option value="Compareceu">Realizada (Compareceu)</option><option value="No-Show">Faltou (No-Show)</option><option value="Cancelada">Cancelada</option></select></div><div><label className="fl">Motivo (Obrigatório se Faltou/Cancelou)</label><input type="text" className="fi" value={pMot} onChange={e => setPMot(e.target.value)} placeholder="Ex: Preço, Chuva, Trânsito..." disabled={pSt === "Compareceu"} /></div></div><button className="bt bp" onClick={salvarAt}>Salvar Atendimento</button></div>}</div></div></div>
+      <div className={`ct ${scr === "dados" ? "a" : ""}`}>
+        <div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.dados")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Insira dados manualmente ou importe planilhas.</div></div>
+        <div className="tn"><button className={`tbn ${dTab === "fin" ? "a" : ""}`} onClick={() => setDTab("fin")}>{_("data.financialTab")}</button><button className={`tbn ${dTab === "att" ? "a" : ""}`} onClick={() => setDTab("att")}>{_("data.attendanceTab")}</button></div>
+        {dTab === "fin" && <div className="cd hv fu s1"><div className="cd-b"><div className="fr"><div><label className="fl">{_("data.type")}</label><select className="fs" value={fTipo} onChange={e => setFTipo(e.target.value)}><option>{_("data.revenue")}</option><option>{_("data.cost")}</option><option>{_("data.variableCost")}</option></select></div><div><label className="fl">{_("data.value")}</label><input type="number" className="fi" placeholder="Ex: 500" value={fVal} onChange={e => setFVal(e.target.value)} /></div></div><button className="bt bp" onClick={regFin}>{_("data.registerFinancial")}</button></div></div>}
+        {dTab === "att" && <div className="cd hv fu s1"><div className="cd-b"><div className="fr"><div><label className="fl">{_("data.status")}</label><select className="fs" value={pSt} onChange={e => setPSt(e.target.value)}><option>{_("data.attended")}</option><option>No-Show</option><option>{_("data.cancelled")}</option></select></div><div><label className="fl">{_("data.reason")}</label><input type="text" className="fi" placeholder="Ex: Esqueceu, Remarcou..." value={pMot} onChange={e => setPMot(e.target.value)} /></div></div><button className="bt bp" onClick={salvarAt}>{_("data.registerAttendance")}</button></div></div>}
+
+        {/* RECORDS TABLE WITH DELETE */}
+        <div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">{_("data.recentRecords")} ({records.length})</div></div><div className="cd-b">{records.length === 0 ? <div className="es">{_("data.noRecords")}</div> : <table className="rec-tbl"><thead><tr><th>Tipo</th><th>Detalhe</th><th>Valor</th><th>Data</th><th>Ação</th></tr></thead><tbody>{records.map(r => <tr key={r.id}><td><span className={`bg ${r.type === "financial" ? "in" : "wn"}`}>{r.type === "financial" ? "Financeiro" : "Atendimento"}</span></td><td>{r.label}</td><td>{r.type === "financial" ? r.detail : r.detail}</td><td style={{ fontSize: 12, color: "var(--ts)" }}>{new Date(r.createdAt).toLocaleString("pt-BR")}</td><td><button className="bd" onClick={() => setDeleteConfirm(r.id)}>{_("btn.delete")}</button></td></tr>)}</tbody></table>}</div></div>
+      </div>
 
       {/* RELATÓRIOS */}
-      <div className={`ct ${scr === "relatorios" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Relatórios e Exportações</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fechamentos e apresentação da base bruta.</div></div><div className="g2 fu s1" style={{ marginBottom: 24 }}><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Relatório Gerencial PDF</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>PDF comercial com legendas explicativas (O que significa tal indicador).</p><button className="bt bp" onClick={() => setPdf(true)}>Pré-visualizar e Baixar PDF</button></div></div><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Exportar CSV</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>Toda a base de dados do sistema no formato CSV.</p><button className="bt bs" onClick={() => { toast("Preparando CSV..."); setTimeout(() => toast("Arquivo CSV exportado!"), 1500); }}>Baixar CSV</button></div></div></div></div>
+      <div className={`ct ${scr === "relatorios" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.relatorios")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fechamentos e apresentação da base bruta.</div></div><div className="g2 fu s1" style={{ marginBottom: 24 }}><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Relatório Gerencial PDF</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>PDF comercial com legendas explicativas.</p><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.previewPdf")}</button></div></div><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Exportar CSV</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>Toda a base de dados do sistema no formato CSV.</p><button className="bt bs" onClick={() => { toast("Preparando CSV..."); setTimeout(() => toast("Arquivo CSV exportado!"), 1500); }}>{_("btn.downloadCsv")}</button></div></div></div></div>
 
       {/* DIAGNÓSTICO */}
-      <div className={`ct ${scr === "diagnostico" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Diagnóstico GLX</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Análise de maturidade da sua operação.</div></div><div className="cd hv fu s1"><div className="cd-b" style={{ textAlign: "center", padding: "60px 20px" }}><div style={{ fontSize: 64, fontWeight: 700, color: "var(--bdl)", fontFamily: "'Google Sans'" }}>00</div><div style={{ fontSize: 16, fontWeight: 500, marginTop: 8 }}>Diagnóstico em Análise</div><div style={{ fontSize: 13, color: "var(--ts)", marginTop: 8 }}>Insira volume de dados na operação para o motor calcular seu Score de Maturidade.</div></div></div></div>
+      <div className={`ct ${scr === "diagnostico" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.diagnostico")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Análise de maturidade da sua operação.</div></div><div className="cd hv fu s1"><div className="cd-b" style={{ textAlign: "center", padding: "60px 20px" }}><div style={{ fontSize: 64, fontWeight: 700, color: "var(--bdl)", fontFamily: "'Google Sans'" }}>00</div><div style={{ fontSize: 16, fontWeight: 500, marginTop: 8 }}>Diagnóstico em Análise</div><div style={{ fontSize: 13, color: "var(--ts)", marginTop: 8 }}>Insira volume de dados na operação para o motor calcular seu Score de Maturidade.</div></div></div></div>
 
       {/* CONFIGURAÇÕES */}
-      <div className={`ct ${scr === "configuracoes" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">Configurações Gerais</h1></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Parâmetros e Metas Ouro</div></div><div className="cd-b"><div className="fr"><div><label className="fl">Meta Faturamento (R$)</label><input type="number" className="fi" placeholder="0,00" /></div><div><label className="fl">Limite Aceitável No-Show (%)</label><input type="number" className="fi" placeholder="Ex: 10" /></div></div><div className="fr"><div><label className="fl">Meta NPS</label><input type="number" className="fi" placeholder="Ex: 75" /></div><div><label className="fl">Tempo Limite Espera Recepção (min)</label><input type="number" className="fi" placeholder="Ex: 15" /></div></div><button className="bt bp" onClick={() => toast("Configurações salvas.")}>Atualizar Metas</button></div></div></div>
+      <div className={`ct ${scr === "configuracoes" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.configuracoes")}</h1></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Parâmetros e Metas Ouro</div></div><div className="cd-b"><div className="fr"><div><label className="fl">Meta Faturamento (R$)</label><input type="number" className="fi" placeholder="0,00" /></div><div><label className="fl">Limite Aceitável No-Show (%)</label><input type="number" className="fi" placeholder="Ex: 10" /></div></div><div className="fr"><div><label className="fl">Meta NPS</label><input type="number" className="fi" placeholder="Ex: 75" /></div><div><label className="fl">Tempo Limite Espera Recepção (min)</label><input type="number" className="fi" placeholder="Ex: 15" /></div></div><button className="bt bp" onClick={() => toast(_("toast.settingsSaved"))}>{_("btn.updateGoals")}</button></div></div></div>
 
     </main>
   </div></>);

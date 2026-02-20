@@ -515,3 +515,31 @@
   - [x] Server-Side GTM → CAPI + Google Ads API (arquitetura destacada)
 - [x] Salvar/carregar configurações de integrações do banco de dados
 - [x] Verificar funcionamento completo do dashboard com dados zerados
+
+## Versão 17.5 - Seletor de Idioma + Parser Inteligente de Planilhas
+
+### Seletor de Idioma
+- [x] Adicionar seletor de idiomas (PT/ES/EN) no sidebar do dashboard
+- [x] Criar sistema de traduções i18n para todas as strings do dashboard
+- [x] Posicionar seletor acima do perfil do usuário no sidebar
+
+### Parser Inteligente de Planilhas (Código pasted_content_4.txt)
+- [x] Integrar módulo de reconhecimento inteligente de planilhas na tela de Integrações
+- [x] Implementar COLUMN_MAP com dicionário de colunas reconhecidas (PT/EN)
+- [x] Implementar detectColumn, detectStatus, normalize
+- [x] Implementar parseClinicFile com FileReader + xlsx
+- [x] Implementar handleClinicFile com validação de tipos
+- [x] Implementar buildRoutingLog para IA Router
+- [x] Implementar buildWarnings para alertas de auditoria
+- [x] Upload de arquivo (.xlsx, .xls, .csv) na seção de Integrações
+- [x] IA Router modal com logs animados ao processar arquivo
+- [x] Atualizar dados do dashboard automaticamente após importação
+- [x] Instalar dependência xlsx (SheetJS) para parsing de planilhas
+
+### Exclusão de Dados Manuais
+- [x] Adicionar lista/tabela de registros inseridos na seção Entrada de Dados
+- [x] Botão de excluir para cada registro (Financeiro e Atendimento)
+- [x] Confirmação antes de excluir
+
+### Revisão Geral
+- [x] Revisar todas as funções do dashboard para garantir que nenhuma ficou pela metade
