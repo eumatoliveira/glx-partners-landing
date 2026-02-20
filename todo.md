@@ -543,3 +543,12 @@
 
 ### Revisão Geral
 - [x] Revisar todas as funções do dashboard para garantir que nenhuma ficou pela metade
+
+## Versão 17.6 - Remoção Diagnóstico + Verificação Backend Completa
+
+- [x] Remover "Diagnóstico GLX" do sidebar e da navegação do dashboard
+- [x] Verificar todas as procedures tRPC do dashboard (CRUD financeiro, atendimento, integrações)
+- [x] Testar inserção de dados reais no banco (financeiro + atendimento)
+- [x] Testar exibição dos dados nos gráficos/KPIs do dashboard
+- [x] Testar exclusão de dados inseridos
+- [x] Garantir que todos os endpoints estão funcionando corretamente

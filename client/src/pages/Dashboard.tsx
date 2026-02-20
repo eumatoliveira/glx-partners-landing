@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement,
   PointElement, ArcElement, Title, Tooltip, Legend, Filler,
@@ -145,6 +146,34 @@ export default function Dashboard() {
   const [pdf, setPdf] = useState(false);
   const [records, setRecords] = useState<ManualRecord[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  /* ─── tRPC: MANUAL ENTRIES ─── */
+  const entriesQuery = trpc.manualEntries.list.useQuery({});
+  const createEntryMut = trpc.manualEntries.create.useMutation({ onSuccess: () => entriesQuery.refetch() });
+  const deleteEntryMut = trpc.manualEntries.delete.useMutation({ onSuccess: () => entriesQuery.refetch() });
+
+  // Sync tRPC data to local records state
+  useEffect(() => {
+    if (entriesQuery.data) {
+      const mapped: ManualRecord[] = entriesQuery.data.map((e: any) => ({
+        id: String(e.id),
+        type: e.category as "financial" | "attendance",
+        label: e.label,
+        value: e.value ? parseFloat(e.value) : 0,
+        detail: e.detail || "—",
+        createdAt: e.createdAt ? new Date(e.createdAt).toISOString() : new Date().toISOString(),
+      }));
+      setRecords(mapped);
+      // Recalculate appState from DB records
+      let fat = 0, pac = 0, ns = 0;
+      const paretoMap: Record<string, number> = {};
+      mapped.forEach(r => {
+        if (r.type === "financial" && (r.label === "Receita" || r.label === "Receita (Faturamento)")) fat += (r.value as number);
+        if (r.type === "attendance") { pac++; if (r.label === "No-Show" || r.label === "Cancelada") { ns++; const m = r.detail === "—" ? "Não Identificado" : r.detail; paretoMap[m] = (paretoMap[m] || 0) + 1; } }
+      });
+      setApp(p => ({ ...p, faturamento_bruto: fat, total_pacientes: pac, no_shows_abs: ns, pareto: Object.entries(paretoMap).map(([motivo, freq]) => ({ motivo, freq })) }));
+    }
+  }, [entriesQuery.data]);
   const rRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -304,49 +333,34 @@ export default function Dashboard() {
   const regFin = () => {
     const v = parseFloat(fVal);
     if (isNaN(v) || v <= 0) { toast(_("toast.invalidValue")); return; }
-    const rec: ManualRecord = { id: crypto.randomUUID(), type: "financial", label: fTipo, value: v, detail: `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, createdAt: new Date().toISOString() };
-    setRecords(p => [rec, ...p]);
-    if (fTipo === "Receita") { setApp(p => ({ ...p, faturamento_bruto: p.faturamento_bruto + v })); toast(_("toast.revenueAdded")); }
+    createEntryMut.mutate({
+      category: "financial",
+      entryType: fTipo,
+      label: fTipo,
+      value: v.toString(),
+      detail: `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+    });
+    if (fTipo === "Receita" || fTipo.includes("Receita")) { toast(_("toast.revenueAdded")); }
     else toast(_("toast.costAdded"));
     setFVal("");
   };
 
   const salvarAt = () => {
-    const rec: ManualRecord = { id: crypto.randomUUID(), type: "attendance", label: pSt, value: 1, detail: pMot || "—", createdAt: new Date().toISOString() };
-    setRecords(p => [rec, ...p]);
-    setApp(p => {
-      const n = { ...p, total_pacientes: p.total_pacientes + 1 };
-      if (pSt === "No-Show" || pSt === "Cancelada") {
-        n.no_shows_abs = p.no_shows_abs + 1; let m = pMot.trim();
-        if (!m) { setAudit(true); m = "Não Identificado"; } else setAudit(false);
-        const np = [...p.pareto]; const f = np.find(x => x.motivo.toLowerCase() === m.toLowerCase());
-        if (f) f.freq++; else np.push({ motivo: m, freq: 1 }); n.pareto = np;
-      } return n;
-    }); toast(_("toast.attendanceAdded")); setPMot("");
+    createEntryMut.mutate({
+      category: "attendance",
+      entryType: pSt,
+      label: pSt,
+      value: "1",
+      detail: pMot || "—",
+    });
+    if ((pSt === "No-Show" || pSt === "Cancelada") && !pMot.trim()) { setAudit(true); } else { setAudit(false); }
+    toast(_("toast.attendanceAdded")); setPMot("");
   };
 
   const deleteRecord = (id: string) => {
-    const rec = records.find(r => r.id === id);
-    if (!rec) return;
-    // Reverse the effect on appState
-    if (rec.type === "financial" && rec.label === "Receita") {
-      setApp(p => ({ ...p, faturamento_bruto: Math.max(0, p.faturamento_bruto - (rec.value as number)) }));
-    } else if (rec.type === "attendance") {
-      setApp(p => {
-        const n = { ...p, total_pacientes: Math.max(0, p.total_pacientes - 1) };
-        if (rec.label === "No-Show" || rec.label === "Cancelada") {
-          n.no_shows_abs = Math.max(0, p.no_shows_abs - 1);
-          // Remove from pareto
-          const motivo = rec.detail === "—" ? "Não Identificado" : rec.detail;
-          const np = [...p.pareto];
-          const f = np.find(x => x.motivo.toLowerCase() === motivo.toLowerCase());
-          if (f) { f.freq--; if (f.freq <= 0) { const idx = np.indexOf(f); np.splice(idx, 1); } }
-          n.pareto = np;
-        }
-        return n;
-      });
-    }
-    setRecords(p => p.filter(r => r.id !== id));
+    const numId = parseInt(id, 10);
+    if (isNaN(numId)) return;
+    deleteEntryMut.mutate({ id: numId });
     setDeleteConfirm(null);
     toast(_("toast.recordDeleted"));
   };
@@ -384,7 +398,7 @@ export default function Dashboard() {
   const titles: Record<string, string> = {
     dashboard: _("title.dashboard"), realtime: _("title.realtime"), agenda: _("title.agenda"), equipe: _("title.equipe"),
     sprints: _("title.sprints"), funil: _("title.funil"), canais: _("title.canais"), integracoes: _("title.integracoes"),
-    dados: _("title.dados"), relatorios: _("title.relatorios"), diagnostico: _("title.diagnostico"), configuracoes: _("title.configuracoes"),
+    dados: _("title.dados"), relatorios: _("title.relatorios"), configuracoes: _("title.configuracoes"),
   };
 
   const pd = pareto();
@@ -411,7 +425,7 @@ export default function Dashboard() {
     { g: _("nav.overview"), items: [{ id: "dashboard", l: _("nav.dashboard"), i: <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> }, { id: "realtime", l: _("nav.realtime"), i: <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> }] },
     { g: _("nav.operations"), items: [{ id: "agenda", l: _("nav.agenda"), i: <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> }, { id: "equipe", l: _("nav.equipe"), i: <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> }, { id: "sprints", l: _("nav.sprints"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h5v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }] },
     { g: _("nav.commercial"), items: [{ id: "funil", l: _("nav.funil"), i: <svg viewBox="0 0 24 24"><path d="M3 4l9 16 9-16H3zm3.38 2h11.25L12 16 6.38 6z"/></svg> }, { id: "canais", l: _("nav.canais"), i: <svg viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27z"/></svg> }] },
-    { g: _("nav.management"), items: [{ id: "integracoes", l: _("nav.integracoes"), i: <svg viewBox="0 0 24 24"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }, { id: "dados", l: _("nav.dados"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }, { id: "relatorios", l: _("nav.relatorios"), i: <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H5v-8h14v8z"/><path d="M18 4l-4-4h-4l-4 4h12z"/></svg> }, { id: "diagnostico", l: _("nav.diagnostico"), i: <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" fill="currentColor" stroke="none"/></svg> }, { id: "configuracoes", l: _("nav.configuracoes"), i: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }] },
+    { g: _("nav.management"), items: [{ id: "integracoes", l: _("nav.integracoes"), i: <svg viewBox="0 0 24 24"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }, { id: "dados", l: _("nav.dados"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }, { id: "relatorios", l: _("nav.relatorios"), i: <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H5v-8h14v8z"/><path d="M18 4l-4-4h-4l-4 4h12z"/></svg> }, { id: "configuracoes", l: _("nav.configuracoes"), i: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }] },
   ];
 
   return (<><style>{CSS}</style><div className={`D ${lt ? "lt" : ""}`}>
@@ -586,8 +600,7 @@ export default function Dashboard() {
       {/* RELATÓRIOS */}
       <div className={`ct ${scr === "relatorios" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.relatorios")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fechamentos e apresentação da base bruta.</div></div><div className="g2 fu s1" style={{ marginBottom: 24 }}><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Relatório Gerencial PDF</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>PDF comercial com legendas explicativas.</p><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.previewPdf")}</button></div></div><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Exportar CSV</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>Toda a base de dados do sistema no formato CSV.</p><button className="bt bs" onClick={() => { toast("Preparando CSV..."); setTimeout(() => toast("Arquivo CSV exportado!"), 1500); }}>{_("btn.downloadCsv")}</button></div></div></div></div>
 
-      {/* DIAGNÓSTICO */}
-      <div className={`ct ${scr === "diagnostico" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.diagnostico")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Análise de maturidade da sua operação.</div></div><div className="cd hv fu s1"><div className="cd-b" style={{ textAlign: "center", padding: "60px 20px" }}><div style={{ fontSize: 64, fontWeight: 700, color: "var(--bdl)", fontFamily: "'Google Sans'" }}>00</div><div style={{ fontSize: 16, fontWeight: 500, marginTop: 8 }}>Diagnóstico em Análise</div><div style={{ fontSize: 13, color: "var(--ts)", marginTop: 8 }}>Insira volume de dados na operação para o motor calcular seu Score de Maturidade.</div></div></div></div>
+
 
       {/* CONFIGURAÇÕES */}
       <div className={`ct ${scr === "configuracoes" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.configuracoes")}</h1></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Parâmetros e Metas Ouro</div></div><div className="cd-b"><div className="fr"><div><label className="fl">Meta Faturamento (R$)</label><input type="number" className="fi" placeholder="0,00" /></div><div><label className="fl">Limite Aceitável No-Show (%)</label><input type="number" className="fi" placeholder="Ex: 10" /></div></div><div className="fr"><div><label className="fl">Meta NPS</label><input type="number" className="fi" placeholder="Ex: 75" /></div><div><label className="fl">Tempo Limite Espera Recepção (min)</label><input type="number" className="fi" placeholder="Ex: 15" /></div></div><button className="bt bp" onClick={() => toast(_("toast.settingsSaved"))}>{_("btn.updateGoals")}</button></div></div></div>

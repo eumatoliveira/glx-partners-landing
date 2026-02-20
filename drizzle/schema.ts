@@ -529,3 +529,22 @@ export const integrations = mysqlTable("integrations", {
 
 export type Integration = typeof integrations.$inferSelect;
 export type InsertIntegration = typeof integrations.$inferInsert;
+
+/**
+ * Lançamentos manuais do cliente (Financeiro + Atendimento)
+ * Esses registros alimentam o dashboard do cliente.
+ */
+export const manualEntries = mysqlTable("manual_entries", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").references(() => users.id).notNull(),
+  category: mysqlEnum("category", ["financial", "attendance"]).notNull(),
+  /** Tipo do lançamento: receita, custo_fixo, custo_variavel, investimento, consulta, retorno, procedimento, cancelamento, no_show */
+  entryType: varchar("entryType", { length: 100 }).notNull(),
+  label: varchar("label", { length: 255 }).notNull(),
+  value: decimal("value", { precision: 15, scale: 2 }),
+  detail: text("detail"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ManualEntry = typeof manualEntries.$inferSelect;
+export type InsertManualEntry = typeof manualEntries.$inferInsert;

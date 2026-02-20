@@ -1,0 +1,20 @@
+{
+  "query": "SELECT * FROM manual_entries;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 9EM9SDuUaJeZfSf.root --database JU7Z8RekbPPJdbZRHbkPNV --execute SELECT * FROM manual_entries;",
+  "rows": [
+    {
+      "id": "1",
+      "userId": "1",
+      "category": "financial",
+      "entryType": "Receita",
+      "label": "Receita",
+      "value": "5000.00",
+      "detail": "R$ 5.000,00",
+      "createdAt": "2026-02-20 17:04:55"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\tcategory\tentryType\tlabel\tvalue\tdetail\tcreatedAt\n1\t1\tfinancial\tReceita\tReceita\t5000.00\tR$ 5.000,00\t2026-02-20 17:04:55\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

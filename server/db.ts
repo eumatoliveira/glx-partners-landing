@@ -16,7 +16,9 @@ import {
   errorLogs,
   InsertErrorLog,
   serviceStatus,
-  InsertServiceStatus
+  InsertServiceStatus,
+  manualEntries,
+  InsertManualEntry
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -998,4 +1000,34 @@ export async function getAllDashboardData(clientId: number) {
     dataGovernanceData: dataGov,
     andonAlerts: alerts,
   };
+}
+
+
+// ==================== MANUAL ENTRIES ====================
+
+export async function getManualEntries(userId: number, category?: "financial" | "attendance") {
+  const db = await getDb();
+  if (!db) return [];
+  if (category) {
+    return db.select().from(manualEntries)
+      .where(and(eq(manualEntries.userId, userId), eq(manualEntries.category, category)))
+      .orderBy(desc(manualEntries.createdAt));
+  }
+  return db.select().from(manualEntries)
+    .where(eq(manualEntries.userId, userId))
+    .orderBy(desc(manualEntries.createdAt));
+}
+
+export async function createManualEntry(data: InsertManualEntry) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(manualEntries).values(data);
+  return result[0].insertId;
+}
+
+export async function deleteManualEntry(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(manualEntries).where(and(eq(manualEntries.id, id), eq(manualEntries.userId, userId)));
+  return { success: true };
 }

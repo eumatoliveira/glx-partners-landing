@@ -6,7 +6,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { adminRouter } from "./adminRouter";
 import { authRouter } from "./authRouter";
 import { dashboardDataRouter } from "./dashboardDataRouter";
-import { getClientBySlug, getAllDashboardData } from "./db";
+import { getClientBySlug, getAllDashboardData, getManualEntries, createManualEntry, deleteManualEntry } from "./db";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -30,6 +30,39 @@ export const appRouter = router({
 
   // Dashboard Data Management Routes
   dashboardData: dashboardDataRouter,
+
+  // Manual Entries CRUD (for authenticated clients)
+  manualEntries: router({
+    list: protectedProcedure
+      .input(z.object({ category: z.enum(["financial", "attendance"]).optional() }))
+      .query(async ({ ctx, input }) => {
+        return await getManualEntries(ctx.user!.id, input.category);
+      }),
+    create: protectedProcedure
+      .input(z.object({
+        category: z.enum(["financial", "attendance"]),
+        entryType: z.string().min(1),
+        label: z.string().min(1),
+        value: z.string().optional(),
+        detail: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const id = await createManualEntry({
+          userId: ctx.user!.id,
+          category: input.category,
+          entryType: input.entryType,
+          label: input.label,
+          value: input.value,
+          detail: input.detail,
+        });
+        return { success: true, id };
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await deleteManualEntry(input.id, ctx.user!.id);
+      }),
+  }),
 
   // Client Dashboard Data (for authenticated clients)
   clientDashboard: router({
