@@ -434,3 +434,14 @@
 - [x] Toggle dark/light mode funcional
 - [x] Cores de destaque laranja/verdedestaques
 - [ ] Toggle dark/light mode
+
+
+## Versão 16.0 - Dashboard do Cliente Remodeladoal
+
+- [x] Remodelar página /dashboard com novo design
+- [x] Implementar sidebar navegável com múltiplas seções
+- [x] Criar KPIs em destaque (Faturamento, Margem, Pacientes, Taxa de Retorno)
+- [x] Adicionar seção "Acesso Rápido" com atalhos
+- [x] Implementar toggle dark/light mode
+- [x] Integrar com autenticação de cliente
+- [x] Testar fluxo completo de login de cliente
