@@ -478,3 +478,11 @@
 - [x] Sistema de planos com lock/unlock (Essential/Pro/Enterprise)
 - [ ] Drag-and-drop nos blocos do dashboard (placeholder - não implementado)
 - [x] Audit Banner para dados incompletos
+
+## Versão 17.1 - Ajustes Dashboard (Solicitação do Cliente)
+
+- [x] Remover seletor de plano (Essential/Pro/Enterprise) da topbar do Dashboard
+- [x] Plano deve ser determinado pelo role do usuário definido no admin
+- [x] Remover card "Motor de IA (GLX)" da seção de Integrações
+- [x] Corrigir fontes para usar Roboto + Google Sans via Google Fonts API
+- [x] Aplicar font-family: 'Google Sans', 'Roboto', sans-serif corretamente
