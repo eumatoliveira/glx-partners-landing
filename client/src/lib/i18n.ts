@@ -4,13 +4,13 @@ export const LANG_LABELS: Record<Lang, string> = { pt: "Português", es: "Españ
 export const LANG_FLAGS: Record<Lang, string> = { pt: "🇧🇷", es: "🇪🇸", en: "🇺🇸" };
 
 const T = {
-  // Sidebar groups
+  // ─── Sidebar groups ───
   "nav.overview": { pt: "Visão Geral", es: "Visión General", en: "Overview" },
   "nav.operations": { pt: "Operação & Equipe", es: "Operación & Equipo", en: "Operations & Team" },
   "nav.commercial": { pt: "Comercial", es: "Comercial", en: "Commercial" },
   "nav.management": { pt: "Gestão e Integrações", es: "Gestión e Integraciones", en: "Management & Integrations" },
 
-  // Sidebar items
+  // ─── Sidebar items ───
   "nav.dashboard": { pt: "Dashboard", es: "Dashboard", en: "Dashboard" },
   "nav.realtime": { pt: "Tempo Real", es: "Tiempo Real", en: "Real Time" },
   "nav.agenda": { pt: "Agenda & Capacidade", es: "Agenda & Capacidad", en: "Schedule & Capacity" },
@@ -24,7 +24,7 @@ const T = {
   "nav.diagnostico": { pt: "Diagnóstico GLX", es: "Diagnóstico GLX", en: "GLX Diagnostics" },
   "nav.configuracoes": { pt: "Configurações", es: "Configuraciones", en: "Settings" },
 
-  // Topbar titles
+  // ─── Topbar titles ───
   "title.dashboard": { pt: "Visão Geral", es: "Visión General", en: "Overview" },
   "title.realtime": { pt: "Tempo Real", es: "Tiempo Real", en: "Real Time" },
   "title.agenda": { pt: "Agenda & Capacidade", es: "Agenda & Capacidad", en: "Schedule & Capacity" },
@@ -38,7 +38,7 @@ const T = {
   "title.diagnostico": { pt: "Diagnóstico GLX", es: "Diagnóstico GLX", en: "GLX Diagnostics" },
   "title.configuracoes": { pt: "Configurações", es: "Configuraciones", en: "Settings" },
 
-  // Buttons
+  // ─── Buttons ───
   "btn.exportPdf": { pt: "Exportar PDF", es: "Exportar PDF", en: "Export PDF" },
   "btn.save": { pt: "Salvar", es: "Guardar", en: "Save" },
   "btn.cancel": { pt: "Cancelar", es: "Cancelar", en: "Cancel" },
@@ -60,8 +60,11 @@ const T = {
   "btn.updateGoals": { pt: "Atualizar Metas", es: "Actualizar Metas", en: "Update Goals" },
   "btn.previewPdf": { pt: "Pré-visualizar e Baixar PDF", es: "Previsualizar y Descargar PDF", en: "Preview & Download PDF" },
   "btn.downloadCsv": { pt: "Baixar CSV", es: "Descargar CSV", en: "Download CSV" },
+  "btn.createSprint": { pt: "Criar Sprint", es: "Crear Sprint", en: "Create Sprint" },
+  "btn.upgradePro": { pt: "Upgrade para Pro", es: "Upgrade a Pro", en: "Upgrade to Pro" },
+  "btn.upgradeEnterprise": { pt: "Upgrade para Enterprise", es: "Upgrade a Enterprise", en: "Upgrade to Enterprise" },
 
-  // Dashboard section
+  // ─── Dashboard section ───
   "dash.overview": { pt: "Visão Geral", es: "Visión General", en: "Overview" },
   "dash.subtitle": { pt: "Acompanhamento estratégico. Os dados serão preenchidos via integrações ou entrada manual.", es: "Seguimiento estratégico. Los datos se completarán mediante integraciones o entrada manual.", en: "Strategic tracking. Data will be filled via integrations or manual entry." },
   "dash.guidedAnalysis": { pt: "Análise Guiada GLX", es: "Análisis Guiado GLX", en: "GLX Guided Analysis" },
@@ -71,8 +74,12 @@ const T = {
   "dash.enterprise": { pt: "Governança Enterprise (Redes)", es: "Gobernanza Enterprise (Redes)", en: "Enterprise Governance (Networks)" },
   "dash.essentialMetrics": { pt: "Métricas Essenciais", es: "Métricas Esenciales", en: "Essential Metrics" },
   "dash.waitingData": { pt: "Aguardando dados", es: "Esperando datos", en: "Awaiting data" },
+  "dash.aboveLimit": { pt: "Acima do limite", es: "Por encima del límite", en: "Above limit" },
+  "dash.withinGoal": { pt: "Dentro da meta", es: "Dentro de la meta", en: "Within goal" },
+  "dash.filteringData": { pt: "Filtrando dados pelo período selecionado...", es: "Filtrando datos por el período seleccionado...", en: "Filtering data by selected period..." },
+  "dash.workspace": { pt: "Workspace", es: "Workspace", en: "Workspace" },
 
-  // KPI labels
+  // ─── KPI labels ───
   "kpi.revenue": { pt: "Faturamento Mês", es: "Facturación Mes", en: "Monthly Revenue" },
   "kpi.appointments": { pt: "Total Agendamentos", es: "Total Citas", en: "Total Appointments" },
   "kpi.noshow": { pt: "Taxa de No-Show", es: "Tasa de No-Show", en: "No-Show Rate" },
@@ -83,8 +90,24 @@ const T = {
   "kpi.adsInvestment": { pt: "Investimento (Ads)", es: "Inversión (Ads)", en: "Investment (Ads)" },
   "kpi.cpl": { pt: "Custo por Lead (CPL)", es: "Costo por Lead (CPL)", en: "Cost per Lead (CPL)" },
   "kpi.roas": { pt: "ROAS", es: "ROAS", en: "ROAS" },
+  "kpi.slotsAvailable": { pt: "Slots Disponíveis", es: "Slots Disponibles", en: "Available Slots" },
+  "kpi.occupancyRate": { pt: "Taxa de Ocupação", es: "Tasa de Ocupación", en: "Occupancy Rate" },
 
-  // Data entry
+  // ─── Guided Analysis Q&A ───
+  "qa.selectMetric": { pt: "Selecione uma métrica acima", es: "Seleccione una métrica arriba", en: "Select a metric above" },
+  "qa.selectHint": { pt: "O sistema traduzirá os dados para facilitar a tomada de decisão.", es: "El sistema traducirá los datos para facilitar la toma de decisiones.", en: "The system will translate data to facilitate decision-making." },
+  "qa.cacQuestion": { pt: "Qual é o CAC atual?", es: "¿Cuál es el CAC actual?", en: "What is the current CAC?" },
+  "qa.ltvQuestion": { pt: "Qual é o LTV projetado?", es: "¿Cuál es el LTV proyectado?", en: "What is the projected LTV?" },
+  "qa.roiQuestion": { pt: "Qual é o ROI das campanhas?", es: "¿Cuál es el ROI de las campañas?", en: "What is the campaign ROI?" },
+  "qa.churnQuestion": { pt: "Qual é o Churn (Cancelamento)?", es: "¿Cuál es el Churn (Cancelación)?", en: "What is the Churn (Cancellation)?" },
+  "qa.profitQuestion": { pt: "Qual é a Margem de Lucro?", es: "¿Cuál es el Margen de Ganancia?", en: "What is the Profit Margin?" },
+  "qa.cacDesc": { pt: "Custo de Aquisição de Clientes: O valor gasto em marketing para trazer 1 novo paciente.", es: "Costo de Adquisición de Clientes: El valor gastado en marketing para traer 1 nuevo paciente.", en: "Customer Acquisition Cost: The amount spent on marketing to bring in 1 new patient." },
+  "qa.ltvDesc": { pt: "Lifetime Value: O quanto um paciente gasta em média durante todo o relacionamento com a clínica.", es: "Lifetime Value: Cuánto gasta un paciente en promedio durante toda la relación con la clínica.", en: "Lifetime Value: How much a patient spends on average throughout their entire relationship with the clinic." },
+  "qa.roiDesc": { pt: "Retorno sobre Investimento: Para cada R$1 investido, a clínica retorna este multiplicador.", es: "Retorno sobre Inversión: Por cada R$1 invertido, la clínica retorna este multiplicador.", en: "Return on Investment: For every R$1 invested, the clinic returns this multiplier." },
+  "qa.churnDesc": { pt: "Taxa de Evasão: Pacientes que deixaram de realizar acompanhamento recorrente.", es: "Tasa de Evasión: Pacientes que dejaron de realizar seguimiento recurrente.", en: "Churn Rate: Patients who stopped recurring follow-up appointments." },
+  "qa.profitDesc": { pt: "Margem de Lucro: O percentual limpo que sobra após pagar todos os custos fixos e variáveis.", es: "Margen de Ganancia: El porcentaje neto que queda después de pagar todos los costos fijos y variables.", en: "Profit Margin: The net percentage remaining after paying all fixed and variable costs." },
+
+  // ─── Data entry ───
   "data.financialTab": { pt: "Lançamento Financeiro", es: "Registro Financiero", en: "Financial Entry" },
   "data.attendanceTab": { pt: "Atendimento / Paciente", es: "Atención / Paciente", en: "Attendance / Patient" },
   "data.type": { pt: "Tipo", es: "Tipo", en: "Type" },
@@ -102,8 +125,24 @@ const T = {
   "data.recentRecords": { pt: "Registros Recentes", es: "Registros Recientes", en: "Recent Records" },
   "data.noRecords": { pt: "Nenhum registro ainda. Insira dados acima.", es: "Sin registros aún. Ingrese datos arriba.", en: "No records yet. Enter data above." },
   "data.confirmDelete": { pt: "Tem certeza que deseja excluir este registro?", es: "¿Está seguro de que desea eliminar este registro?", en: "Are you sure you want to delete this record?" },
+  "data.subtitle": { pt: "Insira dados manualmente ou importe planilhas.", es: "Ingrese datos manualmente o importe hojas de cálculo.", en: "Enter data manually or import spreadsheets." },
+  "data.financial": { pt: "Financeiro", es: "Financiero", en: "Financial" },
+  "data.attendance": { pt: "Atendimento", es: "Atención", en: "Attendance" },
+  "data.valuePlaceholder": { pt: "Ex: 500", es: "Ej: 500", en: "E.g.: 500" },
+  "data.reasonPlaceholder": { pt: "Ex: Esqueceu, Remarcou...", es: "Ej: Olvidó, Reprogramó...", en: "E.g.: Forgot, Rescheduled..." },
 
-  // Integrations
+  // ─── Table headers ───
+  "table.name": { pt: "Nome", es: "Nombre", en: "Name" },
+  "table.role": { pt: "Função", es: "Función", en: "Role" },
+  "table.appointments": { pt: "Atendimentos", es: "Atenciones", en: "Appointments" },
+  "table.conversion": { pt: "Conversão", es: "Conversión", en: "Conversion" },
+  "table.type": { pt: "Tipo", es: "Tipo", en: "Type" },
+  "table.detail": { pt: "Detalhe", es: "Detalle", en: "Detail" },
+  "table.value": { pt: "Valor", es: "Valor", en: "Value" },
+  "table.date": { pt: "Data", es: "Fecha", en: "Date" },
+  "table.action": { pt: "Ação", es: "Acción", en: "Action" },
+
+  // ─── Integrations ───
   "int.title": { pt: "Integrações de API e Token", es: "Integraciones de API y Token", en: "API & Token Integrations" },
   "int.subtitle": { pt: "Toda API e Token leva os dados para o sistema e distribui onde deve ser alocado.", es: "Toda API y Token lleva los datos al sistema y distribuye donde debe ser asignado.", en: "Every API and Token feeds data into the system and distributes it where needed." },
   "int.trackingTab": { pt: "Tracking & Ads", es: "Tracking & Ads", en: "Tracking & Ads" },
@@ -114,27 +153,132 @@ const T = {
   "int.inactive": { pt: "Inativo", es: "Inactivo", en: "Inactive" },
   "int.pending": { pt: "Pendente", es: "Pendiente", en: "Pending" },
   "int.error": { pt: "Erro", es: "Error", en: "Error" },
+  "int.recommended": { pt: "Recomendado", es: "Recomendado", en: "Recommended" },
+  // Google Ads
+  "int.googleAdsDesc": { pt: "Rastreie conversões e otimize campanhas com Enhanced Conversions.", es: "Rastree conversiones y optimice campañas con Enhanced Conversions.", en: "Track conversions and optimize campaigns with Enhanced Conversions." },
+  "int.customerId": { pt: "Customer ID", es: "Customer ID", en: "Customer ID" },
+  "int.oauthToken": { pt: "OAuth Token", es: "OAuth Token", en: "OAuth Token" },
+  "int.accessToken": { pt: "Token de acesso", es: "Token de acceso", en: "Access Token" },
+  "int.googleAdsRec": { pt: "Enhanced Conversions é essencial com o fim dos cookies de terceiros. Configure via GTM para máxima eficiência. A arquitetura Server-Side GTM → Google Ads API é o padrão mais robusto atualmente.", es: "Enhanced Conversions es esencial con el fin de las cookies de terceros. Configure vía GTM para máxima eficiencia. La arquitectura Server-Side GTM → Google Ads API es el estándar más robusto actualmente.", en: "Enhanced Conversions is essential with the end of third-party cookies. Configure via GTM for maximum efficiency. The Server-Side GTM → Google Ads API architecture is the most robust standard today." },
+  // GTM
+  "int.gtmDesc": { pt: "Container de tags para gerenciar todos os pixels e eventos.", es: "Contenedor de tags para gestionar todos los píxeles y eventos.", en: "Tag container to manage all pixels and events." },
+  "int.gtmContainerId": { pt: "GTM Container ID", es: "GTM Container ID", en: "GTM Container ID" },
+  // Meta Pixel
+  "int.metaPixelDesc": { pt: "Rastreie conversões de anúncios do Facebook/Instagram.", es: "Rastree conversiones de anuncios de Facebook/Instagram.", en: "Track conversions from Facebook/Instagram ads." },
+  "int.pixelId": { pt: "Pixel ID", es: "Pixel ID", en: "Pixel ID" },
+  // Meta CAPI
+  "int.metaCapiDesc": { pt: "Envie eventos server-side para melhor atribuição. Essencial com o fim dos cookies de terceiros.", es: "Envíe eventos server-side para mejor atribución. Esencial con el fin de las cookies de terceros.", en: "Send server-side events for better attribution. Essential with the end of third-party cookies." },
+  "int.metaCapiRec": { pt: "A CAPI usa a versão vigente da API do Graph (verifique periodicamente). Enhanced matching ativado melhora a atribuição. A arquitetura Server-Side GTM → CAPI é o padrão mais robusto para tracking profissional.", es: "La CAPI usa la versión vigente de la API del Graph (verifique periódicamente). Enhanced matching activado mejora la atribución. La arquitectura Server-Side GTM → CAPI es el estándar más robusto para tracking profesional.", en: "CAPI uses the current Graph API version (check periodically). Enhanced matching enabled improves attribution. The Server-Side GTM → CAPI architecture is the most robust standard for professional tracking." },
+  // Server-Side GTM
+  "int.ssGtmTitle": { pt: "Server-Side GTM → CAPI + Google Ads API", es: "Server-Side GTM → CAPI + Google Ads API", en: "Server-Side GTM → CAPI + Google Ads API" },
+  "int.ssGtmDesc": { pt: "Arquitetura mais robusta para tracking profissional. Centraliza eventos server-side e distribui para Meta CAPI e Google Ads Enhanced Conversions.", es: "Arquitectura más robusta para tracking profesional. Centraliza eventos server-side y distribuye a Meta CAPI y Google Ads Enhanced Conversions.", en: "Most robust architecture for professional tracking. Centralizes server-side events and distributes to Meta CAPI and Google Ads Enhanced Conversions." },
+  "int.archTitle": { pt: "Arquitetura Recomendada", es: "Arquitectura Recomendada", en: "Recommended Architecture" },
+  "int.archDesc": { pt: "Browser → GTM Web Container → Server-Side GTM → Meta CAPI + Google Ads API. Esta configuração garante máxima precisão de dados, resiliência a bloqueadores de anúncios e conformidade com LGPD/GDPR.", es: "Browser → GTM Web Container → Server-Side GTM → Meta CAPI + Google Ads API. Esta configuración garantiza máxima precisión de datos, resiliencia a bloqueadores de anuncios y conformidad con LGPD/GDPR.", en: "Browser → GTM Web Container → Server-Side GTM → Meta CAPI + Google Ads API. This setup ensures maximum data accuracy, resilience to ad blockers, and LGPD/GDPR compliance." },
+  // Google Sheets
+  "int.sheetsDesc": { pt: "Puxe dados em tempo real da sua planilha. Ideal para operações que já usam Google Sheets como base de dados.", es: "Obtenga datos en tiempo real de su hoja de cálculo. Ideal para operaciones que ya usan Google Sheets como base de datos.", en: "Pull real-time data from your spreadsheet. Ideal for operations already using Google Sheets as a database." },
+  "int.sheetsUrl": { pt: "URL da planilha ou ID", es: "URL de la hoja o ID", en: "Spreadsheet URL or ID" },
+  "int.sheetsUrlPlaceholder": { pt: "URL da planilha ou ID...", es: "URL de la hoja o ID...", en: "Spreadsheet URL or ID..." },
+  "int.sheetsMethods": { pt: "Métodos Disponíveis", es: "Métodos Disponibles", en: "Available Methods" },
+  "int.sheetsMethodsDesc": { pt: "1. Apps Script Webhook — Simples mas com limitações de quota (não ideal para alto volume).\n2. Sheets API Oficial — Mais robusta para produção com escala.\n3. Zapier/Make — Automação sem código, ideal para equipes não-técnicas.\n4. Importação CSV Manual — Use na seção Entrada de Dados.", es: "1. Apps Script Webhook — Simple pero con limitaciones de cuota (no ideal para alto volumen).\n2. Sheets API Oficial — Más robusta para producción con escala.\n3. Zapier/Make — Automatización sin código, ideal para equipos no técnicos.\n4. Importación CSV Manual — Use en la sección Entrada de Datos.", en: "1. Apps Script Webhook — Simple but with quota limitations (not ideal for high volume).\n2. Official Sheets API — More robust for production at scale.\n3. Zapier/Make — No-code automation, ideal for non-technical teams.\n4. Manual CSV Import — Use in the Data Entry section." },
+  // Excel
+  "int.excelDesc": { pt: "Integração profissional com Excel Online via Microsoft Graph API. Para automação real no ecossistema Microsoft.", es: "Integración profesional con Excel Online vía Microsoft Graph API. Para automatización real en el ecosistema Microsoft.", en: "Professional integration with Excel Online via Microsoft Graph API. For real automation in the Microsoft ecosystem." },
+  "int.clientId": { pt: "Client ID (Azure AD)", es: "Client ID (Azure AD)", en: "Client ID (Azure AD)" },
+  "int.tenantId": { pt: "Tenant ID", es: "Tenant ID", en: "Tenant ID" },
+  "int.excelMethods": { pt: "Opções de Integração", es: "Opciones de Integración", en: "Integration Options" },
+  "int.excelMethodsDesc": { pt: "1. Export CSV — Geração de arquivo manual (não é integração real, mas funciona para relatórios pontuais).\n2. Microsoft Graph API — Abordagem mais profissional para automação real.\n3. Power Automate — Muito poderosa para integrações no ecossistema Microsoft, subestimado mas altamente recomendado.\n4. Zapier/Make — Alternativa no-code.", es: "1. Export CSV — Generación de archivo manual (no es integración real, pero funciona para informes puntuales).\n2. Microsoft Graph API — Enfoque más profesional para automatización real.\n3. Power Automate — Muy poderosa para integraciones en el ecosistema Microsoft, subestimada pero altamente recomendada.\n4. Zapier/Make — Alternativa no-code.", en: "1. Export CSV — Manual file generation (not real integration, but works for one-off reports).\n2. Microsoft Graph API — Most professional approach for real automation.\n3. Power Automate — Very powerful for Microsoft ecosystem integrations, underrated but highly recommended.\n4. Zapier/Make — No-code alternative." },
+  // Power BI
+  "int.powerBiDesc": { pt: "Embed de dashboards Power BI e conexão DirectQuery para dados em tempo real.", es: "Embed de dashboards Power BI y conexión DirectQuery para datos en tiempo real.", en: "Power BI dashboard embedding and DirectQuery connection for real-time data." },
+  "int.embedUrl": { pt: "Embed URL", es: "Embed URL", en: "Embed URL" },
+  "int.embedUrlPlaceholder": { pt: "URL do relatório Power BI", es: "URL del informe Power BI", en: "Power BI report URL" },
+  "int.powerBiMethods": { pt: "Métodos Disponíveis", es: "Métodos Disponibles", en: "Available Methods" },
+  "int.powerBiMethodsDesc": { pt: "1. Embed Público — Só funciona se publicado na web (atenção: segurança de dados sensíveis).\n2. Embed Autenticado — Mais seguro, requer Azure AD.\n3. REST API — Acesso programático aos datasets.\n4. DirectQuery — Abordagem mais robusta para dashboards em tempo real.", es: "1. Embed Público — Solo funciona si publicado en la web (atención: seguridad de datos sensibles).\n2. Embed Autenticado — Más seguro, requiere Azure AD.\n3. REST API — Acceso programático a los datasets.\n4. DirectQuery — Enfoque más robusto para dashboards en tiempo real.", en: "1. Public Embed — Only works if published to the web (caution: sensitive data security).\n2. Authenticated Embed — More secure, requires Azure AD.\n3. REST API — Programmatic access to datasets.\n4. DirectQuery — Most robust approach for real-time dashboards." },
+  // CRM
+  "int.hubspotDesc": { pt: "Conexão nativa com HubSpot para sincronizar contatos, deals e pipeline.", es: "Conexión nativa con HubSpot para sincronizar contactos, deals y pipeline.", en: "Native HubSpot connection to sync contacts, deals, and pipeline." },
+  "int.hubspotToken": { pt: "API Key / Access Token", es: "API Key / Access Token", en: "API Key / Access Token" },
+  "int.hubspotPlaceholder": { pt: "Token de acesso HubSpot", es: "Token de acceso HubSpot", en: "HubSpot access token" },
+  "int.rdstationDesc": { pt: "Integração com RD Station Marketing e CRM para automação de marketing.", es: "Integración con RD Station Marketing y CRM para automatización de marketing.", en: "RD Station Marketing and CRM integration for marketing automation." },
+  "int.rdstationToken": { pt: "API Token", es: "API Token", en: "API Token" },
+  "int.rdstationPlaceholder": { pt: "Token RD Station", es: "Token RD Station", en: "RD Station Token" },
+  // GLX Recommendation
+  "int.glxRec": { pt: "Recomendação GLX", es: "Recomendación GLX", en: "GLX Recommendation" },
 
-  // File import
+  // ─── File import ───
   "file.title": { pt: "Importação Inteligente de Planilhas", es: "Importación Inteligente de Hojas", en: "Smart Spreadsheet Import" },
   "file.subtitle": { pt: "Faça upload de um arquivo .xlsx, .xls ou .csv e a IA GLX identificará automaticamente as colunas e distribuirá os dados nos módulos corretos do dashboard.", es: "Suba un archivo .xlsx, .xls o .csv y la IA GLX identificará automáticamente las columnas y distribuirá los datos en los módulos correctos del dashboard.", en: "Upload a .xlsx, .xls or .csv file and GLX AI will automatically identify columns and distribute data to the correct dashboard modules." },
   "file.dropzone": { pt: "Arraste seu arquivo aqui ou clique para selecionar", es: "Arrastre su archivo aquí o haga clic para seleccionar", en: "Drag your file here or click to select" },
   "file.supported": { pt: "Formatos suportados: .xlsx, .xls, .csv", es: "Formatos soportados: .xlsx, .xls, .csv", en: "Supported formats: .xlsx, .xls, .csv" },
   "file.analyzing": { pt: "Analisando arquivo...", es: "Analizando archivo...", en: "Analyzing file..." },
   "file.success": { pt: "Dashboard alimentado com sucesso!", es: "¡Dashboard alimentado con éxito!", en: "Dashboard fed successfully!" },
+  "file.howTitle": { pt: "Como funciona?", es: "¿Cómo funciona?", en: "How does it work?" },
+  "file.howDesc": { pt: "1. Faça upload de um arquivo .xlsx, .xls ou .csv\n2. A IA GLX identifica automaticamente as colunas (Faturamento, Pacientes, Status, Canal, etc.)\n3. Os dados são roteados para os módulos corretos do dashboard (Pareto, Funil, Canais, etc.)\n4. O dashboard é atualizado em tempo real com os novos dados.", es: "1. Suba un archivo .xlsx, .xls o .csv\n2. La IA GLX identifica automáticamente las columnas (Facturación, Pacientes, Estado, Canal, etc.)\n3. Los datos se enrutan a los módulos correctos del dashboard (Pareto, Embudo, Canales, etc.)\n4. El dashboard se actualiza en tiempo real con los nuevos datos.", en: "1. Upload a .xlsx, .xls or .csv file\n2. GLX AI automatically identifies columns (Revenue, Patients, Status, Channel, etc.)\n3. Data is routed to the correct dashboard modules (Pareto, Funnel, Channels, etc.)\n4. The dashboard is updated in real-time with the new data." },
 
-  // AI Router
+  // ─── AI Router ───
   "ai.title": { pt: "🧠 IA GLX: Roteador de Dados", es: "🧠 IA GLX: Enrutador de Datos", en: "🧠 GLX AI: Data Router" },
   "ai.analyzing": { pt: "Analisando payload recebido e distribuindo informações pelos módulos estratégicos do Dashboard...", es: "Analizando payload recibido y distribuyendo información por los módulos estratégicos del Dashboard...", en: "Analyzing received payload and distributing information across strategic Dashboard modules..." },
   "ai.routingDone": { pt: "Roteamento Finalizado. O Dashboard foi alimentado.", es: "Enrutamiento Finalizado. El Dashboard fue alimentado.", en: "Routing Complete. Dashboard has been fed." },
+  "ai.auditAlerts": { pt: "⚠️ Alertas de Auditoria:", es: "⚠️ Alertas de Auditoría:", en: "⚠️ Audit Alerts:" },
+  // AI Router steps - CSV
+  "ai.csv.loading": { pt: "Carregando arquivo CSV...", es: "Cargando archivo CSV...", en: "Loading CSV file..." },
+  "ai.csv.analyzing": { pt: "IA GLX analisando colunas: [Data, Paciente, Status, Valor]", es: "IA GLX analizando columnas: [Fecha, Paciente, Estado, Valor]", en: "GLX AI analyzing columns: [Date, Patient, Status, Value]" },
+  "ai.csv.routeStatus": { pt: "=> Roteando 'Status' para o módulo: Agenda & Capacidade", es: "=> Enrutando 'Estado' al módulo: Agenda & Capacidad", en: "=> Routing 'Status' to module: Schedule & Capacity" },
+  "ai.csv.routePareto": { pt: "=> Mapeando 'No-Show' para o módulo: Sprints & OKRs (Pareto)", es: "=> Mapeando 'No-Show' al módulo: Sprints & OKRs (Pareto)", en: "=> Mapping 'No-Show' to module: Sprints & OKRs (Pareto)" },
+  "ai.csv.routeRevenue": { pt: "=> Roteando 'Valor' para o módulo: Dashboard (Faturamento)", es: "=> Enrutando 'Valor' al módulo: Dashboard (Facturación)", en: "=> Routing 'Value' to module: Dashboard (Revenue)" },
+  "ai.csv.done": { pt: "Processamento concluído. Relatório PDF atualizado com novas métricas.", es: "Procesamiento concluido. Informe PDF actualizado con nuevas métricas.", en: "Processing complete. PDF report updated with new metrics." },
+  // AI Router steps - CRM
+  "ai.crm.auth": { pt: "Autenticando API do CRM (HubSpot/RD)...", es: "Autenticando API del CRM (HubSpot/RD)...", en: "Authenticating CRM API (HubSpot/RD)..." },
+  "ai.crm.extract": { pt: "Extraindo pipeline de vendas e contatos...", es: "Extrayendo pipeline de ventas y contactos...", en: "Extracting sales pipeline and contacts..." },
+  "ai.crm.routeLeads": { pt: "=> Roteando 'Leads Captados' para o módulo: Funil Comercial", es: "=> Enrutando 'Leads Captados' al módulo: Embudo Comercial", en: "=> Routing 'Captured Leads' to module: Sales Funnel" },
+  "ai.crm.routeConversions": { pt: "=> Roteando 'Conversões' para o módulo: Dashboard Essencial", es: "=> Enrutando 'Conversiones' al módulo: Dashboard Esencial", en: "=> Routing 'Conversions' to module: Essential Dashboard" },
+  "ai.crm.sync": { pt: "Sincronização em tempo real estabelecida.", es: "Sincronización en tiempo real establecida.", en: "Real-time synchronization established." },
+  // AI Router steps - Token
+  "ai.token.validate": { pt: "Validando Token de Integração...", es: "Validando Token de Integración...", en: "Validating Integration Token..." },
+  "ai.token.mapping": { pt: "Mapeando eventos de rastreamento (Pageview, Lead, Purchase)...", es: "Mapeando eventos de rastreo (Pageview, Lead, Purchase)...", en: "Mapping tracking events (Pageview, Lead, Purchase)..." },
+  "ai.token.routeCost": { pt: "=> Roteando 'Custo de Campanha' para: Canais de Aquisição", es: "=> Enrutando 'Costo de Campaña' a: Canales de Adquisición", en: "=> Routing 'Campaign Cost' to: Acquisition Channels" },
+  "ai.token.routeCac": { pt: "=> Calculando e roteando 'CAC' e 'ROAS'", es: "=> Calculando y enrutando 'CAC' y 'ROAS'", en: "=> Calculating and routing 'CAC' and 'ROAS'" },
+  "ai.token.done": { pt: "Tracking ativado com sucesso.", es: "Tracking activado con éxito.", en: "Tracking activated successfully." },
+  // AI Router steps - Sheets
+  "ai.sheets.connect": { pt: "Conectando à Google Sheets API...", es: "Conectando a la Google Sheets API...", en: "Connecting to Google Sheets API..." },
+  "ai.sheets.validate": { pt: "Validando URL da planilha...", es: "Validando URL de la hoja...", en: "Validating spreadsheet URL..." },
+  "ai.sheets.headers": { pt: "Lendo cabeçalhos: [Data, Paciente, Valor, Status]", es: "Leyendo encabezados: [Fecha, Paciente, Valor, Estado]", en: "Reading headers: [Date, Patient, Value, Status]" },
+  "ai.sheets.route": { pt: "=> Roteando dados para módulos correspondentes", es: "=> Enrutando datos a módulos correspondientes", en: "=> Routing data to corresponding modules" },
+  "ai.sheets.sync": { pt: "Sincronização automática configurada (a cada 15 min).", es: "Sincronización automática configurada (cada 15 min).", en: "Automatic synchronization configured (every 15 min)." },
+  // AI Router steps - Meta CAPI
+  "ai.capi.init": { pt: "Inicializando Meta Conversions API (CAPI)...", es: "Inicializando Meta Conversions API (CAPI)...", en: "Initializing Meta Conversions API (CAPI)..." },
+  "ai.capi.validate": { pt: "Validando Access Token e Pixel ID...", es: "Validando Access Token y Pixel ID...", en: "Validating Access Token and Pixel ID..." },
+  "ai.capi.events": { pt: "Configurando eventos server-side: [Purchase, Lead, ViewContent]", es: "Configurando eventos server-side: [Purchase, Lead, ViewContent]", en: "Configuring server-side events: [Purchase, Lead, ViewContent]" },
+  "ai.capi.matching": { pt: "=> Enhanced matching ativado para melhor atribuição", es: "=> Enhanced matching activado para mejor atribución", en: "=> Enhanced matching enabled for better attribution" },
+  "ai.capi.done": { pt: "CAPI configurada com sucesso. Eventos server-side ativos.", es: "CAPI configurada con éxito. Eventos server-side activos.", en: "CAPI configured successfully. Server-side events active." },
+  // AI Router steps - Google Ads
+  "ai.gads.connect": { pt: "Conectando Google Ads API...", es: "Conectando Google Ads API...", en: "Connecting Google Ads API..." },
+  "ai.gads.validate": { pt: "Validando Customer ID e OAuth Token...", es: "Validando Customer ID y OAuth Token...", en: "Validating Customer ID and OAuth Token..." },
+  "ai.gads.enhanced": { pt: "=> Configurando Enhanced Conversions (first-party data)", es: "=> Configurando Enhanced Conversions (first-party data)", en: "=> Configuring Enhanced Conversions (first-party data)" },
+  "ai.gads.mapping": { pt: "=> Mapeando conversões: [Lead, Purchase, Appointment]", es: "=> Mapeando conversiones: [Lead, Purchase, Appointment]", en: "=> Mapping conversions: [Lead, Purchase, Appointment]" },
+  "ai.gads.done": { pt: "Google Ads Enhanced Conversions ativo.", es: "Google Ads Enhanced Conversions activo.", en: "Google Ads Enhanced Conversions active." },
 
-  // Modals
+  // ─── Modals ───
   "modal.addProfessional": { pt: "Adicionar Profissional", es: "Agregar Profesional", en: "Add Professional" },
   "modal.newSprint": { pt: "Nova Iniciativa (Sprint)", es: "Nueva Iniciativa (Sprint)", en: "New Initiative (Sprint)" },
   "modal.newOkr": { pt: "Definir Novo OKR", es: "Definir Nuevo OKR", en: "Define New OKR" },
   "modal.importAgenda": { pt: "Importar Agenda (CSV)", es: "Importar Agenda (CSV)", en: "Import Schedule (CSV)" },
+  "modal.confirmDelete": { pt: "Confirmar Exclusão", es: "Confirmar Eliminación", en: "Confirm Deletion" },
+  "modal.fullName": { pt: "Nome Completo", es: "Nombre Completo", en: "Full Name" },
+  "modal.fullNamePlaceholder": { pt: "Ex: Dr. João Silva", es: "Ej: Dr. Juan Silva", en: "E.g.: Dr. John Smith" },
+  "modal.roleSpecialty": { pt: "Função / Especialidade", es: "Función / Especialidad", en: "Role / Specialty" },
+  "modal.doctor": { pt: "Médico(a)", es: "Médico(a)", en: "Doctor" },
+  "modal.reception": { pt: "Recepção", es: "Recepción", en: "Reception" },
+  "modal.commercial": { pt: "Comercial", es: "Comercial", en: "Commercial" },
+  "modal.management": { pt: "Gerência", es: "Gerencia", en: "Management" },
+  "modal.initiativeName": { pt: "Nome da Iniciativa", es: "Nombre de la Iniciativa", en: "Initiative Name" },
+  "modal.initiativePlaceholder": { pt: "Ex: Reduzir No-Show em 10%", es: "Ej: Reducir No-Show en 10%", en: "E.g.: Reduce No-Show by 10%" },
+  "modal.responsible": { pt: "Responsável", es: "Responsable", en: "Responsible" },
+  "modal.deadline": { pt: "Prazo", es: "Plazo", en: "Deadline" },
+  "modal.objectiveO": { pt: "Objetivo (O)", es: "Objetivo (O)", en: "Objective (O)" },
+  "modal.objectivePlaceholder": { pt: "Ex: Escalar a Clínica", es: "Ej: Escalar la Clínica", en: "E.g.: Scale the Clinic" },
+  "modal.keyResultKR": { pt: "Resultado Chave (KR)", es: "Resultado Clave (KR)", en: "Key Result (KR)" },
+  "modal.keyResultPlaceholder": { pt: "Ex: Atingir 500k de faturamento", es: "Ej: Alcanzar 500k de facturación", en: "E.g.: Reach 500k in revenue" },
+  "modal.saveOkr": { pt: "Salvar OKR", es: "Guardar OKR", en: "Save OKR" },
 
-  // Toasts
+  // ─── Toasts ───
   "toast.revenueAdded": { pt: "Receita computada com sucesso! Gráficos atualizados.", es: "¡Ingreso registrado con éxito! Gráficos actualizados.", en: "Revenue recorded successfully! Charts updated." },
   "toast.costAdded": { pt: "Custo registrado.", es: "Costo registrado.", en: "Cost recorded." },
   "toast.attendanceAdded": { pt: "Atendimento computado! Analisando impacto...", es: "¡Atención registrada! Analizando impacto...", en: "Attendance recorded! Analyzing impact..." },
@@ -148,14 +292,244 @@ const T = {
   "toast.professionalAdded": { pt: "Profissional adicionado com sucesso!", es: "¡Profesional agregado con éxito!", en: "Professional added successfully!" },
   "toast.sprintCreated": { pt: "Sprint criado! Vamos à execução.", es: "¡Sprint creado! Vamos a la ejecución.", en: "Sprint created! Let's execute." },
   "toast.okrSaved": { pt: "OKR registrado para o trimestre.", es: "OKR registrado para el trimestre.", en: "OKR registered for the quarter." },
+  "toast.preparingCsv": { pt: "Preparando CSV...", es: "Preparando CSV...", en: "Preparing CSV..." },
+  "toast.csvExported": { pt: "Arquivo CSV exportado!", es: "¡Archivo CSV exportado!", en: "CSV file exported!" },
+  "toast.error": { pt: "Erro", es: "Error", en: "Error" },
 
-  // Misc
+  // ─── Chart labels ───
+  "chart.noData": { pt: "Sem dados", es: "Sin datos", en: "No data" },
+  "chart.cumPercent": { pt: "% Acumulado", es: "% Acumulado", en: "% Cumulative" },
+  "chart.freqNoShows": { pt: "Frequência (No-Shows)", es: "Frecuencia (No-Shows)", en: "Frequency (No-Shows)" },
+  "chart.revenue": { pt: "Faturamento", es: "Facturación", en: "Revenue" },
+  "chart.costs": { pt: "Custos", es: "Costos", en: "Costs" },
+  "chart.appointments": { pt: "Atendimentos", es: "Atenciones", en: "Appointments" },
+  "chart.values": { pt: "Valores", es: "Valores", en: "Values" },
+  "chart.month1": { pt: "Mês 1", es: "Mes 1", en: "Month 1" },
+  "chart.month2": { pt: "Mês 2", es: "Mes 2", en: "Month 2" },
+  "chart.month3": { pt: "Mês 3", es: "Mes 3", en: "Month 3" },
+  "chart.month4": { pt: "Mês 4", es: "Mes 4", en: "Month 4" },
+  "chart.month5": { pt: "Mês 5", es: "Mes 5", en: "Month 5" },
+  "chart.month6": { pt: "Mês 6", es: "Mes 6", en: "Month 6" },
+
+  // ─── Section subtitles ───
+  "sub.realtime": { pt: "Fluxo de atendimentos em tempo real.", es: "Flujo de atenciones en tiempo real.", en: "Real-time appointment flow." },
+  "sub.agenda": { pt: "Mapa de calor de ocupação e capacidade.", es: "Mapa de calor de ocupación y capacidad.", en: "Occupancy and capacity heat map." },
+  "sub.dados": { pt: "Insira dados manualmente ou importe planilhas.", es: "Ingrese datos manualmente o importe hojas de cálculo.", en: "Enter data manually or import spreadsheets." },
+  "sub.relatorios": { pt: "Fechamentos e apresentação da base bruta.", es: "Cierres y presentación de la base bruta.", en: "Closings and raw data presentation." },
+
+  // ─── Card titles ───
+  "card.flowToday": { pt: "Fluxo de Atendimentos (Hoje)", es: "Flujo de Atenciones (Hoy)", en: "Appointment Flow (Today)" },
+  "card.heatmap": { pt: "Mapa de Calor Semanal", es: "Mapa de Calor Semanal", en: "Weekly Heat Map" },
+  "card.importData": { pt: "Importe dados via CSV ou integração.", es: "Importe datos vía CSV o integración.", en: "Import data via CSV or integration." },
+  "card.registeredProfessionals": { pt: "Profissionais Cadastrados", es: "Profesionales Registrados", en: "Registered Professionals" },
+  "card.activeSprints": { pt: "Sprints Ativos", es: "Sprints Activos", en: "Active Sprints" },
+  "card.quarterOkrs": { pt: "OKRs do Trimestre", es: "OKRs del Trimestre", en: "Quarter OKRs" },
+  "card.salesFunnel": { pt: "Funil de Vendas", es: "Embudo de Ventas", en: "Sales Funnel" },
+  "card.summary": { pt: "Resumo", es: "Resumen", en: "Summary" },
+  "card.paretoTitle": { pt: "Pareto de Cancelamento (80/20)", es: "Pareto de Cancelación (80/20)", en: "Cancellation Pareto (80/20)" },
+  "card.managerialPdf": { pt: "Relatório Gerencial PDF", es: "Informe Gerencial PDF", en: "Managerial PDF Report" },
+  "card.managerialPdfDesc": { pt: "PDF comercial com legendas explicativas.", es: "PDF comercial con leyendas explicativas.", en: "Commercial PDF with explanatory legends." },
+  "card.exportCsv": { pt: "Exportar CSV", es: "Exportar CSV", en: "Export CSV" },
+  "card.exportCsvDesc": { pt: "Toda a base de dados do sistema no formato CSV.", es: "Toda la base de datos del sistema en formato CSV.", en: "The entire system database in CSV format." },
+  "card.goalsParams": { pt: "Parâmetros e Metas Ouro", es: "Parámetros y Metas de Oro", en: "Parameters & Gold Goals" },
+
+  // ─── Settings form labels ───
+  "settings.revenueGoal": { pt: "Meta Faturamento (R$)", es: "Meta Facturación (R$)", en: "Revenue Goal (R$)" },
+  "settings.noshowLimit": { pt: "Limite Aceitável No-Show (%)", es: "Límite Aceptable No-Show (%)", en: "Acceptable No-Show Limit (%)" },
+  "settings.npsGoal": { pt: "Meta NPS", es: "Meta NPS", en: "NPS Goal" },
+  "settings.waitTimeLimit": { pt: "Tempo Limite Espera Recepção (min)", es: "Tiempo Límite Espera Recepción (min)", en: "Reception Wait Time Limit (min)" },
+
+  // ─── Lock overlay texts ───
+  "lock.paretoTitle": { pt: "Pareto de Cancelamento", es: "Pareto de Cancelación", en: "Cancellation Pareto" },
+  "lock.paretoMsg": { pt: "Disponível nos planos Pro e Enterprise.", es: "Disponible en los planes Pro y Enterprise.", en: "Available in Pro and Enterprise plans." },
+  "lock.proMsg": { pt: "Métricas avançadas para tomada de decisão.", es: "Métricas avanzadas para toma de decisiones.", en: "Advanced metrics for decision-making." },
+  "lock.enterpriseMsg": { pt: "Governança multi-unidades para redes.", es: "Gobernanza multi-unidades para redes.", en: "Multi-unit governance for networks." },
+  "lock.powerBiTitle": { pt: "Power BI (Enterprise)", es: "Power BI (Enterprise)", en: "Power BI (Enterprise)" },
+  "lock.powerBiMsg": { pt: "Disponível no plano Enterprise.", es: "Disponible en el plan Enterprise.", en: "Available in Enterprise plan." },
+
+  // ─── PDF generation ───
+  "pdf.title": { pt: "GLX Report Executivo", es: "GLX Reporte Ejecutivo", en: "GLX Executive Report" },
+  "pdf.generatedAt": { pt: "Gerado em", es: "Generado el", en: "Generated on" },
+  "pdf.at": { pt: "às", es: "a las", en: "at" },
+  "pdf.essentialMetrics": { pt: "Métricas Essenciais", es: "Métricas Esenciales", en: "Essential Metrics" },
+  "pdf.grossRevenue": { pt: "Faturamento Bruto", es: "Facturación Bruta", en: "Gross Revenue" },
+  "pdf.totalAppointments": { pt: "Total Agendamentos", es: "Total Citas", en: "Total Appointments" },
+  "pdf.noshowRate": { pt: "Taxa de No-Show", es: "Tasa de No-Show", en: "No-Show Rate" },
+  "pdf.overallConversion": { pt: "Conversão Geral", es: "Conversión General", en: "Overall Conversion" },
+  "pdf.paretoTitle": { pt: "Pareto de Cancelamento", es: "Pareto de Cancelación", en: "Cancellation Pareto" },
+  "pdf.reason": { pt: "Motivo", es: "Motivo", en: "Reason" },
+  "pdf.freq": { pt: "Freq.", es: "Frec.", en: "Freq." },
+  "pdf.cumPercent": { pt: "% Acum.", es: "% Acum.", en: "% Cum." },
+  "pdf.glossaryTitle": { pt: "Glossário Comercial", es: "Glosario Comercial", en: "Commercial Glossary" },
+  "pdf.glossary1": { pt: "Faturamento Bruto: Receita total de consultas finalizadas.", es: "Facturación Bruta: Ingreso total de consultas finalizadas.", en: "Gross Revenue: Total revenue from completed consultations." },
+  "pdf.glossary2": { pt: "Taxa de No-Show: Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo.", es: "Tasa de No-Show: Ociosidad crítica. Por encima del 10% impacta severamente el Costo Fijo.", en: "No-Show Rate: Critical idle time. Above 10% severely impacts Fixed Costs." },
+  "pdf.glossary3": { pt: "Pareto: Princípio 80/20. Identifica motivos principais de perda comercial.", es: "Pareto: Principio 80/20. Identifica motivos principales de pérdida comercial.", en: "Pareto: 80/20 Principle. Identifies main reasons for commercial loss." },
+  "pdf.glossary4": { pt: "CAC: Custo de Aquisição de Clientes.", es: "CAC: Costo de Adquisición de Clientes.", en: "CAC: Customer Acquisition Cost." },
+  "pdf.glossary5": { pt: "LTV: Lifetime Value.", es: "LTV: Lifetime Value.", en: "LTV: Lifetime Value." },
+  "pdf.glossary6": { pt: "ROI: Retorno sobre Investimento.", es: "ROI: Retorno sobre Inversión.", en: "ROI: Return on Investment." },
+  "pdf.footer": { pt: "GLX Partners — Growth. Lean. Execution. | Documento confidencial", es: "GLX Partners — Growth. Lean. Execution. | Documento confidencial", en: "GLX Partners — Growth. Lean. Execution. | Confidential document" },
+  "pdf.previewTitle": { pt: "Pré-visualização do PDF Comercial", es: "Previsualización del PDF Comercial", en: "Commercial PDF Preview" },
+  "pdf.glossaryDictTitle": { pt: "Dicionário de Interpretação (Glossário Comercial)", es: "Diccionario de Interpretación (Glosario Comercial)", en: "Interpretation Dictionary (Commercial Glossary)" },
+  "pdf.glossaryRevenue": { pt: "Faturamento Bruto: Receita total de consultas finalizadas.", es: "Facturación Bruta: Ingreso total de consultas finalizadas.", en: "Gross Revenue: Total revenue from completed consultations." },
+  "pdf.glossaryNoshow": { pt: "Taxa de No-Show: Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo da operação.", es: "Tasa de No-Show: Ociosidad crítica. Por encima del 10% impacta severamente el Costo Fijo de la operación.", en: "No-Show Rate: Critical idle time. Above 10% severely impacts the operation's Fixed Costs." },
+  "pdf.glossaryPareto": { pt: "Pareto de Cancelamento: Princípio 80/20. Identifica os motivos principais de perda comercial.", es: "Pareto de Cancelación: Principio 80/20. Identifica los motivos principales de pérdida comercial.", en: "Cancellation Pareto: 80/20 Principle. Identifies the main reasons for commercial loss." },
+  "pdf.glossaryCac": { pt: "CAC: Custo de Aquisição de Clientes.", es: "CAC: Costo de Adquisición de Clientes.", en: "CAC: Customer Acquisition Cost." },
+  "pdf.glossaryLtv": { pt: "LTV: Lifetime Value.", es: "LTV: Lifetime Value.", en: "LTV: Lifetime Value." },
+
+  // ─── Legend titles ───
+  "lgd.collapse": { pt: "▲ Fechar", es: "▲ Cerrar", en: "▲ Collapse" },
+  "lgd.expand": { pt: "▼ Expandir", es: "▼ Expandir", en: "▼ Expand" },
+  // Dashboard KPIs legend
+  "lgd.dashTitle": { pt: "Legenda: Dashboard — KPIs Essenciais e Cálculos", es: "Leyenda: Dashboard — KPIs Esenciales y Cálculos", en: "Legend: Dashboard — Essential KPIs & Calculations" },
+  "lgd.dashRevenue": { pt: "Faturamento Mês", es: "Facturación Mes", en: "Monthly Revenue" },
+  "lgd.dashRevenueDesc": { pt: "Soma de todas as receitas brutas registradas no período selecionado (manual + integrações).", es: "Suma de todos los ingresos brutos registrados en el período seleccionado (manual + integraciones).", en: "Sum of all gross revenues recorded in the selected period (manual + integrations)." },
+  "lgd.dashAppointments": { pt: "Total Agendamentos", es: "Total Citas", en: "Total Appointments" },
+  "lgd.dashAppointmentsDesc": { pt: "Quantidade total de consultas/atendimentos agendados no período.", es: "Cantidad total de consultas/atenciones agendadas en el período.", en: "Total number of consultations/appointments scheduled in the period." },
+  "lgd.dashNoshow": { pt: "Taxa de No-Show", es: "Tasa de No-Show", en: "No-Show Rate" },
+  "lgd.dashNoshowDesc": { pt: "Percentual de pacientes que não compareceram. Meta saudável: abaixo de 10%.", es: "Porcentaje de pacientes que no asistieron. Meta saludable: por debajo del 10%.", en: "Percentage of patients who did not attend. Healthy target: below 10%." },
+  "lgd.dashConversion": { pt: "Conversão Geral", es: "Conversión General", en: "Overall Conversion" },
+  "lgd.dashConversionDesc": { pt: "Percentual de leads que se tornaram pacientes efetivos.", es: "Porcentaje de leads que se convirtieron en pacientes efectivos.", en: "Percentage of leads that became effective patients." },
+  "lgd.dashFormula": { pt: "No-Show (%) = (No-Shows / Total Agendamentos) × 100\nConversão (%) = (Pacientes Atendidos / Total Agendamentos) × 100", es: "No-Show (%) = (No-Shows / Total Citas) × 100\nConversión (%) = (Pacientes Atendidos / Total Citas) × 100", en: "No-Show (%) = (No-Shows / Total Appointments) × 100\nConversion (%) = (Patients Attended / Total Appointments) × 100" },
+  "lgd.dashSource": { pt: "Fonte dos dados: Entrada Manual + Integrações (Google Sheets, CRM, API).", es: "Fuente de datos: Entrada Manual + Integraciones (Google Sheets, CRM, API).", en: "Data source: Manual Entry + Integrations (Google Sheets, CRM, API)." },
+  // Guided Analysis legend
+  "lgd.guidedTitle": { pt: "Legenda: Análise Guiada — Siglas e Fórmulas", es: "Leyenda: Análisis Guiado — Siglas y Fórmulas", en: "Legend: Guided Analysis — Acronyms & Formulas" },
+  "lgd.cacLabel": { pt: "CAC", es: "CAC", en: "CAC" },
+  "lgd.cacDesc": { pt: "Custo de Aquisição de Cliente. Quanto custa trazer um novo paciente. Inclui marketing, vendas e operações.", es: "Costo de Adquisición de Cliente. Cuánto cuesta traer un nuevo paciente. Incluye marketing, ventas y operaciones.", en: "Customer Acquisition Cost. How much it costs to bring in a new patient. Includes marketing, sales, and operations." },
+  "lgd.ltvLabel": { pt: "LTV", es: "LTV", en: "LTV" },
+  "lgd.ltvDesc": { pt: "Lifetime Value. Receita total estimada que um paciente gera durante todo o relacionamento com a clínica.", es: "Lifetime Value. Ingreso total estimado que un paciente genera durante toda la relación con la clínica.", en: "Lifetime Value. Total estimated revenue a patient generates throughout their entire relationship with the clinic." },
+  "lgd.roiLabel": { pt: "ROI", es: "ROI", en: "ROI" },
+  "lgd.roiDesc": { pt: "Return on Investment. Retorno sobre o investimento em marketing e operações.", es: "Return on Investment. Retorno sobre la inversión en marketing y operaciones.", en: "Return on Investment. Return on marketing and operations investment." },
+  "lgd.churnLabel": { pt: "Churn", es: "Churn", en: "Churn" },
+  "lgd.churnDesc": { pt: "Taxa de Cancelamento. Percentual de pacientes que deixaram de retornar num período.", es: "Tasa de Cancelación. Porcentaje de pacientes que dejaron de regresar en un período.", en: "Cancellation Rate. Percentage of patients who stopped returning in a period." },
+  "lgd.profitLabel": { pt: "Lucro", es: "Ganancia", en: "Profit" },
+  "lgd.profitDesc": { pt: "Margem de Lucro Líquida. Faturamento menos todos os custos (fixos + variáveis).", es: "Margen de Ganancia Neta. Facturación menos todos los costos (fijos + variables).", en: "Net Profit Margin. Revenue minus all costs (fixed + variable)." },
+  "lgd.guidedFormula": { pt: "CAC = Investimento Total em Marketing / Novos Pacientes\nLTV = Ticket Médio × Frequência Anual × Tempo Médio de Retenção\nROI = ((Receita - Investimento) / Investimento) × 100\nChurn = Pacientes Perdidos / Total de Pacientes Ativos × 100\nLucro = Faturamento - (Custos Fixos + Custos Variáveis)", es: "CAC = Inversión Total en Marketing / Nuevos Pacientes\nLTV = Ticket Promedio × Frecuencia Anual × Tiempo Promedio de Retención\nROI = ((Ingreso - Inversión) / Inversión) × 100\nChurn = Pacientes Perdidos / Total de Pacientes Activos × 100\nGanancia = Facturación - (Costos Fijos + Costos Variables)", en: "CAC = Total Marketing Investment / New Patients\nLTV = Average Ticket × Annual Frequency × Average Retention Time\nROI = ((Revenue - Investment) / Investment) × 100\nChurn = Lost Patients / Total Active Patients × 100\nProfit = Revenue - (Fixed Costs + Variable Costs)" },
+  // Pareto legend
+  "lgd.paretoTitle": { pt: "Legenda: Pareto de Cancelamento — Método 80/20", es: "Leyenda: Pareto de Cancelación — Método 80/20", en: "Legend: Cancellation Pareto — 80/20 Method" },
+  "lgd.paretoIntro": { pt: "Princípio de Pareto (80/20): Aproximadamente 80% dos cancelamentos são causados por 20% dos motivos. Este gráfico identifica os principais motivos de cancelamento para que ações corretivas sejam priorizadas.", es: "Principio de Pareto (80/20): Aproximadamente el 80% de las cancelaciones son causadas por el 20% de los motivos. Este gráfico identifica los principales motivos de cancelación para que las acciones correctivas sean priorizadas.", en: "Pareto Principle (80/20): Approximately 80% of cancellations are caused by 20% of the reasons. This chart identifies the main cancellation reasons so corrective actions can be prioritized." },
+  "lgd.paretoLeftAxis": { pt: "Eixo Esquerdo (Barras)", es: "Eje Izquierdo (Barras)", en: "Left Axis (Bars)" },
+  "lgd.paretoLeftAxisDesc": { pt: "Frequência absoluta de cada motivo de cancelamento.", es: "Frecuencia absoluta de cada motivo de cancelación.", en: "Absolute frequency of each cancellation reason." },
+  "lgd.paretoRightAxis": { pt: "Eixo Direito (Linha)", es: "Eje Derecho (Línea)", en: "Right Axis (Line)" },
+  "lgd.paretoRightAxisDesc": { pt: "Percentual acumulado. Quando a linha cruza 80%, os motivos à esquerda representam as causas principais.", es: "Porcentaje acumulado. Cuando la línea cruza el 80%, los motivos a la izquierda representan las causas principales.", en: "Cumulative percentage. When the line crosses 80%, the reasons to the left represent the main causes." },
+  "lgd.paretoFormula": { pt: "% Acumulado = Soma das frequências até o motivo N / Total de cancelamentos × 100", es: "% Acumulado = Suma de frecuencias hasta el motivo N / Total de cancelaciones × 100", en: "% Cumulative = Sum of frequencies up to reason N / Total cancellations × 100" },
+  "lgd.paretoAction": { pt: "Ação recomendada: Foque nos motivos que estão antes da linha atingir 80% — resolver esses poucos motivos eliminará a maioria dos cancelamentos.", es: "Acción recomendada: Enfóquese en los motivos que están antes de que la línea alcance el 80% — resolver esos pocos motivos eliminará la mayoría de las cancelaciones.", en: "Recommended action: Focus on the reasons before the line reaches 80% — solving these few reasons will eliminate most cancellations." },
+  // Realtime legend
+  "lgd.realtimeTitle": { pt: "Legenda: Tempo Real — Fluxo de Atendimentos", es: "Leyenda: Tiempo Real — Flujo de Atenciones", en: "Legend: Real Time — Appointment Flow" },
+  "lgd.realtimeFlow": { pt: "Fluxo (Linha)", es: "Flujo (Línea)", en: "Flow (Line)" },
+  "lgd.realtimeFlowDesc": { pt: "Quantidade de atendimentos realizados por hora ao longo do dia. Permite identificar horários de pico e ociosidade.", es: "Cantidad de atenciones realizadas por hora a lo largo del día. Permite identificar horarios pico y ociosidad.", en: "Number of appointments performed per hour throughout the day. Helps identify peak hours and idle time." },
+  "lgd.realtimeBadge": { pt: "Badge \"Live\"", es: "Badge \"Live\"", en: "\"Live\" Badge" },
+  "lgd.realtimeBadgeDesc": { pt: "Indica que os dados são atualizados em tempo real (quando integração ativa) ou na última importação.", es: "Indica que los datos se actualizan en tiempo real (cuando la integración está activa) o en la última importación.", en: "Indicates data is updated in real-time (when integration is active) or at the last import." },
+  "lgd.realtimeUsage": { pt: "Uso prático: Redistribua profissionais para horários de pico. Se o fluxo cai após 16h, considere reduzir turnos ou criar promoções para horários ociosos.", es: "Uso práctico: Redistribuya profesionales a horarios pico. Si el flujo cae después de las 16h, considere reducir turnos o crear promociones para horarios ociosos.", en: "Practical use: Redistribute professionals to peak hours. If flow drops after 4 PM, consider reducing shifts or creating promotions for idle hours." },
+  // Agenda legend
+  "lgd.agendaTitle": { pt: "Legenda: Agenda & Capacidade — Métricas de Ocupação", es: "Leyenda: Agenda & Capacidad — Métricas de Ocupación", en: "Legend: Schedule & Capacity — Occupancy Metrics" },
+  "lgd.agendaSlots": { pt: "Slots Disponíveis", es: "Slots Disponibles", en: "Available Slots" },
+  "lgd.agendaSlotsDesc": { pt: "Quantidade de horários livres para agendamento no período. Calculado com base na capacidade total menos agendamentos confirmados.", es: "Cantidad de horarios libres para agendar en el período. Calculado con base en la capacidad total menos citas confirmadas.", en: "Number of free time slots for scheduling in the period. Calculated based on total capacity minus confirmed appointments." },
+  "lgd.agendaOccupancy": { pt: "Taxa de Ocupação", es: "Tasa de Ocupación", en: "Occupancy Rate" },
+  "lgd.agendaOccupancyDesc": { pt: "Percentual de slots preenchidos. Meta ideal: 75-85%. Acima de 90% indica risco de sobrecarga; abaixo de 60% indica ociosidade.", es: "Porcentaje de slots ocupados. Meta ideal: 75-85%. Por encima del 90% indica riesgo de sobrecarga; por debajo del 60% indica ociosidad.", en: "Percentage of filled slots. Ideal target: 75-85%. Above 90% indicates overload risk; below 60% indicates idle time." },
+  "lgd.agendaHeatmap": { pt: "Mapa de Calor", es: "Mapa de Calor", en: "Heat Map" },
+  "lgd.agendaHeatmapDesc": { pt: "Visualização semanal onde cores mais intensas indicam maior ocupação. Permite identificar dias e horários críticos.", es: "Visualización semanal donde colores más intensos indican mayor ocupación. Permite identificar días y horarios críticos.", en: "Weekly visualization where more intense colors indicate higher occupancy. Helps identify critical days and hours." },
+  "lgd.agendaFormula": { pt: "Ocupação (%) = (Slots Preenchidos / Capacidade Total) × 100\nSlots Disponíveis = Capacidade Total - Agendamentos Confirmados", es: "Ocupación (%) = (Slots Ocupados / Capacidad Total) × 100\nSlots Disponibles = Capacidad Total - Citas Confirmadas", en: "Occupancy (%) = (Filled Slots / Total Capacity) × 100\nAvailable Slots = Total Capacity - Confirmed Appointments" },
+  // Team legend
+  "lgd.equipeTitle": { pt: "Legenda: Equipe & Produtividade — Métricas por Profissional", es: "Leyenda: Equipo & Productividad — Métricas por Profesional", en: "Legend: Team & Productivity — Metrics per Professional" },
+  "lgd.equipeAppointments": { pt: "Atendimentos", es: "Atenciones", en: "Appointments" },
+  "lgd.equipeAppointmentsDesc": { pt: "Total de consultas realizadas pelo profissional no período.", es: "Total de consultas realizadas por el profesional en el período.", en: "Total consultations performed by the professional in the period." },
+  "lgd.equipeConversion": { pt: "Conversão", es: "Conversión", en: "Conversion" },
+  "lgd.equipeConversionDesc": { pt: "Percentual de pacientes atendidos que retornaram ou fecharam tratamento. Mede a eficácia individual.", es: "Porcentaje de pacientes atendidos que regresaron o cerraron tratamiento. Mide la eficacia individual.", en: "Percentage of attended patients who returned or closed treatment. Measures individual effectiveness." },
+  "lgd.equipeFormula": { pt: "Conversão Profissional (%) = (Pacientes Convertidos / Total Atendidos) × 100", es: "Conversión Profesional (%) = (Pacientes Convertidos / Total Atendidos) × 100", en: "Professional Conversion (%) = (Converted Patients / Total Attended) × 100" },
+  "lgd.equipeBenchmark": { pt: "Benchmark: Conversão acima de 60% é considerada excelente. Profissionais abaixo de 40% podem precisar de treinamento ou suporte.", es: "Benchmark: Conversión por encima del 60% se considera excelente. Profesionales por debajo del 40% pueden necesitar capacitación o soporte.", en: "Benchmark: Conversion above 60% is considered excellent. Professionals below 40% may need training or support." },
+  // Sprints legend
+  "lgd.sprintsTitle": { pt: "Legenda: Sprints & OKRs — Metodologias de Gestão", es: "Leyenda: Sprints & OKRs — Metodologías de Gestión", en: "Legend: Sprints & OKRs — Management Methodologies" },
+  "lgd.sprintLabel": { pt: "Sprint", es: "Sprint", en: "Sprint" },
+  "lgd.sprintDesc": { pt: "Ciclo curto de execução (geralmente 1-4 semanas) com objetivo específico. Baseado na metodologia ágil Scrum. Cada sprint tem: objetivo, responsável, prazo e status.", es: "Ciclo corto de ejecución (generalmente 1-4 semanas) con objetivo específico. Basado en la metodología ágil Scrum. Cada sprint tiene: objetivo, responsable, plazo y estado.", en: "Short execution cycle (usually 1-4 weeks) with a specific goal. Based on Agile Scrum methodology. Each sprint has: goal, responsible, deadline, and status." },
+  "lgd.okrLabel": { pt: "OKR", es: "OKR", en: "OKR" },
+  "lgd.okrDesc": { pt: "Objectives and Key Results. Framework de metas onde cada Objetivo tem 2-5 Resultados-Chave mensuráveis. Usado por Google, Intel e empresas de alta performance.", es: "Objectives and Key Results. Framework de metas donde cada Objetivo tiene 2-5 Resultados Clave medibles. Usado por Google, Intel y empresas de alto rendimiento.", en: "Objectives and Key Results. Goal framework where each Objective has 2-5 measurable Key Results. Used by Google, Intel, and high-performance companies." },
+  "lgd.objectiveLabel": { pt: "Objetivo (O)", es: "Objetivo (O)", en: "Objective (O)" },
+  "lgd.objectiveDesc": { pt: "O que queremos alcançar. Deve ser inspirador e qualitativo. Ex: \"Reduzir cancelamentos drasticamente\".", es: "Lo que queremos alcanzar. Debe ser inspirador y cualitativo. Ej: \"Reducir cancelaciones drásticamente\".", en: "What we want to achieve. Should be inspiring and qualitative. E.g.: \"Drastically reduce cancellations\"." },
+  "lgd.krLabel": { pt: "Key Result (KR)", es: "Key Result (KR)", en: "Key Result (KR)" },
+  "lgd.krDesc": { pt: "Como medimos o progresso. Deve ser quantitativo. Ex: \"Reduzir no-show de 18% para 8%\".", es: "Cómo medimos el progreso. Debe ser cuantitativo. Ej: \"Reducir no-show del 18% al 8%\".", en: "How we measure progress. Must be quantitative. E.g.: \"Reduce no-show from 18% to 8%\"." },
+  "lgd.sprintsCycle": { pt: "Ciclo recomendado: OKRs são trimestrais. Sprints são semanais ou quinzenais. Revise OKRs a cada 90 dias e sprints a cada 1-2 semanas.", es: "Ciclo recomendado: OKRs son trimestrales. Sprints son semanales o quincenales. Revise OKRs cada 90 días y sprints cada 1-2 semanas.", en: "Recommended cycle: OKRs are quarterly. Sprints are weekly or biweekly. Review OKRs every 90 days and sprints every 1-2 weeks." },
+  // Funnel legend
+  "lgd.funnelTitle": { pt: "Legenda: Funil Comercial — Estágios e Conversão", es: "Leyenda: Embudo Comercial — Etapas y Conversión", en: "Legend: Sales Funnel — Stages & Conversion" },
+  "lgd.funnelLead": { pt: "Lead", es: "Lead", en: "Lead" },
+  "lgd.funnelLeadDesc": { pt: "Contato inicial. Pessoa que demonstrou interesse (preencheu formulário, ligou, enviou mensagem).", es: "Contacto inicial. Persona que demostró interés (llenó formulario, llamó, envió mensaje).", en: "Initial contact. Person who showed interest (filled form, called, sent message)." },
+  "lgd.funnelScheduled": { pt: "Agendado", es: "Agendado", en: "Scheduled" },
+  "lgd.funnelScheduledDesc": { pt: "Lead que marcou uma consulta/avaliação. Primeiro compromisso concreto.", es: "Lead que agendó una consulta/evaluación. Primer compromiso concreto.", en: "Lead who booked a consultation/evaluation. First concrete commitment." },
+  "lgd.funnelAttended": { pt: "Atendido", es: "Atendido", en: "Attended" },
+  "lgd.funnelAttendedDesc": { pt: "Paciente que compareceu à consulta agendada.", es: "Paciente que asistió a la consulta agendada.", en: "Patient who attended the scheduled consultation." },
+  "lgd.funnelConverted": { pt: "Convertido", es: "Convertido", en: "Converted" },
+  "lgd.funnelConvertedDesc": { pt: "Paciente que fechou tratamento ou retornou. É o objetivo final do funil.", es: "Paciente que cerró tratamiento o regresó. Es el objetivo final del embudo.", en: "Patient who closed treatment or returned. This is the funnel's ultimate goal." },
+  "lgd.funnelFormula": { pt: "Taxa de Conversão do Funil = (Convertidos / Leads Totais) × 100\nTaxa por Estágio = (Saídas do Estágio / Entradas do Estágio) × 100", es: "Tasa de Conversión del Embudo = (Convertidos / Leads Totales) × 100\nTasa por Etapa = (Salidas de la Etapa / Entradas de la Etapa) × 100", en: "Funnel Conversion Rate = (Converted / Total Leads) × 100\nStage Rate = (Stage Exits / Stage Entries) × 100" },
+  "lgd.funnelDoughnut": { pt: "Gráfico Doughnut: Mostra a proporção de cada estágio. Idealmente, a fatia \"Convertido\" deve crescer ao longo do tempo.", es: "Gráfico Doughnut: Muestra la proporción de cada etapa. Idealmente, la porción \"Convertido\" debe crecer con el tiempo.", en: "Doughnut Chart: Shows the proportion of each stage. Ideally, the \"Converted\" slice should grow over time." },
+  // Channels legend
+  "lgd.channelsTitle": { pt: "Legenda: Canais de Aquisição — Métricas de Marketing", es: "Leyenda: Canales de Adquisición — Métricas de Marketing", en: "Legend: Acquisition Channels — Marketing Metrics" },
+  "lgd.channelsAds": { pt: "Investimento (Ads)", es: "Inversión (Ads)", en: "Investment (Ads)" },
+  "lgd.channelsAdsDesc": { pt: "Total investido em anúncios pagos (Google Ads, Meta Ads, etc.) no período.", es: "Total invertido en anuncios pagos (Google Ads, Meta Ads, etc.) en el período.", en: "Total invested in paid ads (Google Ads, Meta Ads, etc.) in the period." },
+  "lgd.channelsCpl": { pt: "CPL", es: "CPL", en: "CPL" },
+  "lgd.channelsCplDesc": { pt: "Custo por Lead. Quanto custa gerar um contato interessado. Quanto menor, mais eficiente o canal.", es: "Costo por Lead. Cuánto cuesta generar un contacto interesado. Cuanto menor, más eficiente el canal.", en: "Cost per Lead. How much it costs to generate an interested contact. The lower, the more efficient the channel." },
+  "lgd.channelsRoas": { pt: "ROAS", es: "ROAS", en: "ROAS" },
+  "lgd.channelsRoasDesc": { pt: "Return on Ad Spend. Retorno sobre o investimento em anúncios. ROAS de 3x significa que cada R$1 investido gerou R$3 em receita.", es: "Return on Ad Spend. Retorno sobre la inversión en anuncios. ROAS de 3x significa que cada R$1 invertido generó R$3 en ingreso.", en: "Return on Ad Spend. ROAS of 3x means every R$1 invested generated R$3 in revenue." },
+  "lgd.channelsFormula": { pt: "CPL = Investimento Total em Ads / Número de Leads Gerados\nROAS = Receita Gerada por Ads / Investimento em Ads\nCPA = Investimento Total / Número de Pacientes Convertidos", es: "CPL = Inversión Total en Ads / Número de Leads Generados\nROAS = Ingreso Generado por Ads / Inversión en Ads\nCPA = Inversión Total / Número de Pacientes Convertidos", en: "CPL = Total Ads Investment / Number of Leads Generated\nROAS = Revenue Generated by Ads / Ads Investment\nCPA = Total Investment / Number of Converted Patients" },
+  "lgd.channelsBenchmark": { pt: "Benchmarks do setor: CPL saudável para clínicas: R$ 15-50. ROAS mínimo viável: 3x. ROAS excelente: acima de 5x.", es: "Benchmarks del sector: CPL saludable para clínicas: R$ 15-50. ROAS mínimo viable: 3x. ROAS excelente: por encima de 5x.", en: "Industry benchmarks: Healthy CPL for clinics: R$ 15-50. Minimum viable ROAS: 3x. Excellent ROAS: above 5x." },
+  // Data entry legend
+  "lgd.dadosTitle": { pt: "Legenda: Entrada de Dados — Tipos e Impacto no Dashboard", es: "Leyenda: Entrada de Datos — Tipos e Impacto en el Dashboard", en: "Legend: Data Entry — Types & Dashboard Impact" },
+  "lgd.dadosFinancialIntro": { pt: "Lançamento Financeiro: Alimenta os KPIs de Faturamento, Lucro, e gráficos de Tendência Mensal.", es: "Registro Financiero: Alimenta los KPIs de Facturación, Ganancia, y gráficos de Tendencia Mensual.", en: "Financial Entry: Feeds Revenue, Profit KPIs, and Monthly Trend charts." },
+  "lgd.dadosRevenue": { pt: "Receita (Faturamento)", es: "Ingreso (Facturación)", en: "Revenue" },
+  "lgd.dadosRevenueDesc": { pt: "Valor bruto recebido por consultas, procedimentos ou serviços. Soma diretamente no KPI \"Faturamento Mês\".", es: "Valor bruto recibido por consultas, procedimientos o servicios. Suma directamente en el KPI \"Facturación Mes\".", en: "Gross value received from consultations, procedures, or services. Adds directly to the \"Monthly Revenue\" KPI." },
+  "lgd.dadosFixedCost": { pt: "Custo Fixo", es: "Costo Fijo", en: "Fixed Cost" },
+  "lgd.dadosFixedCostDesc": { pt: "Despesas recorrentes independentes do volume (aluguel, salários, software). Subtrai do faturamento para calcular lucro.", es: "Gastos recurrentes independientes del volumen (alquiler, salarios, software). Resta de la facturación para calcular ganancia.", en: "Recurring expenses independent of volume (rent, salaries, software). Subtracted from revenue to calculate profit." },
+  "lgd.dadosVariableCost": { pt: "Custo Variável", es: "Costo Variable", en: "Variable Cost" },
+  "lgd.dadosVariableCostDesc": { pt: "Despesas proporcionais ao volume (materiais, comissões). Subtrai do faturamento para calcular margem.", es: "Gastos proporcionales al volumen (materiales, comisiones). Resta de la facturación para calcular margen.", en: "Expenses proportional to volume (materials, commissions). Subtracted from revenue to calculate margin." },
+  "lgd.dadosAttendanceIntro": { pt: "Atendimento / Paciente: Alimenta os KPIs de No-Show, Conversão, e o gráfico Pareto.", es: "Atención / Paciente: Alimenta los KPIs de No-Show, Conversión, y el gráfico Pareto.", en: "Attendance / Patient: Feeds No-Show, Conversion KPIs, and the Pareto chart." },
+  "lgd.dadosAttended": { pt: "Compareceu", es: "Asistió", en: "Attended" },
+  "lgd.dadosAttendedDesc": { pt: "Paciente que foi atendido. Conta positivamente para Conversão e Total Agendamentos.", es: "Paciente que fue atendido. Cuenta positivamente para Conversión y Total Citas.", en: "Patient who was attended. Counts positively for Conversion and Total Appointments." },
+  "lgd.dadosNoshow": { pt: "No-Show", es: "No-Show", en: "No-Show" },
+  "lgd.dadosNoshowDesc": { pt: "Paciente que não compareceu sem avisar. Impacta negativamente a Taxa de No-Show e alimenta o Pareto.", es: "Paciente que no asistió sin avisar. Impacta negativamente la Tasa de No-Show y alimenta el Pareto.", en: "Patient who did not attend without notice. Negatively impacts the No-Show Rate and feeds the Pareto." },
+  "lgd.dadosCancelled": { pt: "Cancelada", es: "Cancelada", en: "Cancelled" },
+  "lgd.dadosCancelledDesc": { pt: "Consulta cancelada com aviso prévio. O motivo alimenta o Pareto de Cancelamento.", es: "Consulta cancelada con aviso previo. El motivo alimenta el Pareto de Cancelación.", en: "Consultation cancelled with prior notice. The reason feeds the Cancellation Pareto." },
+  "lgd.dadosFormula": { pt: "Lucro = Receita Total - (Custos Fixos + Custos Variáveis)\nMargem (%) = (Lucro / Receita Total) × 100", es: "Ganancia = Ingreso Total - (Costos Fijos + Costos Variables)\nMargen (%) = (Ganancia / Ingreso Total) × 100", en: "Profit = Total Revenue - (Fixed Costs + Variable Costs)\nMargin (%) = (Profit / Total Revenue) × 100" },
+  // Reports legend
+  "lgd.reportsTitle": { pt: "Legenda: Relatórios — Formatos e Conteúdo", es: "Leyenda: Informes — Formatos y Contenido", en: "Legend: Reports — Formats & Content" },
+  "lgd.reportsPdf": { pt: "Relatório Gerencial PDF", es: "Informe Gerencial PDF", en: "Managerial PDF Report" },
+  "lgd.reportsPdfDesc": { pt: "Documento formatado com KPIs, gráficos e glossário comercial. Ideal para apresentar a sócios, investidores ou em reuniões estratégicas.", es: "Documento formateado con KPIs, gráficos y glosario comercial. Ideal para presentar a socios, inversores o en reuniones estratégicas.", en: "Formatted document with KPIs, charts, and commercial glossary. Ideal for presenting to partners, investors, or in strategic meetings." },
+  "lgd.reportsCsv": { pt: "Exportar CSV", es: "Exportar CSV", en: "Export CSV" },
+  "lgd.reportsCsvDesc": { pt: "Arquivo de dados brutos (valores separados por vírgula). Pode ser aberto no Excel, Google Sheets ou importado em outros sistemas.", es: "Archivo de datos brutos (valores separados por coma). Puede abrirse en Excel, Google Sheets o importarse en otros sistemas.", en: "Raw data file (comma-separated values). Can be opened in Excel, Google Sheets, or imported into other systems." },
+  "lgd.reportsPdfContent": { pt: "Conteúdo do PDF: Faturamento, Taxa de No-Show, Pareto de Cancelamento, Glossário Comercial (CAC, LTV, ROI, Churn, EBITDA, NPS, Ticket Médio).", es: "Contenido del PDF: Facturación, Tasa de No-Show, Pareto de Cancelación, Glosario Comercial (CAC, LTV, ROI, Churn, EBITDA, NPS, Ticket Promedio).", en: "PDF Content: Revenue, No-Show Rate, Cancellation Pareto, Commercial Glossary (CAC, LTV, ROI, Churn, EBITDA, NPS, Average Ticket)." },
+  "lgd.reportsCsvContent": { pt: "Conteúdo do CSV: Todos os registros manuais e importados, com data, tipo, valor e detalhes.", es: "Contenido del CSV: Todos los registros manuales e importados, con fecha, tipo, valor y detalles.", en: "CSV Content: All manual and imported records, with date, type, value, and details." },
+  // Settings legend
+  "lgd.settingsTitle": { pt: "Legenda: Configurações — Metas Ouro e Parâmetros", es: "Leyenda: Configuraciones — Metas de Oro y Parámetros", en: "Legend: Settings — Gold Goals & Parameters" },
+  "lgd.settingsIntro": { pt: "Metas Ouro são os parâmetros de referência que o sistema usa para avaliar a saúde do negócio. Quando um KPI ultrapassa a meta, ele é destacado em verde; quando fica abaixo, em vermelho.", es: "Metas de Oro son los parámetros de referencia que el sistema usa para evaluar la salud del negocio. Cuando un KPI supera la meta, se destaca en verde; cuando queda por debajo, en rojo.", en: "Gold Goals are the reference parameters the system uses to evaluate business health. When a KPI exceeds the goal, it's highlighted in green; when below, in red." },
+  "lgd.settingsRevenue": { pt: "Meta Faturamento", es: "Meta Facturación", en: "Revenue Goal" },
+  "lgd.settingsRevenueDesc": { pt: "Valor mínimo de receita mensal esperado. Base para calcular se o negócio está no caminho certo.", es: "Valor mínimo de ingreso mensual esperado. Base para calcular si el negocio va por buen camino.", en: "Minimum expected monthly revenue. Basis for calculating if the business is on track." },
+  "lgd.settingsNoshow": { pt: "Limite No-Show", es: "Límite No-Show", en: "No-Show Limit" },
+  "lgd.settingsNoshowDesc": { pt: "Percentual máximo aceitável de faltas. Padrão do setor: 10%. Acima disso, o sistema emite alertas.", es: "Porcentaje máximo aceptable de faltas. Estándar del sector: 10%. Por encima, el sistema emite alertas.", en: "Maximum acceptable absence percentage. Industry standard: 10%. Above this, the system issues alerts." },
+  "lgd.settingsNps": { pt: "Meta NPS", es: "Meta NPS", en: "NPS Goal" },
+  "lgd.settingsNpsDesc": { pt: "Net Promoter Score. Mede satisfação do paciente de 0 a 100. Acima de 75 = Excelente. 50-74 = Bom. Abaixo de 50 = Crítico.", es: "Net Promoter Score. Mide satisfacción del paciente de 0 a 100. Por encima de 75 = Excelente. 50-74 = Bueno. Por debajo de 50 = Crítico.", en: "Net Promoter Score. Measures patient satisfaction from 0 to 100. Above 75 = Excellent. 50-74 = Good. Below 50 = Critical." },
+  "lgd.settingsWait": { pt: "Tempo Limite Espera", es: "Tiempo Límite Espera", en: "Wait Time Limit" },
+  "lgd.settingsWaitDesc": { pt: "Tempo máximo aceitável de espera na recepção (em minutos). Impacta diretamente o NPS e a percepção de qualidade.", es: "Tiempo máximo aceptable de espera en recepción (en minutos). Impacta directamente el NPS y la percepción de calidad.", en: "Maximum acceptable wait time at reception (in minutes). Directly impacts NPS and quality perception." },
+  "lgd.settingsNpsFormula": { pt: "NPS = % Promotores (nota 9-10) - % Detratores (nota 0-6)\nPromotores: pacientes que recomendam. Detratores: pacientes insatisfeitos.", es: "NPS = % Promotores (nota 9-10) - % Detractores (nota 0-6)\nPromotores: pacientes que recomiendan. Detractores: pacientes insatisfechos.", en: "NPS = % Promoters (score 9-10) - % Detractors (score 0-6)\nPromoters: patients who recommend. Detractors: unsatisfied patients." },
+
+  // ─── Misc ───
   "misc.loading": { pt: "Carregando...", es: "Cargando...", en: "Loading..." },
   "misc.language": { pt: "Idioma", es: "Idioma", en: "Language" },
   "misc.thisMonth": { pt: "Este Mês (Atual)", es: "Este Mes (Actual)", en: "This Month (Current)" },
   "misc.lastMonth": { pt: "Mês Passado", es: "Mes Pasado", en: "Last Month" },
   "misc.last90days": { pt: "Últimos 90 dias", es: "Últimos 90 días", en: "Last 90 days" },
   "misc.auditWarning": { pt: "Seus dados manuais possuem cancelamentos sem motivos preenchidos.", es: "Sus datos manuales tienen cancelaciones sin motivos completados.", en: "Your manual data has cancellations without filled reasons." },
+  "misc.notIdentified": { pt: "Não Identificado", es: "No Identificado", en: "Not Identified" },
+  "misc.client": { pt: "Cliente", es: "Cliente", en: "Client" },
+
+
+  // ─── Modal extras ───
+  "modal.createSprint": { pt: "Criar Sprint", es: "Crear Sprint", en: "Create Sprint" },
+
+  // ─── PDF extras ───
+  "pdf.reportTitle": { pt: "GLX Report Executivo", es: "GLX Reporte Ejecutivo", en: "GLX Executive Report" },
+  "pdf.grossRevenueDesc": { pt: "Receita total de consultas finalizadas.", es: "Ingreso total de consultas finalizadas.", en: "Total revenue from completed consultations." },
+  "pdf.noshowRateDesc": { pt: "Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo da operação.", es: "Ociosidad crítica. Por encima del 10% impacta severamente el Costo Fijo de la operación.", en: "Critical idle time. Above 10% severely impacts the operation's Fixed Cost." },
+  "pdf.paretoCancel": { pt: "Pareto de Cancelamento", es: "Pareto de Cancelación", en: "Cancellation Pareto" },
+  "pdf.paretoCancelDesc": { pt: "Princípio 80/20. Identifica os motivos principais de perda comercial.", es: "Principio 80/20. Identifica los motivos principales de pérdida comercial.", en: "80/20 Principle. Identifies the main reasons for commercial loss." },
+  "pdf.cacDesc": { pt: "Custo de Aquisição de Clientes.", es: "Costo de Adquisición de Clientes.", en: "Customer Acquisition Cost." },
+  "pdf.ltvDesc": { pt: "Lifetime Value — valor total gerado pelo cliente ao longo do tempo.", es: "Lifetime Value — valor total generado por el cliente a lo largo del tiempo.", en: "Lifetime Value — total value generated by the customer over time." },
 } as const;
 
 export type TKey = keyof typeof T;

@@ -35,6 +35,14 @@ export const en: Translations = {
     stat3Label: "average profit margin increase",
     stat4: "3x",
     stat4Label: "more financial predictability",
+    statA: "+35%",
+    statALabel: "Operational Efficiency",
+    statB: "3x",
+    statBLabel: "Average ROI in 12 Months",
+    statC: "-40%",
+    statCLabel: "No-Show Reduction",
+    statD: "100%",
+    statDLabel: "Data-Driven Decisions",
   },
   
   // Why Section
@@ -49,6 +57,15 @@ export const en: Translations = {
     item3Desc: "Clear KPIs and real-time dashboards.",
     item4Title: "Continuous Support",
     item4Desc: "Weekly follow-up with specialized consultants.",
+    whyTitle1: "We don't sell marketing.",
+    whyTitle2: "We build growth systems.",
+    whySubtitle: "In a market full of \"gurus\" and generic formulas, GLX stands out through engineering. Our approach combines data-driven growth, process optimization, and intelligent automation.",
+    whyItem1Title: "Growth Strategy",
+    whyItem1Desc: "Customer acquisition with controlled CAC and revenue predictability.",
+    whyItem2Title: "Lean Six Sigma",
+    whyItem2Desc: "Relentless elimination of waste and operational variability.",
+    whyItem3Title: "Artificial Intelligence",
+    whyItem3Desc: "Automation of repetitive processes to scale without inflating the team.",
   },
   
   // What Section (Services)

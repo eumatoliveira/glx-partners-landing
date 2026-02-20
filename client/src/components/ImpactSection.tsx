@@ -11,13 +11,13 @@ const clientLogos = [
 ];
 
 export default function ImpactSection() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const stats = [
-    { value: "+35%", label: language === "pt" ? "Eficiência Operacional" : language === "en" ? "Operational Efficiency" : "Eficiencia Operacional" },
-    { value: "3x", label: language === "pt" ? "ROI Médio em 12 Meses" : language === "en" ? "Average ROI in 12 Months" : "ROI Promedio en 12 Meses" },
-    { value: "-40%", label: language === "pt" ? "Redução de No-Show" : language === "en" ? "No-Show Reduction" : "Reducción de No-Show" },
-    { value: "100%", label: language === "pt" ? "Decisões Baseadas em Dados" : language === "en" ? "Data-Driven Decisions" : "Decisiones Basadas en Datos" }
+    { value: t.impact.statA, label: t.impact.statALabel },
+    { value: t.impact.statB, label: t.impact.statBLabel },
+    { value: t.impact.statC, label: t.impact.statCLabel },
+    { value: t.impact.statD, label: t.impact.statDLabel }
   ];
 
   return (
@@ -43,12 +43,10 @@ export default function ImpactSection() {
         </div>
       </div>
 
-      {/* Logos dos Clientes com Animação Marquee (Direita) */}
       <div className="relative w-full overflow-hidden py-10 border-t border-white/5 bg-background/50 backdrop-blur-sm">
         <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-background via-transparent to-background" />
         
         <div className="flex items-center gap-24 animate-scroll-right whitespace-nowrap">
-          {/* Primeira cópia dos logos */}
           {clientLogos.map((logo, index) => (
             <div key={`logo-1-${index}`} className="flex-shrink-0 w-72 h-40 flex items-center justify-center grayscale opacity-100">
               <img 
@@ -58,7 +56,6 @@ export default function ImpactSection() {
               />
             </div>
           ))}
-          {/* Segunda cópia para loop infinito */}
           {clientLogos.map((logo, index) => (
             <div key={`logo-2-${index}`} className="flex-shrink-0 w-72 h-40 flex items-center justify-center grayscale opacity-100">
               <img 
@@ -68,7 +65,6 @@ export default function ImpactSection() {
               />
             </div>
           ))}
-           {/* Terceira cópia para garantir cobertura em telas largas */}
            {clientLogos.map((logo, index) => (
             <div key={`logo-3-${index}`} className="flex-shrink-0 w-72 h-40 flex items-center justify-center grayscale opacity-100">
               <img 

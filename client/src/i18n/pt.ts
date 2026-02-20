@@ -33,6 +33,14 @@ export const pt = {
     stat3Label: "aumento médio na margem de lucro",
     stat4: "3x",
     stat4Label: "mais previsibilidade financeira",
+    statA: "+35%",
+    statALabel: "Eficiência Operacional",
+    statB: "3x",
+    statBLabel: "ROI Médio em 12 Meses",
+    statC: "-40%",
+    statCLabel: "Redução de No-Show",
+    statD: "100%",
+    statDLabel: "Decisões Baseadas em Dados",
   },
   
   // Why Section
@@ -47,6 +55,15 @@ export const pt = {
     item3Desc: "KPIs claros e dashboards em tempo real.",
     item4Title: "Suporte Contínuo",
     item4Desc: "Acompanhamento semanal com consultores especializados.",
+    whyTitle1: "Não vendemos marketing.",
+    whyTitle2: "Construímos sistemas de crescimento.",
+    whySubtitle: "Em um mercado cheio de \"gurus\" e fórmulas genéricas, a GLX se diferencia pela engenharia. Nossa abordagem combina crescimento guiado por dados, otimização de processos e automação inteligente.",
+    whyItem1Title: "Growth Strategy",
+    whyItem1Desc: "Aquisição de clientes com CAC controlado e previsibilidade de receita.",
+    whyItem2Title: "Lean Six Sigma",
+    whyItem2Desc: "Eliminação implacável de desperdícios e variabilidade operacional.",
+    whyItem3Title: "Inteligência Artificial",
+    whyItem3Desc: "Automação de processos repetitivos para escalar sem inflar a equipe.",
   },
   
   // What Section (Services)

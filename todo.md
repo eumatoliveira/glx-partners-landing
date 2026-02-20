@@ -575,3 +575,28 @@
 
 ### Glossário de Siglas
 - [x] ROI, CAC, LTV, EBITDA, CAPI, GTM, CRM, OKR, KPI, CPC, CTR, CPL, NPS, Churn
+
+## Versão 17.8 - Tradução das Legendas do Dashboard
+
+- [ ] Traduzir todas as legendas explicativas para Espanhol (ES)
+- [ ] Traduzir todas as legendas explicativas para Inglês (EN)
+- [ ] Integrar legendas com sistema i18n existente
+- [ ] Testar troca de idioma nas legendas
+
+## Versão 17.8 - Tradução Completa do Dashboard (PT/ES/EN)
+
+- [ ] Auditar todas as strings hardcoded em português no Dashboard.tsx
+- [ ] Traduzir legendas explicativas para ES e EN
+- [ ] Traduzir labels de formulários, placeholders, botões para ES e EN
+- [ ] Traduzir textos de modais (Sprint, OKR, Profissional, etc.) para ES e EN
+- [ ] Traduzir mensagens de toast para ES e EN
+- [ ] Traduzir textos de integrações (GTM, CAPI, Google Sheets, etc.) para ES e EN
+- [ ] Traduzir textos de Entrada de Dados para ES e EN
+- [ ] Traduzir textos de Relatórios e Configurações para ES e EN
+- [ ] Garantir zero strings em português quando idioma EN ou ES selecionado
+- [ ] Testar troca de idioma em todas as seções
+
+## Versão 17.9 - Correção de Erro no Dashboard
+
+- [x] Fix: "Cannot access '_' before initialization" error in Dashboard component
+- [x] Remover aba/formulário de Atendimento/Paciente da seção Entrada de Dados do Dashboard

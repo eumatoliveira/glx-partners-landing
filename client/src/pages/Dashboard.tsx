@@ -149,14 +149,12 @@ export default function Dashboard() {
   const [modal, setModal] = useState<string | null>(null);
   const [rLogs, setRLogs] = useState<string[]>([]);
   const [rDone, setRDone] = useState(false);
-  const [qA, setQA] = useState("Selecione uma métrica acima");
-  const [qL, setQL] = useState("O sistema traduzirá os dados para facilitar a tomada de decisão.");
+  const [qA, setQA] = useState("");
+  const [qL, setQL] = useState("");
   const [audit, setAudit] = useState(false);
-  const [dTab, setDTab] = useState("fin");
-  const [fTipo, setFTipo] = useState("Receita");
+  const [fTipo, setFTipo] = useState(() => t("data.revenue", "pt"));
   const [fVal, setFVal] = useState("");
-  const [pSt, setPSt] = useState("Compareceu");
-  const [pMot, setPMot] = useState("");
+
   const [pdf, setPdf] = useState(false);
   const [records, setRecords] = useState<ManualRecord[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -184,8 +182,8 @@ export default function Dashboard() {
       let fat = 0, pac = 0, ns = 0;
       const paretoMap: Record<string, number> = {};
       mapped.forEach(r => {
-        if (r.type === "financial" && (r.label === "Receita" || r.label === "Receita (Faturamento)")) fat += (r.value as number);
-        if (r.type === "attendance") { pac++; if (r.label === "No-Show" || r.label === "Cancelada") { ns++; const m = r.detail === "—" ? "Não Identificado" : r.detail; paretoMap[m] = (paretoMap[m] || 0) + 1; } }
+        if (r.type === "financial" && (r.label === "Receita" || r.label === "Receita (Faturamento)" || r.label === "Revenue" || r.label === "Ingreso" || r.label === "Ingreso (Facturación)")) fat += (r.value as number);
+        if (r.type === "attendance") { pac++; if (r.label === "No-Show" || r.label === "Cancelada" || r.label === "Cancelled" || r.label === "Cancelado") { ns++; const m = r.detail === "\u2014" ? t("misc.notIdentified", lang) : r.detail; paretoMap[m] = (paretoMap[m] || 0) + 1; } }
       });
       setApp(p => ({ ...p, faturamento_bruto: fat, total_pacientes: pac, no_shows_abs: ns, pareto: Object.entries(paretoMap).map(([motivo, freq]) => ({ motivo, freq })) }));
     }
@@ -217,13 +215,13 @@ export default function Dashboard() {
   const gc = lt ? "#e8eaed" : "#2e3540", tc = lt ? "#5f6368" : "#94a3b8", lc = lt ? "#1a73e8" : "#8ab4f8", dc = lt ? "#f1f3f4" : "#2e3540";
 
   const ansQ = (q: string) => {
-    if (!q) { setQA("Selecione uma métrica acima"); setQL("O sistema traduzirá os dados para facilitar a tomada de decisão."); return; }
+    if (!q) { setQA(_("qa.selectMetric")); setQL(_("qa.selectHint")); return; }
     const d: Record<string, [string, string]> = {
-      cac: [`R$ ${app.cac.toLocaleString("pt-BR")}`, "Custo de Aquisição de Clientes: O valor gasto em marketing para trazer 1 novo paciente."],
-      ltv: [`R$ ${app.ltv.toLocaleString("pt-BR")}`, "Lifetime Value: O quanto um paciente gasta em média durante todo o relacionamento com a clínica."],
-      roi: [`${app.roi}x`, "Retorno sobre Investimento: Para cada R$1 investido, a clínica retorna este multiplicador."],
-      churn: [`${app.churn}%`, "Taxa de Evasão: Pacientes que deixaram de realizar acompanhamento recorrente."],
-      lucro: [`${app.lucro}%`, "Margem de Lucro: O percentual limpo que sobra após pagar todos os custos fixos e variáveis."],
+      cac: [`R$ ${app.cac.toLocaleString("pt-BR")}`, _("qa.cacDesc")],
+      ltv: [`R$ ${app.ltv.toLocaleString("pt-BR")}`, _("qa.ltvDesc")],
+      roi: [`${app.roi}x`, _("qa.roiDesc")],
+      churn: [`${app.churn}%`, _("qa.churnDesc")],
+      lucro: [`${app.lucro}%`, _("qa.profitDesc")],
     };
     if (d[q]) { setQA(d[q][0]); setQL(d[q][1]); }
   };
@@ -232,12 +230,12 @@ export default function Dashboard() {
     if (close) setModal(null);
     setModal("ai"); setRLogs([]); setRDone(false);
     let steps: string[] = [];
-    if (type === "csv") steps = ["Carregando arquivo CSV...", "IA GLX analisando colunas: [Data, Paciente, Status, Valor]", "=> Roteando 'Status' para o módulo: Agenda & Capacidade", "=> Mapeando 'No-Show' para o módulo: Sprints & OKRs (Pareto)", "=> Roteando 'Valor' para o módulo: Dashboard (Faturamento)", "Processamento concluído. Relatório PDF atualizado com novas métricas."];
-    else if (type === "crm") steps = ["Autenticando API do CRM (HubSpot/RD)...", "Extraindo pipeline de vendas e contatos...", "=> Roteando 'Leads Captados' para o módulo: Funil Comercial", "=> Roteando 'Conversões' para o módulo: Dashboard Essencial", "Sincronização em tempo real estabelecida."];
-    else if (type === "token") steps = ["Validando Token de Integração...", "Mapeando eventos de rastreamento (Pageview, Lead, Purchase)...", "=> Roteando 'Custo de Campanha' para: Canais de Aquisição", "=> Calculando e roteando 'CAC' e 'ROAS'", "Tracking ativado com sucesso."];
-    else if (type === "sheets") steps = ["Conectando à Google Sheets API...", "Validando URL da planilha...", "Lendo cabeçalhos: [Data, Paciente, Valor, Status]", "=> Roteando dados para módulos correspondentes", "Sincronização automática configurada (a cada 15 min)."];
-    else if (type === "meta_capi") steps = ["Inicializando Meta Conversions API (CAPI)...", "Validando Access Token e Pixel ID...", "Configurando eventos server-side: [Purchase, Lead, ViewContent]", "=> Enhanced matching ativado para melhor atribuição", "CAPI configurada com sucesso. Eventos server-side ativos."];
-    else if (type === "google_ads") steps = ["Conectando Google Ads API...", "Validando Customer ID e OAuth Token...", "=> Configurando Enhanced Conversions (first-party data)", "=> Mapeando conversões: [Lead, Purchase, Appointment]", "Google Ads Enhanced Conversions ativo."];
+    if (type === "csv") steps = [_("ai.csv.loading"), _("ai.csv.analyzing"), _("ai.csv.routeStatus"), _("ai.csv.routePareto"), _("ai.csv.routeRevenue"), _("ai.csv.done")];
+    else if (type === "crm") steps = [_("ai.crm.auth"), _("ai.crm.extract"), _("ai.crm.routeLeads"), _("ai.crm.routeConversions"), _("ai.crm.sync")];
+    else if (type === "token") steps = [_("ai.token.validate"), _("ai.token.mapping"), _("ai.token.routeCost"), _("ai.token.routeCac"), _("ai.token.done")];
+    else if (type === "sheets") steps = [_("ai.sheets.connect"), _("ai.sheets.validate"), _("ai.sheets.headers"), _("ai.sheets.route"), _("ai.sheets.sync")];
+    else if (type === "meta_capi") steps = [_("ai.capi.init"), _("ai.capi.validate"), _("ai.capi.events"), _("ai.capi.matching"), _("ai.capi.done")];
+    else if (type === "google_ads") steps = [_("ai.gads.connect"), _("ai.gads.validate"), _("ai.gads.enhanced"), _("ai.gads.mapping"), _("ai.gads.done")];
     else if (type === "file_import") steps = steps; // handled separately
     let i = 0;
     const nx = () => { if (i < steps.length) { setRLogs(p => [...p, `> ${steps[i]}`]); i++; rRef.current = setTimeout(nx, 800); } else { setRLogs(p => [...p, "> " + _("ai.routingDone")]); setRDone(true); } };
@@ -270,7 +268,7 @@ export default function Dashboard() {
       let i = 0;
       const allSteps = [...routingSteps];
       if (warnings.length > 0) {
-        allSteps.push("⚠️ Alertas de Auditoria:");
+        allSteps.push(_("ai.auditAlerts"));
         warnings.forEach(w => allSteps.push(`  — ${w}`));
       }
       allSteps.push("✅ " + _("file.success"));
@@ -283,7 +281,7 @@ export default function Dashboard() {
       };
       rRef.current = setTimeout(nx, 700);
     } catch (err: any) {
-      toast(`Erro: ${err.message}`);
+      toast(`${_("toast.error")}: ${err.message}`);
     }
   };
 
@@ -295,17 +293,17 @@ export default function Dashboard() {
     let y = 20;
     doc.setFillColor(15, 17, 21); doc.rect(0, 0, w, 40, "F");
     doc.setTextColor(138, 180, 248); doc.setFontSize(22); doc.setFont("helvetica", "bold");
-    doc.text("GLX Report Executivo", m, 26);
+    doc.text(_("pdf.title"), m, 26);
     doc.setFontSize(10); doc.setTextColor(148, 163, 184);
-    doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}`, m, 34);
+    doc.text(`${_("pdf.generatedAt")}: ${new Date().toLocaleDateString(lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR")} ${_("pdf.at")} ${new Date().toLocaleTimeString(lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR")}`, m, 34);
     y = 50;
     doc.setTextColor(32, 33, 36); doc.setFontSize(14); doc.setFont("helvetica", "bold");
-    doc.text("Métricas Essenciais", m, y); y += 10;
+    doc.text(_("pdf.essentialMetrics"), m, y); y += 10;
     const kpis = [
-      { label: "Faturamento Bruto", value: `R$ ${app.faturamento_bruto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` },
-      { label: "Total Agendamentos", value: String(app.total_pacientes) },
-      { label: "Taxa de No-Show", value: `${txN.toFixed(1)}%` },
-      { label: "Conversão Geral", value: `${txC.toFixed(1)}%` },
+      { label: _("pdf.grossRevenue"), value: `R$ ${app.faturamento_bruto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` },
+      { label: _("pdf.totalAppointments"), value: String(app.total_pacientes) },
+      { label: _("pdf.noshowRate"), value: `${txN.toFixed(1)}%` },
+      { label: _("pdf.overallConversion"), value: `${txC.toFixed(1)}%` },
       { label: "CAC", value: `R$ ${app.cac.toLocaleString("pt-BR")}` },
       { label: "LTV", value: `R$ ${app.ltv.toLocaleString("pt-BR")}` },
       { label: "ROI", value: `${app.roi}x` },
@@ -325,22 +323,22 @@ export default function Dashboard() {
     const pd = pareto();
     if (pd.length > 0) {
       doc.setFontSize(14); doc.setTextColor(32, 33, 36); doc.setFont("helvetica", "bold");
-      doc.text("Pareto de Cancelamento", m, y); y += 8;
+      doc.text(_("pdf.paretoTitle"), m, y); y += 8;
       doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(95, 99, 104);
-      doc.text("Motivo", m, y); doc.text("Freq.", m + 80, y); doc.text("% Acum.", m + 100, y);
+      doc.text(_("pdf.reason"), m, y); doc.text(_("pdf.freq"), m + 80, y); doc.text(_("pdf.cumPercent"), m + 100, y);
       y += 2; doc.setDrawColor(218, 220, 224); doc.line(m, y, w - m, y); y += 5;
       doc.setFont("helvetica", "normal"); doc.setTextColor(32, 33, 36);
       pd.forEach(item => { doc.text(item.motivo, m, y); doc.text(String(item.freq), m + 80, y); doc.text(`${item.acum.toFixed(1)}%`, m + 100, y); y += 6; });
       y += 8;
     }
     doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(26, 115, 232);
-    doc.text("Glossário Comercial", m, y); y += 7;
+    doc.text(_("pdf.glossaryTitle"), m, y); y += 7;
     doc.setFontSize(8); doc.setFont("helvetica", "normal"); doc.setTextColor(95, 99, 104);
-    const glossary = ["Faturamento Bruto: Receita total de consultas finalizadas.", "Taxa de No-Show: Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo.", "Pareto: Princípio 80/20. Identifica motivos principais de perda comercial.", "CAC: Custo de Aquisição de Clientes.", "LTV: Lifetime Value.", "ROI: Retorno sobre Investimento."];
+    const glossary = [_("pdf.glossary1"), _("pdf.glossary2"), _("pdf.glossary3"), _("pdf.glossary4"), _("pdf.glossary5"), _("pdf.glossary6")];
     glossary.forEach(line => { if (y > 270) { doc.addPage(); y = 20; } doc.text(line, m, y, { maxWidth: w - 2 * m }); y += 5; });
     doc.setFillColor(15, 17, 21); doc.rect(0, 285, w, 12, "F");
     doc.setTextColor(148, 163, 184); doc.setFontSize(8);
-    doc.text("GLX Partners — Growth. Lean. Execution. | Documento confidencial", m, 292);
+    doc.text(_("pdf.footer"), m, 292);
     doc.save(`GLX_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
     toast(_("toast.pdfGenerated")); setPdf(false);
   }, [app, txN, txC, pareto, toast, _]);
@@ -361,17 +359,7 @@ export default function Dashboard() {
     setFVal("");
   };
 
-  const salvarAt = () => {
-    createEntryMut.mutate({
-      category: "attendance",
-      entryType: pSt,
-      label: pSt,
-      value: "1",
-      detail: pMot || "—",
-    });
-    if ((pSt === "No-Show" || pSt === "Cancelada") && !pMot.trim()) { setAudit(true); } else { setAudit(false); }
-    toast(_("toast.attendanceAdded")); setPMot("");
-  };
+
 
   const deleteRecord = (id: string) => {
     const numId = parseInt(id, 10);
@@ -419,18 +407,18 @@ export default function Dashboard() {
 
   const pd = pareto();
   const hasParetoData = pd.length > 0;
-  const pCD: any = hasParetoData ? { labels: pd.map(d => d.motivo), datasets: [{ type: "line", label: "% Acumulado", data: pd.map(d => d.acum), borderColor: "#fbbc04", borderWidth: 3, yAxisID: "y1", tension: 0.3, pointRadius: 4 }, { type: "bar", label: "Frequência (No-Shows)", data: pd.map(d => d.freq), backgroundColor: lc, borderRadius: 4, yAxisID: "y" }] } : { labels: ["Sem dados"], datasets: [{ data: [0], backgroundColor: [dc] }] };
+  const pCD: any = hasParetoData ? { labels: pd.map(d => d.motivo), datasets: [{ type: "line", label: _("chart.cumPercent"), data: pd.map(d => d.acum), borderColor: "#fbbc04", borderWidth: 3, yAxisID: "y1", tension: 0.3, pointRadius: 4 }, { type: "bar", label: _("chart.freqNoShows"), data: pd.map(d => d.freq), backgroundColor: lc, borderRadius: 4, yAxisID: "y" }] } : { labels: [_("chart.noData")], datasets: [{ data: [0], backgroundColor: [dc] }] };
   const pO: any = { responsive: true, maintainAspectRatio: false, scales: { y: { type: "linear", position: "left", grid: { color: gc }, ticks: { color: tc } }, y1: { type: "linear", position: "right", max: 100, grid: { drawOnChartArea: false }, ticks: { color: tc, callback: (v: any) => v + "%" } }, x: { grid: { display: false }, ticks: { color: tc } } }, plugins: { legend: { labels: { color: tc } } } };
-  const eCD = { labels: ["Sem dados"], datasets: [{ label: "Faturamento", data: [0], backgroundColor: lc, borderRadius: 4 }, { label: "Custos", data: [0], backgroundColor: lt ? "#ea4335" : "#f28b82", borderRadius: 4 }] };
-  const lvCD = { labels: ["08:00", "10:00", "12:00", "14:00", "16:00"], datasets: [{ label: "Atendimentos", data: [0, 0, 0, 0, 0], borderColor: lc, tension: 0.3, fill: false }] };
-  const fCD = { labels: ["Sem Dados"], datasets: [{ data: [1], backgroundColor: [dc], borderWidth: 0 }] };
-  const dCD = { labels: ["Mês 1", "Mês 2", "Mês 3", "Mês 4", "Mês 5", "Mês 6"], datasets: [{ label: "Valores", data: [0, 0, 0, 0, 0, 0], backgroundColor: lc, borderRadius: 4 }] };
+  const eCD = { labels: [_("chart.noData")], datasets: [{ label: _("chart.revenue"), data: [0], backgroundColor: lc, borderRadius: 4 }, { label: _("chart.costs"), data: [0], backgroundColor: lt ? "#ea4335" : "#f28b82", borderRadius: 4 }] };
+  const lvCD = { labels: ["08:00", "10:00", "12:00", "14:00", "16:00"], datasets: [{ label: _("chart.appointments"), data: [0, 0, 0, 0, 0], borderColor: lc, tension: 0.3, fill: false }] };
+  const fCD = { labels: [_("chart.noData")], datasets: [{ data: [1], backgroundColor: [dc], borderWidth: 0 }] };
+  const dCD = { labels: [_("chart.month1"), _("chart.month2"), _("chart.month3"), _("chart.month4"), _("chart.month5"), _("chart.month6")], datasets: [{ label: _("chart.values"), data: [0, 0, 0, 0, 0, 0], backgroundColor: lc, borderRadius: 4 }] };
   const bO: any = { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: gc }, ticks: { color: tc } }, x: { grid: { display: false }, ticks: { color: tc } } }, plugins: { legend: { labels: { color: tc } } } };
 
   if (loading) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0f1115", color: "#e2e8f0" }}><p>{_("misc.loading")}</p></div>;
   if (!user) return null;
 
-  const uN = user.name || "Cliente";
+  const uN = user.name || _("misc.client");
   const uI = uN.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
   const Lk = ({ locked, title, msg, btn, children }: { locked: boolean; title: string; msg: string; btn: string; children: React.ReactNode }) => (
@@ -442,7 +430,7 @@ export default function Dashboard() {
       <div className="lgd-hd" onClick={() => toggleLegend(id)}>
         <span className={`lgd-ic ${openLegends[id] ? "open" : ""}`}>ℹ️</span>
         <span className="lgd-tl">{title}</span>
-        <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--ts)" }}>{openLegends[id] ? "▲ Fechar" : "▼ Expandir"}</span>
+        <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--ts)" }}>{openLegends[id] ? _("lgd.collapse") : _("lgd.expand")}</span>
       </div>
       <div className={`lgd-bd ${openLegends[id] ? "open" : ""}`}>{children}</div>
     </div>
@@ -462,22 +450,22 @@ export default function Dashboard() {
     {modal === "ai" && <div className="mo" onClick={() => setModal(null)}><div className="ml" style={{ maxWidth: 600, borderColor: "var(--gp)" }} onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t" style={{ color: "var(--gp)" }}>{_("ai.title")}</div></div><div className="ml-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("ai.analyzing")}</p><div className="rt">{rLogs.map((l, i) => <div key={i} style={{ color: i === rLogs.length - 1 && rDone ? "var(--gb)" : l.includes("⚠️") ? "var(--gy)" : l.includes("—") && rLogs[i-1]?.includes("⚠️") ? "var(--gy)" : l.includes("✅") ? "var(--gb)" : undefined, marginTop: l.includes("⚠️") || l.includes("✅") ? 12 : 0 }}>{l}</div>)}</div></div>{rDone && <div className="ml-f"><button className="bt bp" onClick={() => { setModal(null); setScr("dashboard"); }}>{_("btn.viewDashboard")}</button></div>}</div></div>}
 
     {/* MODAL: PROFISSIONAL */}
-    {modal === "prof" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.addProfessional")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Nome Completo</label><input type="text" className="fi" placeholder="Ex: Dr. João Silva" /></div><div><label className="fl">Função / Especialidade</label><select className="fs"><option>Médico(a)</option><option>Recepção</option><option>Comercial</option><option>Gerência</option></select></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.professionalAdded")); }}>{_("btn.save")}</button></div></div></div>}
+    {modal === "prof" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.addProfessional")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">{_("modal.fullName")}</label><input type="text" className="fi" placeholder={_("modal.fullNamePlaceholder")} /></div><div><label className="fl">{_("modal.roleSpecialty")}</label><select className="fs"><option>{_("modal.doctor")}</option><option>{_("modal.reception")}</option><option>{_("modal.commercial")}</option><option>{_("modal.management")}</option></select></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.professionalAdded")); }}>{_("btn.save")}</button></div></div></div>}
 
     {/* MODAL: SPRINT */}
-    {modal === "sprint" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.newSprint")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Nome da Iniciativa</label><input type="text" className="fi" placeholder="Ex: Reduzir No-Show em 10%" /></div><div className="fr"><div><label className="fl">Responsável</label><input type="text" className="fi" /></div><div><label className="fl">Prazo</label><input type="date" className="fi" /></div></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.sprintCreated")); }}>Criar Sprint</button></div></div></div>}
+    {modal === "sprint" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.newSprint")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">{_("modal.initiativeName")}</label><input type="text" className="fi" placeholder={_("modal.initiativePlaceholder")} /></div><div className="fr"><div><label className="fl">{_("modal.responsible")}</label><input type="text" className="fi" /></div><div><label className="fl">{_("modal.deadline")}</label><input type="date" className="fi" /></div></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.sprintCreated")); }}>{_("modal.createSprint")}</button></div></div></div>}
 
     {/* MODAL: OKR */}
-    {modal === "okr" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.newOkr")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">Objetivo (O)</label><input type="text" className="fi" placeholder="Ex: Escalar a Clínica" /></div><div><label className="fl">Resultado Chave (KR)</label><input type="text" className="fi" placeholder="Ex: Atingir 500k de faturamento" /></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.okrSaved")); }}>{_("btn.save")} OKR</button></div></div></div>}
+    {modal === "okr" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.newOkr")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div style={{ marginBottom: 16 }}><label className="fl">{_("modal.objectiveO")}</label><input type="text" className="fi" placeholder={_("modal.objectivePlaceholder")} /></div><div><label className="fl">{_("modal.keyResultKR")}</label><input type="text" className="fi" placeholder={_("modal.keyResultPlaceholder")} /></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => { setModal(null); toast(_("toast.okrSaved")); }}>{_("btn.save")} OKR</button></div></div></div>}
 
     {/* MODAL: AGENDA CSV */}
     {modal === "agenda" && <div className="mo" onClick={() => setModal(null)}><div className="ml" onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t">{_("modal.importAgenda")}</div><button className="ml-x" onClick={() => setModal(null)}>✕</button></div><div className="ml-b"><div className="es" style={{ padding: 30 }}><div style={{ fontSize: 24, marginBottom: 12 }}>📁</div><p style={{ fontSize: 14, color: "var(--ts)" }}>{_("file.dropzone")}</p><input type="file" accept=".xlsx,.xls,.csv" style={{ marginTop: 16, color: "var(--tp)" }} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileImport(f); }} /></div></div><div className="ml-f"><button className="bt bs" onClick={() => setModal(null)}>{_("btn.cancel")}</button><button className="bt bp" onClick={() => startAI("csv", "agenda")}>{_("btn.iaRouter")}</button></div></div></div>}
 
     {/* MODAL: DELETE CONFIRM */}
-    {deleteConfirm && <div className="mo" onClick={() => setDeleteConfirm(null)}><div className="ml" style={{ maxWidth: 400 }} onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t" style={{ color: "var(--gr)" }}>Confirmar Exclusão</div></div><div className="ml-b"><p style={{ fontSize: 14, color: "var(--ts)" }}>{_("data.confirmDelete")}</p></div><div className="ml-f"><button className="bt bs" onClick={() => setDeleteConfirm(null)}>{_("btn.cancel")}</button><button className="bt bp" style={{ background: "var(--gr)" }} onClick={() => deleteRecord(deleteConfirm)}>{_("btn.delete")}</button></div></div></div>}
+    {deleteConfirm && <div className="mo" onClick={() => setDeleteConfirm(null)}><div className="ml" style={{ maxWidth: 400 }} onClick={e => e.stopPropagation()}><div className="ml-h"><div className="ml-t" style={{ color: "var(--gr)" }}>{_("modal.confirmDelete")}</div></div><div className="ml-b"><p style={{ fontSize: 14, color: "var(--ts)" }}>{_("data.confirmDelete")}</p></div><div className="ml-f"><button className="bt bs" onClick={() => setDeleteConfirm(null)}>{_("btn.cancel")}</button><button className="bt bp" style={{ background: "var(--gr)" }} onClick={() => deleteRecord(deleteConfirm)}>{_("btn.delete")}</button></div></div></div>}
 
     {/* PDF PREVIEW */}
-    {pdf && <div className="pm"><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24, maxWidth: 800, margin: "0 auto 24px" }}><h2 style={{ color: "white", fontFamily: "'Google Sans'" }}>Pré-visualização do PDF Comercial</h2><div style={{ display: "flex", gap: 12 }}><button className="bt bs" onClick={() => setPdf(false)}>{_("btn.back")}</button><button className="bt bp" onClick={generatePDF}>{_("btn.download")}</button></div></div><div className="pp"><h1 style={{ borderBottom: "2px solid #1a73e8", paddingBottom: 16, marginBottom: 32, fontFamily: "'Google Sans'" }}>GLX Report Executivo</h1><div style={{ display: "flex", gap: 24, marginBottom: 32 }}><div style={{ flex: 1, background: "#f8f9fa", padding: 20, borderRadius: 8, border: "1px solid #dadce0" }}><div style={{ fontSize: 12, color: "#5f6368" }}>{_("kpi.revenue")}</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#202124" }}>R$ {app.faturamento_bruto.toLocaleString("pt-BR")}</div></div><div style={{ flex: 1, background: "#fce8e6", padding: 20, borderRadius: 8, border: "1px solid #fad2cf" }}><div style={{ fontSize: 12, color: "#c5221f" }}>{_("kpi.noshow")}</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#c5221f" }}>{txN.toFixed(1)}%</div></div></div>{hasParetoData && <div style={{ height: 300, background: "#f8f9fa", border: "1px solid #dadce0", borderRadius: 8, padding: 10 }}><Bar data={pCD} options={{ ...pO, scales: { ...pO.scales, y: { ...pO.scales.y, grid: { color: "#e8eaed" }, ticks: { color: "#5f6368" } }, y1: { ...pO.scales.y1, grid: { drawOnChartArea: false }, ticks: { color: "#5f6368", callback: (v: any) => v + "%" } }, x: { grid: { display: false }, ticks: { color: "#5f6368" } } }, plugins: { legend: { labels: { color: "#5f6368" } } } }} /></div>}<div className="pl"><h4>Dicionário de Interpretação (Glossário Comercial)</h4><ul style={{ listStyle: "none", padding: 0 }}><li><strong>Faturamento Bruto:</strong> Receita total de consultas finalizadas.</li><li><strong>Taxa de No-Show:</strong> Ociosidade crítica. Acima de 10% impacta severamente o Custo Fixo da operação.</li><li><strong>Pareto de Cancelamento:</strong> Princípio 80/20. Identifica os motivos principais de perda comercial.</li><li><strong>CAC:</strong> Custo de Aquisição de Clientes.</li><li><strong>LTV:</strong> Lifetime Value.</li></ul></div></div></div>}
+    {pdf && <div className="pm"><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24, maxWidth: 800, margin: "0 auto 24px" }}><h2 style={{ color: "white", fontFamily: "'Google Sans'" }}>{_("pdf.previewTitle")}</h2><div style={{ display: "flex", gap: 12 }}><button className="bt bs" onClick={() => setPdf(false)}>{_("btn.back")}</button><button className="bt bp" onClick={generatePDF}>{_("btn.download")}</button></div></div><div className="pp"><h1 style={{ borderBottom: "2px solid #1a73e8", paddingBottom: 16, marginBottom: 32, fontFamily: "'Google Sans'" }}>{_("pdf.reportTitle")}</h1><div style={{ display: "flex", gap: 24, marginBottom: 32 }}><div style={{ flex: 1, background: "#f8f9fa", padding: 20, borderRadius: 8, border: "1px solid #dadce0" }}><div style={{ fontSize: 12, color: "#5f6368" }}>{_("kpi.revenue")}</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#202124" }}>R$ {app.faturamento_bruto.toLocaleString("pt-BR")}</div></div><div style={{ flex: 1, background: "#fce8e6", padding: 20, borderRadius: 8, border: "1px solid #fad2cf" }}><div style={{ fontSize: 12, color: "#c5221f" }}>{_("kpi.noshow")}</div><div style={{ fontSize: 28, fontWeight: "bold", color: "#c5221f" }}>{txN.toFixed(1)}%</div></div></div>{hasParetoData && <div style={{ height: 300, background: "#f8f9fa", border: "1px solid #dadce0", borderRadius: 8, padding: 10 }}><Bar data={pCD} options={{ ...pO, scales: { ...pO.scales, y: { ...pO.scales.y, grid: { color: "#e8eaed" }, ticks: { color: "#5f6368" } }, y1: { ...pO.scales.y1, grid: { drawOnChartArea: false }, ticks: { color: "#5f6368", callback: (v: any) => v + "%" } }, x: { grid: { display: false }, ticks: { color: "#5f6368" } } }, plugins: { legend: { labels: { color: "#5f6368" } } } }} /></div>}<div className="pl"><h4>{_("pdf.glossaryTitle")}</h4><ul style={{ listStyle: "none", padding: 0 }}><li><strong>{_("pdf.grossRevenue")}:</strong> {_("pdf.grossRevenueDesc")}</li><li><strong>{_("pdf.noshowRate")}:</strong> {_("pdf.noshowRateDesc")}</li><li><strong>{_("pdf.paretoCancel")}:</strong> {_("pdf.paretoCancelDesc")}</li><li><strong>CAC:</strong> {_("pdf.cacDesc")}</li><li><strong>LTV:</strong> {_("pdf.ltvDesc")}</li></ul></div></div></div>}
 
     {/* SIDEBAR */}
     <aside className="sb">
@@ -497,57 +485,57 @@ export default function Dashboard() {
 
     {/* MAIN */}
     <main className="mn">
-      <header className="tb"><div className="tb-t">{titles[scr] || "Workspace"}</div><div style={{ display: "flex", gap: 16, alignItems: "center" }}><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.exportPdf")}</button><button className="bt bgh" onClick={() => setLt(!lt)} style={{ fontSize: 16 }}>☀️ / 🌙</button></div></header>
+      <header className="tb"><div className="tb-t">{titles[scr] || _("dash.workspace")}</div><div style={{ display: "flex", gap: 16, alignItems: "center" }}><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.exportPdf")}</button><button className="bt bgh" onClick={() => setLt(!lt)} style={{ fontSize: 16 }}>☀️ / 🌙</button></div></header>
 
       {/* DASHBOARD */}
       <div className={`ct ${scr === "dashboard" ? "a" : ""}`}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }} className="fu"><div><h1 className="gf" style={{ marginBottom: 4 }}>{_("dash.overview")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("dash.subtitle")}</div></div><select className="fs" style={{ margin: 0, width: 200 }} onChange={() => toast("Filtrando dados pelo período selecionado...")}><option>{_("misc.thisMonth")}</option><option>{_("misc.lastMonth")}</option><option>{_("misc.last90days")}</option></select></div>
-        <div className="cd hv fu s1"><div className="cd-h" style={{ background: "rgba(138,180,248,.05)" }}><div className="cd-t">{_("dash.guidedAnalysis")}</div><select className="fs" style={{ width: "auto", margin: 0 }} onChange={e => ansQ(e.target.value)}><option value="">{_("dash.selectQuestion")}</option><option value="cac">Qual é o CAC atual?</option><option value="ltv">Qual é o LTV projetado?</option><option value="roi">Qual é o ROI das campanhas?</option><option value="churn">Qual é o Churn (Cancelamento)?</option><option value="lucro">Qual é a Margem de Lucro?</option></select></div><div className="cd-b"><h2 style={{ fontSize: 28, color: "var(--gb)", fontFamily: "'Google Sans'" }}>{qA}</h2><p style={{ fontSize: 13, color: "var(--ts)", marginTop: 8 }}>{qL}</p></div></div>
-        {audit && <div className="ab"><strong className="gf">⚠️ Atenção (Auditoria GLX):</strong> {_("misc.auditWarning")}</div>}
-        <Lgd id="kpi-main" title="Legenda: Métricas Essenciais — Cálculos e Siglas">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }} className="fu"><div><h1 className="gf" style={{ marginBottom: 4 }}>{_("dash.overview")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("dash.subtitle")}</div></div><select className="fs" style={{ margin: 0, width: 200 }} onChange={() => toast(_("dash.filteringData"))}><option>{_("misc.thisMonth")}</option><option>{_("misc.lastMonth")}</option><option>{_("misc.last90days")}</option></select></div>
+        <div className="cd hv fu s1"><div className="cd-h" style={{ background: "rgba(138,180,248,.05)" }}><div className="cd-t">{_("dash.guidedAnalysis")}</div><select className="fs" style={{ width: "auto", margin: 0 }} onChange={e => ansQ(e.target.value)}><option value="">{_("dash.selectQuestion")}</option><option value="cac">{_("qa.cacQuestion")}</option><option value="ltv">{_("qa.ltvQuestion")}</option><option value="roi">{_("qa.roiQuestion")}</option><option value="churn">{_("qa.churnQuestion")}</option><option value="lucro">{_("qa.profitQuestion")}</option></select></div><div className="cd-b"><h2 style={{ fontSize: 28, color: "var(--gb)", fontFamily: "'Google Sans'" }}>{qA}</h2><p style={{ fontSize: 13, color: "var(--ts)", marginTop: 8 }}>{qL}</p></div></div>
+        {audit && <div className="ab"><strong className="gf">⚠️ {_("ai.auditAlerts")}</strong> {_("misc.auditWarning")}</div>}
+        <Lgd id="kpi-main" title={_("lgd.dashTitle")}>
           <dl className="lgd-term">
-            <dt>Faturamento Mês</dt><dd>Soma de todas as receitas brutas registradas no período selecionado (manual + integrações).</dd>
-            <dt>Total Agendamentos</dt><dd>Quantidade total de consultas/atendimentos agendados no período.</dd>
-            <dt>Taxa de No-Show</dt><dd>Percentual de pacientes que não compareceram. <strong>Meta saudável: abaixo de 10%.</strong></dd>
-            <dt>Conversão Geral</dt><dd>Percentual de leads que se tornaram pacientes efetivos.</dd>
+            <dt>{_("lgd.dashRevenue")}</dt><dd>{_("lgd.dashRevenueDesc")}</dd>
+            <dt>{_("lgd.dashAppointments")}</dt><dd>{_("lgd.dashAppointmentsDesc")}</dd>
+            <dt>{_("lgd.dashNoshow")}</dt><dd>{_("lgd.dashNoshowDesc")}</dd>
+            <dt>{_("lgd.dashConversion")}</dt><dd>{_("lgd.dashConversionDesc")}</dd>
           </dl>
-          <div className="lgd-calc">No-Show (%) = (No-Shows / Total Agendamentos) × 100<br/>Conversão (%) = (Pacientes Atendidos / Total Agendamentos) × 100</div>
-          <p><strong>Fonte dos dados:</strong> Entrada Manual + Integrações (Google Sheets, CRM, API).</p>
+          <div className="lgd-calc">{_("lgd.dashFormula").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</div>
+          <p><strong>{_("lgd.dashSource")}</strong></p>
         </Lgd>
         <h3 style={{ marginBottom: 16, color: "var(--ts)" }} className="gf fu s1">{_("dash.essentialMetrics")}</h3>
         <div className="kg fu s2">
           <div className="kp"><div className="kl">{_("kpi.revenue")}</div><div className="kv">R$ {app.faturamento_bruto.toLocaleString("pt-BR")}</div><div className="km">{_("dash.waitingData")}</div></div>
           <div className="kp"><div className="kl">{_("kpi.appointments")}</div><div className="kv">{app.total_pacientes}</div><div className="km">{_("dash.waitingData")}</div></div>
-          <div className="kp"><div className="kl">{_("kpi.noshow")}</div><div className="kv" style={{ color: txN > 10 ? "var(--gr)" : "var(--tp)" }}>{txN.toFixed(1)}%</div><div className="km">{txN > 10 ? "Acima do limite" : "Dentro da meta"}</div></div>
+          <div className="kp"><div className="kl">{_("kpi.noshow")}</div><div className="kv" style={{ color: txN > 10 ? "var(--gr)" : "var(--tp)" }}>{txN.toFixed(1)}%</div><div className="km">{txN > 10 ? _("dash.aboveLimit") : _("dash.withinGoal")}</div></div>
           <div className="kp"><div className="kl">{_("kpi.conversion")}</div><div className="kv" style={{ color: "var(--gg)" }}>{txC.toFixed(1)}%</div><div className="km">{_("dash.waitingData")}</div></div>
         </div>
 
         <div className="cd hv fu s2" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">{_("dash.monthlyTrend")}</div></div><div className="cd-b" style={{ height: 280 }}><Bar data={dCD} options={bO} /></div></div>
 
-        <Lgd id="guided-analysis" title="Legenda: Análise Guiada — Siglas e Fórmulas">
+        <Lgd id="guided-analysis" title={_("lgd.guidedTitle")}>
           <dl className="lgd-term">
-            <dt>CAC</dt><dd><strong>Custo de Aquisição de Cliente.</strong> Quanto custa trazer um novo paciente. Inclui marketing, vendas e operações.</dd>
-            <dt>LTV</dt><dd><strong>Lifetime Value.</strong> Receita total estimada que um paciente gera durante todo o relacionamento com a clínica.</dd>
-            <dt>ROI</dt><dd><strong>Return on Investment.</strong> Retorno sobre o investimento em marketing e operações.</dd>
-            <dt>Churn</dt><dd><strong>Taxa de Cancelamento.</strong> Percentual de pacientes que deixaram de retornar num período.</dd>
-            <dt>Lucro</dt><dd><strong>Margem de Lucro Líquida.</strong> Faturamento menos todos os custos (fixos + variáveis).</dd>
+            <dt>{_("lgd.cacLabel")}</dt><dd>{_("lgd.cacDesc")}</dd>
+            <dt>{_("lgd.ltvLabel")}</dt><dd>{_("lgd.ltvDesc")}</dd>
+            <dt>{_("lgd.roiLabel")}</dt><dd>{_("lgd.roiDesc")}</dd>
+            <dt>{_("lgd.churnLabel")}</dt><dd>{_("lgd.churnDesc")}</dd>
+            <dt>{_("lgd.profitLabel")}</dt><dd>{_("lgd.profitDesc")}</dd>
           </dl>
-          <div className="lgd-calc">CAC = Investimento Total em Marketing / Novos Pacientes<br/>LTV = Ticket Médio × Frequência Anual × Tempo Médio de Retenção<br/>ROI = ((Receita - Investimento) / Investimento) × 100<br/>Churn = Pacientes Perdidos / Total de Pacientes Ativos × 100<br/>Lucro = Faturamento - (Custos Fixos + Custos Variáveis)</div>
+          <div className="lgd-calc">{_("lgd.guidedFormula").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</div>
         </Lgd>
-        <Lk locked={isE} title="Pareto de Cancelamento" msg="Disponível nos planos Pro e Enterprise." btn="Upgrade para Pro">
-          <div className="cd hv"><div className="cd-h"><div className="cd-t">Pareto de Cancelamento (80/20)</div></div><div className="cd-b" style={{ height: 300 }}>{hasParetoData ? <Bar data={pCD} options={pO} /> : <div className="es">{_("dash.waitingData")}</div>}</div></div>
+        <Lk locked={isE} title={_("lock.paretoTitle")} msg={_("lock.paretoMsg")} btn={_("btn.upgradePro")}>
+          <div className="cd hv"><div className="cd-h"><div className="cd-t">{_("card.paretoTitle")}</div></div><div className="cd-b" style={{ height: 300 }}>{hasParetoData ? <Bar data={pCD} options={pO} /> : <div className="es">{_("dash.waitingData")}</div>}</div></div>
         </Lk>
 
-        <Lgd id="pareto" title="Legenda: Pareto de Cancelamento — Método 80/20">
-          <p><strong>Princípio de Pareto (80/20):</strong> Aproximadamente 80% dos cancelamentos são causados por 20% dos motivos. Este gráfico identifica os principais motivos de cancelamento para que ações corretivas sejam priorizadas.</p>
+        <Lgd id="pareto" title={_("lgd.paretoTitle")}>
+          <p>{_("lgd.paretoIntro")}</p>
           <dl className="lgd-term">
-            <dt>Eixo Esquerdo (Barras)</dt><dd>Frequência absoluta de cada motivo de cancelamento.</dd>
-            <dt>Eixo Direito (Linha)</dt><dd>Percentual acumulado. Quando a linha cruza 80%, os motivos à esquerda representam as causas principais.</dd>
+            <dt>{_("lgd.paretoLeftAxis")}</dt><dd>{_("lgd.paretoLeftAxisDesc")}</dd>
+            <dt>{_("lgd.paretoRightAxis")}</dt><dd>{_("lgd.paretoRightAxisDesc")}</dd>
           </dl>
-          <div className="lgd-calc">% Acumulado = Soma das frequências até o motivo N / Total de cancelamentos × 100</div>
-          <p><strong>Ação recomendada:</strong> Foque nos motivos que estão antes da linha atingir 80% — resolver esses poucos motivos eliminará a maioria dos cancelamentos.</p>
+          <div className="lgd-calc">{_("lgd.paretoFormula")}</div>
+          <p>{_("lgd.paretoAction")}</p>
         </Lgd>
-        <Lk locked={isE} title={_("dash.proAnalytics")} msg="Métricas avançadas para tomada de decisão." btn="Upgrade para Pro">
+        <Lk locked={isE} title={_("dash.proAnalytics")} msg={_("lock.proMsg")} btn={_("btn.upgradePro")}>
           <div className="kg">
             <div className="kp"><div className="kl">{_("kpi.projRevenue")}</div><div className="kv">R$ {(app.faturamento_bruto * 1.1).toLocaleString("pt-BR")}</div></div>
             <div className="kp"><div className="kl">{_("kpi.ltvProj")}</div><div className="kv">R$ {app.ltv.toLocaleString("pt-BR")}</div></div>
@@ -555,78 +543,78 @@ export default function Dashboard() {
           </div>
         </Lk>
 
-        <Lk locked={nE} title={_("dash.enterprise")} msg="Governança multi-unidades para redes." btn="Upgrade para Enterprise">
+        <Lk locked={nE} title={_("dash.enterprise")} msg={_("lock.enterpriseMsg")} btn={_("btn.upgradeEnterprise")}>
           <div className="cd hv"><div className="cd-h"><div className="cd-t">{_("dash.enterprise")}</div></div><div className="cd-b" style={{ height: 280 }}><Bar data={eCD} options={bO} /></div></div>
         </Lk>
       </div>
 
       {/* TEMPO REAL */}
-      <div className={`ct ${scr === "realtime" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.realtime")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fluxo de atendimentos em tempo real.</div></div>
-        <Lgd id="realtime" title="Legenda: Tempo Real — Fluxo de Atendimentos">
+      <div className={`ct ${scr === "realtime" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.realtime")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("sub.realtime")}</div></div>
+        <Lgd id="realtime" title={_("lgd.realtimeTitle")}>
           <dl className="lgd-term">
-            <dt>Fluxo (Linha)</dt><dd>Quantidade de atendimentos realizados por hora ao longo do dia. Permite identificar <strong>horários de pico</strong> e <strong>ociosidade</strong>.</dd>
-            <dt>Badge "Live"</dt><dd>Indica que os dados são atualizados em tempo real (quando integração ativa) ou na última importação.</dd>
+            <dt>{_("lgd.realtimeFlow")}</dt><dd>{_("lgd.realtimeFlowDesc")}</dd>
+            <dt>{_("lgd.realtimeBadge")}</dt><dd>{_("lgd.realtimeBadgeDesc")}</dd>
           </dl>
-          <p><strong>Uso prático:</strong> Redistribua profissionais para horários de pico. Se o fluxo cai após 16h, considere reduzir turnos ou criar promoções para horários ociosos.</p>
-        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Fluxo de Atendimentos (Hoje)</div><span className="bg sc">Live</span></div><div className="cd-b" style={{ height: 300 }}><Line data={lvCD} options={bO} /></div></div></div>
+          <p>{_("lgd.realtimeUsage")}</p>
+        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">{_("card.flowToday")}</div><span className="bg sc">Live</span></div><div className="cd-b" style={{ height: 300 }}><Line data={lvCD} options={bO} /></div></div></div>
 
       {/* AGENDA */}
-      <div className={`ct ${scr === "agenda" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.agenda")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Mapa de calor de ocupação e capacidade.</div></div>
-        <Lgd id="agenda" title="Legenda: Agenda & Capacidade — Métricas de Ocupação">
+      <div className={`ct ${scr === "agenda" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.agenda")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("sub.agenda")}</div></div>
+        <Lgd id="agenda" title={_("lgd.agendaTitle")}>
           <dl className="lgd-term">
-            <dt>Slots Disponíveis</dt><dd>Quantidade de horários livres para agendamento no período. Calculado com base na capacidade total menos agendamentos confirmados.</dd>
-            <dt>Taxa de Ocupação</dt><dd>Percentual de slots preenchidos. <strong>Meta ideal: 75-85%.</strong> Acima de 90% indica risco de sobrecarga; abaixo de 60% indica ociosidade.</dd>
-            <dt>Mapa de Calor</dt><dd>Visualização semanal onde cores mais intensas indicam maior ocupação. Permite identificar dias e horários críticos.</dd>
+            <dt>{_("lgd.agendaSlots")}</dt><dd>{_("lgd.agendaSlotsDesc")}</dd>
+            <dt>{_("lgd.agendaOccupancy")}</dt><dd>{_("lgd.agendaOccupancyDesc")}</dd>
+            <dt>{_("lgd.agendaHeatmap")}</dt><dd>{_("lgd.agendaHeatmapDesc")}</dd>
           </dl>
-          <div className="lgd-calc">Ocupação (%) = (Slots Preenchidos / Capacidade Total) × 100<br/>Slots Disponíveis = Capacidade Total - Agendamentos Confirmados</div>
-        </Lgd><div className="g2 fu s1"><div className="kp"><div className="kl">Slots Disponíveis</div><div className="kv">0</div></div><div className="kp"><div className="kl">Taxa de Ocupação</div><div className="kv">0%</div></div></div><div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">Mapa de Calor Semanal</div><button className="bt bs" onClick={() => setModal("agenda")}>{_("btn.importCsv")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")} — Importe dados via CSV ou integração.</div></div></div></div>
+          <div className="lgd-calc">{_("lgd.agendaFormula").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</div>
+        </Lgd><div className="g2 fu s1"><div className="kp"><div className="kl">{_("kpi.slotsAvailable")}</div><div className="kv">0</div></div><div className="kp"><div className="kl">{_("kpi.occupancyRate")}</div><div className="kv">0%</div></div></div><div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">{_("card.heatmap")}</div><button className="bt bs" onClick={() => setModal("agenda")}>{_("btn.importCsv")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")} — {_("card.importData")}</div></div></div></div>
 
       {/* EQUIPE */}
       <div className={`ct ${scr === "equipe" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.equipe")}</h1></div>
-        <Lgd id="equipe" title="Legenda: Equipe & Produtividade — Métricas por Profissional">
+        <Lgd id="equipe" title={_("lgd.equipeTitle")}>
           <dl className="lgd-term">
-            <dt>Atendimentos</dt><dd>Total de consultas realizadas pelo profissional no período.</dd>
-            <dt>Conversão</dt><dd>Percentual de pacientes atendidos que retornaram ou fecharam tratamento. Mede a eficácia individual.</dd>
+            <dt>{_("lgd.equipeAppointments")}</dt><dd>{_("lgd.equipeAppointmentsDesc")}</dd>
+            <dt>{_("lgd.equipeConversion")}</dt><dd>{_("lgd.equipeConversionDesc")}</dd>
           </dl>
-          <div className="lgd-calc">Conversão Profissional (%) = (Pacientes Convertidos / Total Atendidos) × 100</div>
-          <p><strong>Benchmark:</strong> Conversão acima de 60% é considerada excelente. Profissionais abaixo de 40% podem precisar de treinamento ou suporte.</p>
-        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Profissionais Cadastrados</div><button className="bt bp" onClick={() => setModal("prof")}>{_("btn.addProfessional")}</button></div><div className="cd-b"><table className="dt"><thead><tr><th>Nome</th><th>Função</th><th>Atendimentos</th><th>Conversão</th></tr></thead><tbody><tr><td colSpan={4} style={{ textAlign: "center", color: "var(--ts)" }}>{_("dash.waitingData")}</td></tr></tbody></table></div></div></div>
+          <div className="lgd-calc">{_("lgd.equipeFormula")}</div>
+          <p>{_("lgd.equipeBenchmark")}</p>
+        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">{_("card.registeredProfessionals")}</div><button className="bt bp" onClick={() => setModal("prof")}>{_("btn.addProfessional")}</button></div><div className="cd-b"><table className="dt"><thead><tr><th>{_("table.name")}</th><th>{_("table.role")}</th><th>{_("table.appointments")}</th><th>{_("table.conversion")}</th></tr></thead><tbody><tr><td colSpan={4} style={{ textAlign: "center", color: "var(--ts)" }}>{_("dash.waitingData")}</td></tr></tbody></table></div></div></div>
 
       {/* SPRINTS & OKRs */}
       <div className={`ct ${scr === "sprints" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.sprints")}</h1></div>
-        <Lgd id="sprints" title="Legenda: Sprints & OKRs — Metodologias de Gestão">
+        <Lgd id="sprints" title={_("lgd.sprintsTitle")}>
           <dl className="lgd-term">
-            <dt>Sprint</dt><dd><strong>Ciclo curto de execução</strong> (geralmente 1-4 semanas) com objetivo específico. Baseado na metodologia ágil Scrum. Cada sprint tem: objetivo, responsável, prazo e status.</dd>
-            <dt>OKR</dt><dd><strong>Objectives and Key Results.</strong> Framework de metas onde cada Objetivo tem 2-5 Resultados-Chave mensuráveis. Usado por Google, Intel e empresas de alta performance.</dd>
-            <dt>Objetivo (O)</dt><dd>O que queremos alcançar. Deve ser inspirador e qualitativo. Ex: "Reduzir cancelamentos drasticamente".</dd>
-            <dt>Key Result (KR)</dt><dd>Como medimos o progresso. Deve ser quantitativo. Ex: "Reduzir no-show de 18% para 8%".</dd>
+            <dt>{_("lgd.sprintLabel")}</dt><dd>{_("lgd.sprintDesc")}</dd>
+            <dt>{_("lgd.okrLabel")}</dt><dd>{_("lgd.okrDesc")}</dd>
+            <dt>{_("lgd.objectiveLabel")}</dt><dd>{_("lgd.objectiveDesc")}</dd>
+            <dt>{_("lgd.krLabel")}</dt><dd>{_("lgd.krDesc")}</dd>
           </dl>
-          <p><strong>Ciclo recomendado:</strong> OKRs são trimestrais. Sprints são semanais ou quinzenais. Revise OKRs a cada 90 dias e sprints a cada 1-2 semanas.</p>
-        </Lgd><div className="g2 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">Sprints Ativos</div><button className="bt bp" onClick={() => setModal("sprint")}>{_("btn.addSprint")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">OKRs do Trimestre</div><button className="bt bp" onClick={() => setModal("okr")}>{_("btn.addOkr")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
+          <p>{_("lgd.sprintsCycle")}</p>
+        </Lgd><div className="g2 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">{_("card.activeSprints")}</div><button className="bt bp" onClick={() => setModal("sprint")}>{_("btn.addSprint")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">{_("card.quarterOkrs")}</div><button className="bt bp" onClick={() => setModal("okr")}>{_("btn.addOkr")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
 
       {/* FUNIL */}
       <div className={`ct ${scr === "funil" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.funil")}</h1></div>
-        <Lgd id="funil" title="Legenda: Funil Comercial — Estágios e Conversão">
+        <Lgd id="funil" title={_("lgd.funnelTitle")}>
           <dl className="lgd-term">
-            <dt>Lead</dt><dd>Contato inicial. Pessoa que demonstrou interesse (preencheu formulário, ligou, enviou mensagem).</dd>
-            <dt>Agendado</dt><dd>Lead que marcou uma consulta/avaliação. Primeiro compromisso concreto.</dd>
-            <dt>Atendido</dt><dd>Paciente que compareceu à consulta agendada.</dd>
-            <dt>Convertido</dt><dd>Paciente que fechou tratamento ou retornou. <strong>É o objetivo final do funil.</strong></dd>
+            <dt>{_("lgd.funnelLead")}</dt><dd>{_("lgd.funnelLeadDesc")}</dd>
+            <dt>{_("lgd.funnelScheduled")}</dt><dd>{_("lgd.funnelScheduledDesc")}</dd>
+            <dt>{_("lgd.funnelAttended")}</dt><dd>{_("lgd.funnelAttendedDesc")}</dd>
+            <dt>{_("lgd.funnelConverted")}</dt><dd>{_("lgd.funnelConvertedDesc")}</dd>
           </dl>
-          <div className="lgd-calc">Taxa de Conversão do Funil = (Convertidos / Leads Totais) × 100<br/>Taxa por Estágio = (Saídas do Estágio / Entradas do Estágio) × 100</div>
-          <p><strong>Gráfico Doughnut:</strong> Mostra a proporção de cada estágio. Idealmente, a fatia "Convertido" deve crescer ao longo do tempo.</p>
-        </Lgd><div className="g21 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">Funil de Vendas</div></div><div className="cd-b" style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ width: 260 }}><Doughnut data={fCD} options={{ responsive: true, plugins: { legend: { labels: { color: tc } } } }} /></div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">Resumo</div></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
+          <div className="lgd-calc">{_("lgd.funnelFormula").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</div>
+          <p>{_("lgd.funnelDoughnut")}</p>
+        </Lgd><div className="g21 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">{_("card.salesFunnel")}</div></div><div className="cd-b" style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ width: 260 }}><Doughnut data={fCD} options={{ responsive: true, plugins: { legend: { labels: { color: tc } } } }} /></div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">{_("card.summary")}</div></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
 
       {/* CANAIS */}
       <div className={`ct ${scr === "canais" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.canais")}</h1></div>
-        <Lgd id="canais" title="Legenda: Canais de Aquisição — Métricas de Marketing">
+        <Lgd id="canais" title={_("lgd.channelsTitle")}>
           <dl className="lgd-term">
-            <dt>Investimento (Ads)</dt><dd>Total investido em anúncios pagos (Google Ads, Meta Ads, etc.) no período.</dd>
-            <dt>CPL</dt><dd><strong>Custo por Lead.</strong> Quanto custa gerar um contato interessado. Quanto menor, mais eficiente o canal.</dd>
-            <dt>ROAS</dt><dd><strong>Return on Ad Spend.</strong> Retorno sobre o investimento em anúncios. ROAS de 3x significa que cada R$1 investido gerou R$3 em receita.</dd>
+            <dt>{_("lgd.channelsAds")}</dt><dd>{_("lgd.channelsAdsDesc")}</dd>
+            <dt>{_("lgd.channelsCpl")}</dt><dd>{_("lgd.channelsCplDesc")}</dd>
+            <dt>{_("lgd.channelsRoas")}</dt><dd>{_("lgd.channelsRoasDesc")}</dd>
           </dl>
-          <div className="lgd-calc">CPL = Investimento Total em Ads / Número de Leads Gerados<br/>ROAS = Receita Gerada por Ads / Investimento em Ads<br/>CPA = Investimento Total / Número de Pacientes Convertidos</div>
-          <p><strong>Benchmarks do setor:</strong> CPL saudável para clínicas: R$ 15-50. ROAS mínimo viável: 3x. ROAS excelente: acima de 5x.</p>
+          <div className="lgd-calc">{_("lgd.channelsFormula").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</div>
+          <p>{_("lgd.channelsBenchmark")}</p>
         </Lgd><div className="kg fu s1"><div className="kp"><div className="kl">{_("kpi.adsInvestment")}</div><div className="kv">R$ 0</div></div><div className="kp"><div className="kl">{_("kpi.cpl")}</div><div className="kv">R$ 0</div></div><div className="kp"><div className="kl">{_("kpi.roas")}</div><div className="kv">0x</div></div></div></div>
 
       {/* INTEGRAÇÕES */}
@@ -642,40 +630,40 @@ export default function Dashboard() {
         {/* TRACKING TAB */}
         {intTab === "tracking" && <div className="fu s1">
           {/* Google Ads */}
-          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Ads</div><StatusBadge type="google_ads" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Rastreie conversões e otimize campanhas com Enhanced Conversions.</p><div className="fr"><div><label className="fl">Customer ID</label><input type="text" className="fi" placeholder="xxx-xxx-xxxx" value={intForm.google_ads_token || ""} onChange={e => setIntForm(p => ({ ...p, google_ads_token: e.target.value }))} /></div><div><label className="fl">OAuth Token</label><input type="text" className="fi" placeholder="Token de acesso" value={intForm.google_ads_url || ""} onChange={e => setIntForm(p => ({ ...p, google_ads_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("google_ads") ? <button className="bd" onClick={() => removeIntegration("google_ads")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("google_ads", "Google Ads")}>{_("btn.save")}</button>}</div><div className="rec-box"><h4>Recomendação GLX</h4><p>Enhanced Conversions é essencial com o fim dos cookies de terceiros. Configure via GTM para máxima eficiência. A arquitetura Server-Side GTM → Google Ads API é o padrão mais robusto atualmente.</p></div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Ads</div><StatusBadge type="google_ads" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.googleAdsDesc")}</p><div className="fr"><div><label className="fl">{_("int.customerId")}</label><input type="text" className="fi" placeholder="xxx-xxx-xxxx" value={intForm.google_ads_token || ""} onChange={e => setIntForm(p => ({ ...p, google_ads_token: e.target.value }))} /></div><div><label className="fl">{_("int.oauthToken")}</label><input type="text" className="fi" placeholder={_("int.accessToken")} value={intForm.google_ads_url || ""} onChange={e => setIntForm(p => ({ ...p, google_ads_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("google_ads") ? <button className="bd" onClick={() => removeIntegration("google_ads")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("google_ads", "Google Ads")}>{_("btn.save")}</button>}</div><div className="rec-box"><h4>{_("int.glxRec")}</h4><p>{_("int.googleAdsRec")}</p></div></div></div>
 
           {/* GTM */}
-          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Tag Manager (GTM)</div><StatusBadge type="gtm" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Container de tags para gerenciar todos os pixels e eventos.</p><label className="fl">GTM Container ID</label><input type="text" className="fi" placeholder="GTM-XXXXXXX" value={intForm.gtm_token || ""} onChange={e => setIntForm(p => ({ ...p, gtm_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("gtm") ? <button className="bd" onClick={() => removeIntegration("gtm")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("gtm", "GTM")}>{_("btn.save")}</button>}</div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Tag Manager (GTM)</div><StatusBadge type="gtm" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.gtmDesc")}</p><label className="fl">{_("int.gtmContainerId")}</label><input type="text" className="fi" placeholder="GTM-XXXXXXX" value={intForm.gtm_token || ""} onChange={e => setIntForm(p => ({ ...p, gtm_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("gtm") ? <button className="bd" onClick={() => removeIntegration("gtm")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("gtm", "GTM")}>{_("btn.save")}</button>}</div></div></div>
 
           {/* Meta Pixel */}
-          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Meta Pixel</div><StatusBadge type="meta_pixel" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Rastreie conversões de anúncios do Facebook/Instagram.</p><label className="fl">Pixel ID</label><input type="text" className="fi" placeholder="ID do Pixel" value={intForm.meta_pixel_token || ""} onChange={e => setIntForm(p => ({ ...p, meta_pixel_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("meta_pixel") ? <button className="bd" onClick={() => removeIntegration("meta_pixel")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("meta_pixel", "Meta Pixel")}>{_("btn.save")}</button>}</div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Meta Pixel</div><StatusBadge type="meta_pixel" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.metaPixelDesc")}</p><label className="fl">{_("int.pixelId")}</label><input type="text" className="fi" placeholder={_("int.pixelId")} value={intForm.meta_pixel_token || ""} onChange={e => setIntForm(p => ({ ...p, meta_pixel_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("meta_pixel") ? <button className="bd" onClick={() => removeIntegration("meta_pixel")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("meta_pixel", "Meta Pixel")}>{_("btn.save")}</button>}</div></div></div>
 
           {/* Meta CAPI */}
-          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Meta Conversions API (CAPI)</div><StatusBadge type="meta_capi" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Envie eventos server-side para melhor atribuição. Essencial com o fim dos cookies de terceiros.</p><div className="fr"><div><label className="fl">Access Token</label><input type="text" className="fi" placeholder="Token de acesso" value={intForm.meta_capi_token || ""} onChange={e => setIntForm(p => ({ ...p, meta_capi_token: e.target.value }))} /></div><div><label className="fl">Pixel ID</label><input type="text" className="fi" placeholder="ID do Pixel" value={intForm.meta_capi_url || ""} onChange={e => setIntForm(p => ({ ...p, meta_capi_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("meta_capi") ? <button className="bd" onClick={() => removeIntegration("meta_capi")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("meta_capi", "Meta CAPI")}>{_("btn.save")}</button>}</div><div className="rec-box"><h4>Recomendação GLX</h4><p>A CAPI usa a versão vigente da API do Graph (verifique periodicamente). Enhanced matching ativado melhora a atribuição. A arquitetura Server-Side GTM → CAPI é o padrão mais robusto para tracking profissional.</p></div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Meta Conversions API (CAPI)</div><StatusBadge type="meta_capi" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.metaCapiDesc")}</p><div className="fr"><div><label className="fl">{_("int.accessToken")}</label><input type="text" className="fi" placeholder={_("int.accessToken")} value={intForm.meta_capi_token || ""} onChange={e => setIntForm(p => ({ ...p, meta_capi_token: e.target.value }))} /></div><div><label className="fl">{_("int.pixelId")}</label><input type="text" className="fi" placeholder={_("int.pixelId")} value={intForm.meta_capi_url || ""} onChange={e => setIntForm(p => ({ ...p, meta_capi_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("meta_capi") ? <button className="bd" onClick={() => removeIntegration("meta_capi")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("meta_capi", "Meta CAPI")}>{_("btn.save")}</button>}</div><div className="rec-box"><h4>{_("int.glxRec")}</h4><p>{_("int.metaCapiRec")}</p></div></div></div>
 
           {/* Server-Side GTM */}
-          <div className="cd hv" style={{ marginBottom: 24, border: "1px solid var(--gp)" }}><div className="cd-h" style={{ background: "linear-gradient(135deg,rgba(197,138,249,.1),rgba(138,180,248,.1))" }}><div className="cd-t" style={{ color: "var(--gp)" }}>Server-Side GTM → CAPI + Google Ads API</div><span className="bg in">Recomendado</span></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Arquitetura mais robusta para tracking profissional. Centraliza eventos server-side e distribui para Meta CAPI e Google Ads Enhanced Conversions.</p><div className="al"><div className="al-t">Arquitetura Recomendada</div><div className="al-d">Browser → GTM Web Container → Server-Side GTM → Meta CAPI + Google Ads API. Esta configuração garante máxima precisão de dados, resiliência a bloqueadores de anúncios e conformidade com LGPD/GDPR.</div></div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24, border: "1px solid var(--gp)" }}><div className="cd-h" style={{ background: "linear-gradient(135deg,rgba(197,138,249,.1),rgba(138,180,248,.1))" }}><div className="cd-t" style={{ color: "var(--gp)" }}>{_("int.ssGtmTitle")}</div><span className="bg in">{_("int.recommended")}</span></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.ssGtmDesc")}</p><div className="al"><div className="al-t">{_("int.archTitle")}</div><div className="al-d">{_("int.archDesc")}</div></div></div></div>
         </div>}
 
         {/* DATA TAB */}
         {intTab === "data" && <div className="fu s1">
           {/* Google Sheets */}
-          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Sheets API</div><StatusBadge type="google_sheets" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Puxe dados em tempo real da sua planilha. Ideal para operações que já usam Google Sheets como base de dados.</p><label className="fl">URL da planilha ou ID</label><div style={{ display: "flex", gap: 12, marginBottom: 16 }}><input type="text" className="fi" style={{ margin: 0, flex: 1 }} placeholder="URL da planilha ou ID..." value={intForm.google_sheets_url || ""} onChange={e => setIntForm(p => ({ ...p, google_sheets_url: e.target.value }))} />{isIntActive("google_sheets") ? <button className="bd" onClick={() => removeIntegration("google_sheets")}>{_("btn.disconnect")}</button> : <button className="bt bp" onClick={() => saveIntegration("google_sheets", "Google Sheets")}>{_("btn.connect")}</button>}</div><div className="rec-box"><h4>Métodos Disponíveis</h4><p>1. Apps Script Webhook — Simples mas com limitações de quota (não ideal para alto volume).<br/>2. Sheets API Oficial — Mais robusta para produção com escala.<br/>3. Zapier/Make — Automação sem código, ideal para equipes não-técnicas.<br/>4. Importação CSV Manual — Use na seção Entrada de Dados.</p></div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Google Sheets API</div><StatusBadge type="google_sheets" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.sheetsDesc")}</p><label className="fl">{_("int.sheetsUrl")}</label><div style={{ display: "flex", gap: 12, marginBottom: 16 }}><input type="text" className="fi" style={{ margin: 0, flex: 1 }} placeholder={_("int.sheetsUrlPlaceholder")} value={intForm.google_sheets_url || ""} onChange={e => setIntForm(p => ({ ...p, google_sheets_url: e.target.value }))} />{isIntActive("google_sheets") ? <button className="bd" onClick={() => removeIntegration("google_sheets")}>{_("btn.disconnect")}</button> : <button className="bt bp" onClick={() => saveIntegration("google_sheets", "Google Sheets")}>{_("btn.connect")}</button>}</div><div className="rec-box"><h4>{_("int.sheetsMethods")}</h4><p>{_("int.sheetsMethodsDesc").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</p></div></div></div>
 
           {/* Excel */}
-          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Excel (Microsoft Graph API)</div><StatusBadge type="excel" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Integração profissional com Excel Online via Microsoft Graph API. Para automação real no ecossistema Microsoft.</p><div className="fr"><div><label className="fl">Client ID (Azure AD)</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" value={intForm.excel_token || ""} onChange={e => setIntForm(p => ({ ...p, excel_token: e.target.value }))} /></div><div><label className="fl">Tenant ID</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" value={intForm.excel_url || ""} onChange={e => setIntForm(p => ({ ...p, excel_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("excel") ? <button className="bd" onClick={() => removeIntegration("excel")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("excel", "Excel")}>{_("btn.connect")}</button>}</div><div className="rec-box"><h4>Opções de Integração</h4><p>1. Export CSV — Geração de arquivo manual (não é integração real, mas funciona para relatórios pontuais).<br/>2. Microsoft Graph API — Abordagem mais profissional para automação real.<br/>3. Power Automate — Muito poderosa para integrações no ecossistema Microsoft, subestimado mas altamente recomendado.<br/>4. Zapier/Make — Alternativa no-code.</p></div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">Excel (Microsoft Graph API)</div><StatusBadge type="excel" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.excelDesc")}</p><div className="fr"><div><label className="fl">{_("int.clientId")}</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" value={intForm.excel_token || ""} onChange={e => setIntForm(p => ({ ...p, excel_token: e.target.value }))} /></div><div><label className="fl">{_("int.tenantId")}</label><input type="text" className="fi" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" value={intForm.excel_url || ""} onChange={e => setIntForm(p => ({ ...p, excel_url: e.target.value }))} /></div></div><div style={{ display: "flex", gap: 12 }}>{isIntActive("excel") ? <button className="bd" onClick={() => removeIntegration("excel")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("excel", "Excel")}>{_("btn.connect")}</button>}</div><div className="rec-box"><h4>{_("int.excelMethods")}</h4><p>{_("int.excelMethodsDesc").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</p></div></div></div>
 
           {/* Power BI */}
-          <Lk locked={nE} title="Power BI (Enterprise)" msg="Disponível no plano Enterprise." btn="Upgrade para Enterprise">
-            <div className="cd hv"><div className="cd-h"><div className="cd-t">Power BI</div><StatusBadge type="powerbi" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Embed de dashboards Power BI e conexão DirectQuery para dados em tempo real.</p><label className="fl">Embed URL</label><input type="text" className="fi" placeholder="URL do relatório Power BI" /><div className="rec-box"><h4>Métodos Disponíveis</h4><p>1. Embed Público — Só funciona se publicado na web (atenção: segurança de dados sensíveis).<br/>2. Embed Autenticado — Mais seguro, requer Azure AD.<br/>3. REST API — Acesso programático aos datasets.<br/>4. DirectQuery — Abordagem mais robusta para dashboards em tempo real.</p></div></div></div>
+          <Lk locked={nE} title={_("lock.powerBiTitle")} msg={_("lock.powerBiMsg")} btn={_("btn.upgradeEnterprise")}>
+            <div className="cd hv"><div className="cd-h"><div className="cd-t">Power BI</div><StatusBadge type="powerbi" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.powerBiDesc")}</p><label className="fl">{_("int.embedUrl")}</label><input type="text" className="fi" placeholder={_("int.embedUrlPlaceholder")} /><div className="rec-box"><h4>{_("int.powerBiMethods")}</h4><p>{_("int.powerBiMethodsDesc").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</p></div></div></div>
           </Lk>
         </div>}
 
         {/* CRM TAB */}
         {intTab === "crm" && <div className="fu s1">
-          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">HubSpot CRM</div><StatusBadge type="hubspot" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Conexão nativa com HubSpot para sincronizar contatos, deals e pipeline.</p><label className="fl">API Key / Access Token</label><input type="text" className="fi" placeholder="Token de acesso HubSpot" value={intForm.hubspot_token || ""} onChange={e => setIntForm(p => ({ ...p, hubspot_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("hubspot") ? <button className="bd" onClick={() => removeIntegration("hubspot")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("hubspot", "HubSpot")}>{_("btn.save")}</button>}</div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">HubSpot CRM</div><StatusBadge type="hubspot" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.hubspotDesc")}</p><label className="fl">{_("int.hubspotToken")}</label><input type="text" className="fi" placeholder={_("int.hubspotPlaceholder")} value={intForm.hubspot_token || ""} onChange={e => setIntForm(p => ({ ...p, hubspot_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("hubspot") ? <button className="bd" onClick={() => removeIntegration("hubspot")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("hubspot", "HubSpot")}>{_("btn.save")}</button>}</div></div></div>
 
-          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">RD Station</div><StatusBadge type="rdstation" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>Integração com RD Station Marketing e CRM para automação de marketing.</p><label className="fl">API Token</label><input type="text" className="fi" placeholder="Token RD Station" value={intForm.rdstation_token || ""} onChange={e => setIntForm(p => ({ ...p, rdstation_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("rdstation") ? <button className="bd" onClick={() => removeIntegration("rdstation")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("rdstation", "RD Station")}>{_("btn.save")}</button>}</div></div></div>
+          <div className="cd hv" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">RD Station</div><StatusBadge type="rdstation" /></div><div className="cd-b"><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 16 }}>{_("int.rdstationDesc")}</p><label className="fl">{_("int.rdstationToken")}</label><input type="text" className="fi" placeholder={_("int.rdstationPlaceholder")} value={intForm.rdstation_token || ""} onChange={e => setIntForm(p => ({ ...p, rdstation_token: e.target.value }))} /><div style={{ display: "flex", gap: 12 }}>{isIntActive("rdstation") ? <button className="bd" onClick={() => removeIntegration("rdstation")}>{_("btn.remove")}</button> : <button className="bt bp" onClick={() => saveIntegration("rdstation", "RD Station")}>{_("btn.save")}</button>}</div></div></div>
         </div>}
 
         {/* FILE IMPORT TAB */}
@@ -688,62 +676,55 @@ export default function Dashboard() {
               <p style={{ fontSize: 13, color: "var(--ts)" }}>{_("file.supported")}</p>
               <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileImport(f); }} />
             </div>
-            <div className="al" style={{ marginTop: 24 }}><div className="al-t">Como funciona?</div><div className="al-d">1. Faça upload de um arquivo .xlsx, .xls ou .csv<br/>2. A IA GLX identifica automaticamente as colunas (Faturamento, Pacientes, Status, Canal, etc.)<br/>3. Os dados são roteados para os módulos corretos do dashboard (Pareto, Funil, Canais, etc.)<br/>4. O dashboard é atualizado em tempo real com os novos dados.</div></div>
+            <div className="al" style={{ marginTop: 24 }}><div className="al-t">{_("file.howTitle")}</div><div className="al-d">{_("file.howDesc").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</div></div>
           </div></div>
         </div>}
       </div>
 
       {/* ENTRADA DE DADOS */}
       <div className={`ct ${scr === "dados" ? "a" : ""}`}>
-        <div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.dados")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Insira dados manualmente ou importe planilhas.</div></div>
-        <Lgd id="dados" title="Legenda: Entrada de Dados — Tipos e Impacto no Dashboard">
-          <p><strong>Lançamento Financeiro:</strong> Alimenta os KPIs de Faturamento, Lucro, e gráficos de Tendência Mensal.</p>
+        <div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.dados")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("sub.dados")}</div></div>
+        <Lgd id="dados" title={_("lgd.dadosTitle")}>
+          <p>{_("lgd.dadosFinancialIntro")}</p>
           <dl className="lgd-term">
-            <dt>Receita (Faturamento)</dt><dd>Valor bruto recebido por consultas, procedimentos ou serviços. Soma diretamente no KPI "Faturamento Mês".</dd>
-            <dt>Custo Fixo</dt><dd>Despesas recorrentes independentes do volume (aluguel, salários, software). Subtrai do faturamento para calcular lucro.</dd>
-            <dt>Custo Variável</dt><dd>Despesas proporcionais ao volume (materiais, comissões). Subtrai do faturamento para calcular margem.</dd>
+            <dt>{_("lgd.dadosRevenue")}</dt><dd>{_("lgd.dadosRevenueDesc")}</dd>
+            <dt>{_("lgd.dadosFixedCost")}</dt><dd>{_("lgd.dadosFixedCostDesc")}</dd>
+            <dt>{_("lgd.dadosVariableCost")}</dt><dd>{_("lgd.dadosVariableCostDesc")}</dd>
           </dl>
-          <p><strong>Atendimento / Paciente:</strong> Alimenta os KPIs de No-Show, Conversão, e o gráfico Pareto.</p>
-          <dl className="lgd-term">
-            <dt>Compareceu</dt><dd>Paciente que foi atendido. Conta positivamente para Conversão e Total Agendamentos.</dd>
-            <dt>No-Show</dt><dd>Paciente que não compareceu sem avisar. Impacta negativamente a Taxa de No-Show e alimenta o Pareto.</dd>
-            <dt>Cancelada</dt><dd>Consulta cancelada com aviso prévio. O motivo alimenta o Pareto de Cancelamento.</dd>
-          </dl>
-          <div className="lgd-calc">Lucro = Receita Total - (Custos Fixos + Custos Variáveis)<br/>Margem (%) = (Lucro / Receita Total) × 100</div>
+
+          <div className="lgd-calc">{_("lgd.dadosFormula").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</div>
         </Lgd>
-        <div className="tn"><button className={`tbn ${dTab === "fin" ? "a" : ""}`} onClick={() => setDTab("fin")}>{_("data.financialTab")}</button><button className={`tbn ${dTab === "att" ? "a" : ""}`} onClick={() => setDTab("att")}>{_("data.attendanceTab")}</button></div>
-        {dTab === "fin" && <div className="cd hv fu s1"><div className="cd-b"><div className="fr"><div><label className="fl">{_("data.type")}</label><select className="fs" value={fTipo} onChange={e => setFTipo(e.target.value)}><option>{_("data.revenue")}</option><option>{_("data.cost")}</option><option>{_("data.variableCost")}</option></select></div><div><label className="fl">{_("data.value")}</label><input type="number" className="fi" placeholder="Ex: 500" value={fVal} onChange={e => setFVal(e.target.value)} /></div></div><button className="bt bp" onClick={regFin}>{_("data.registerFinancial")}</button></div></div>}
-        {dTab === "att" && <div className="cd hv fu s1"><div className="cd-b"><div className="fr"><div><label className="fl">{_("data.status")}</label><select className="fs" value={pSt} onChange={e => setPSt(e.target.value)}><option>{_("data.attended")}</option><option>No-Show</option><option>{_("data.cancelled")}</option></select></div><div><label className="fl">{_("data.reason")}</label><input type="text" className="fi" placeholder="Ex: Esqueceu, Remarcou..." value={pMot} onChange={e => setPMot(e.target.value)} /></div></div><button className="bt bp" onClick={salvarAt}>{_("data.registerAttendance")}</button></div></div>}
+        <div className="cd hv fu s1"><div className="cd-b"><div className="fr"><div><label className="fl">{_("data.type")}</label><select className="fs" value={fTipo} onChange={e => setFTipo(e.target.value)}><option>{_("data.revenue")}</option><option>{_("data.cost")}</option><option>{_("data.variableCost")}</option></select></div><div><label className="fl">{_("data.value")}</label><input type="number" className="fi" placeholder={_("data.valuePlaceholder")} value={fVal} onChange={e => setFVal(e.target.value)} /></div></div><button className="bt bp" onClick={regFin}>{_("data.registerFinancial")}</button></div></div>
 
         {/* RECORDS TABLE WITH DELETE */}
-        <div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">{_("data.recentRecords")} ({records.length})</div></div><div className="cd-b">{records.length === 0 ? <div className="es">{_("data.noRecords")}</div> : <table className="rec-tbl"><thead><tr><th>Tipo</th><th>Detalhe</th><th>Valor</th><th>Data</th><th>Ação</th></tr></thead><tbody>{records.map(r => <tr key={r.id}><td><span className={`bg ${r.type === "financial" ? "in" : "wn"}`}>{r.type === "financial" ? "Financeiro" : "Atendimento"}</span></td><td>{r.label}</td><td>{r.type === "financial" ? r.detail : r.detail}</td><td style={{ fontSize: 12, color: "var(--ts)" }}>{new Date(r.createdAt).toLocaleString("pt-BR")}</td><td><button className="bd" onClick={() => setDeleteConfirm(r.id)}>{_("btn.delete")}</button></td></tr>)}</tbody></table>}</div></div>
+        <div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">{_("data.recentRecords")} ({records.length})</div></div><div className="cd-b">{records.length === 0 ? <div className="es">{_("data.noRecords")}</div> : <table className="rec-tbl"><thead><tr><th>{_("table.type")}</th><th>{_("table.detail")}</th><th>{_("table.value")}</th><th>{_("table.date")}</th><th>{_("table.action")}</th></tr></thead><tbody>{records.map(r => <tr key={r.id}><td><span className={`bg ${r.type === "financial" ? "in" : "wn"}`}>{r.type === "financial" ? _("data.financial") : _("data.attendance")}</span></td><td>{r.label}</td><td>{r.type === "financial" ? r.detail : r.detail}</td><td style={{ fontSize: 12, color: "var(--ts)" }}>{new Date(r.createdAt).toLocaleString(lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR")}</td><td><button className="bd" onClick={() => setDeleteConfirm(r.id)}>{_("btn.delete")}</button></td></tr>)}</tbody></table>}</div></div>
       </div>
 
       {/* RELATÓRIOS */}
-      <div className={`ct ${scr === "relatorios" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.relatorios")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fechamentos e apresentação da base bruta.</div></div>
-        <Lgd id="relatorios" title="Legenda: Relatórios — Formatos e Conteúdo">
+      <div className={`ct ${scr === "relatorios" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.relatorios")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("sub.relatorios")}</div></div>
+        <Lgd id="relatorios" title={_("lgd.reportsTitle")}>
           <dl className="lgd-term">
-            <dt>Relatório Gerencial PDF</dt><dd>Documento formatado com KPIs, gráficos e glossário comercial. Ideal para apresentar a sócios, investidores ou em reuniões estratégicas.</dd>
-            <dt>Exportar CSV</dt><dd>Arquivo de dados brutos (valores separados por vírgula). Pode ser aberto no Excel, Google Sheets ou importado em outros sistemas.</dd>
+            <dt>{_("lgd.reportsPdf")}</dt><dd>{_("lgd.reportsPdfDesc")}</dd>
+            <dt>{_("lgd.reportsCsv")}</dt><dd>{_("lgd.reportsCsvDesc")}</dd>
           </dl>
-          <p><strong>Conteúdo do PDF:</strong> Faturamento, Taxa de No-Show, Pareto de Cancelamento, Glossário Comercial (CAC, LTV, ROI, Churn, EBITDA, NPS, Ticket Médio).</p>
-          <p><strong>Conteúdo do CSV:</strong> Todos os registros manuais e importados, com data, tipo, valor e detalhes.</p>
-        </Lgd><div className="g2 fu s1" style={{ marginBottom: 24 }}><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Relatório Gerencial PDF</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>PDF comercial com legendas explicativas.</p><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.previewPdf")}</button></div></div><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Exportar CSV</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>Toda a base de dados do sistema no formato CSV.</p><button className="bt bs" onClick={() => { toast("Preparando CSV..."); setTimeout(() => toast("Arquivo CSV exportado!"), 1500); }}>{_("btn.downloadCsv")}</button></div></div></div></div>
+          <p>{_("lgd.reportsPdfContent")}</p>
+          <p>{_("lgd.reportsCsvContent")}</p>
+        </Lgd><div className="g2 fu s1" style={{ marginBottom: 24 }}><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>{_("card.managerialPdf")}</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>{_("card.managerialPdfDesc")}</p><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.previewPdf")}</button></div></div><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>{_("card.exportCsv")}</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>{_("card.exportCsvDesc")}</p><button className="bt bs" onClick={() => { toast(_("toast.preparingCsv")); setTimeout(() => toast(_("toast.csvExported")), 1500); }}>{_("btn.downloadCsv")}</button></div></div></div></div>
 
 
 
       {/* CONFIGURAÇÕES */}
       <div className={`ct ${scr === "configuracoes" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.configuracoes")}</h1></div>
-        <Lgd id="configuracoes" title="Legenda: Configurações — Metas Ouro e Parâmetros">
-          <p><strong>Metas Ouro</strong> são os parâmetros de referência que o sistema usa para avaliar a saúde do negócio. Quando um KPI ultrapassa a meta, ele é destacado em verde; quando fica abaixo, em vermelho.</p>
+        <Lgd id="configuracoes" title={_("lgd.settingsTitle")}>
+          <p>{_("lgd.settingsIntro")}</p>
           <dl className="lgd-term">
-            <dt>Meta Faturamento</dt><dd>Valor mínimo de receita mensal esperado. Base para calcular se o negócio está no caminho certo.</dd>
-            <dt>Limite No-Show</dt><dd>Percentual máximo aceitável de faltas. <strong>Padrão do setor: 10%.</strong> Acima disso, o sistema emite alertas.</dd>
-            <dt>Meta NPS</dt><dd><strong>Net Promoter Score.</strong> Mede satisfação do paciente de 0 a 100. Acima de 75 = Excelente. 50-74 = Bom. Abaixo de 50 = Crítico.</dd>
-            <dt>Tempo Limite Espera</dt><dd>Tempo máximo aceitável de espera na recepção (em minutos). Impacta diretamente o NPS e a percepção de qualidade.</dd>
+            <dt>{_("lgd.settingsRevenue")}</dt><dd>{_("lgd.settingsRevenueDesc")}</dd>
+            <dt>{_("lgd.settingsNoshow")}</dt><dd>{_("lgd.settingsNoshowDesc")}</dd>
+            <dt>{_("lgd.settingsNps")}</dt><dd>{_("lgd.settingsNpsDesc")}</dd>
+            <dt>{_("lgd.settingsWait")}</dt><dd>{_("lgd.settingsWaitDesc")}</dd>
           </dl>
-          <div className="lgd-calc">NPS = % Promotores (nota 9-10) - % Detratores (nota 0-6)<br/>Promotores: pacientes que recomendam. Detratores: pacientes insatisfeitos.</div>
-        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Parâmetros e Metas Ouro</div></div><div className="cd-b"><div className="fr"><div><label className="fl">Meta Faturamento (R$)</label><input type="number" className="fi" placeholder="0,00" /></div><div><label className="fl">Limite Aceitável No-Show (%)</label><input type="number" className="fi" placeholder="Ex: 10" /></div></div><div className="fr"><div><label className="fl">Meta NPS</label><input type="number" className="fi" placeholder="Ex: 75" /></div><div><label className="fl">Tempo Limite Espera Recepção (min)</label><input type="number" className="fi" placeholder="Ex: 15" /></div></div><button className="bt bp" onClick={() => toast(_("toast.settingsSaved"))}>{_("btn.updateGoals")}</button></div></div></div>
+          <div className="lgd-calc">{_("lgd.settingsNpsFormula").split("\n").map((l,i) => <span key={i}>{l}<br/></span>)}</div>
+        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">{_("card.goalsParams")}</div></div><div className="cd-b"><div className="fr"><div><label className="fl">{_("settings.revenueGoal")}</label><input type="number" className="fi" placeholder="0,00" /></div><div><label className="fl">{_("settings.noshowLimit")}</label><input type="number" className="fi" placeholder="Ex: 10" /></div></div><div className="fr"><div><label className="fl">{_("settings.npsGoal")}</label><input type="number" className="fi" placeholder="Ex: 75" /></div><div><label className="fl">{_("settings.waitTimeLimit")}</label><input type="number" className="fi" placeholder="Ex: 15" /></div></div><button className="bt bp" onClick={() => toast(_("toast.settingsSaved"))}>{_("btn.updateGoals")}</button></div></div></div>
 
     </main>
   </div></>);
