@@ -552,3 +552,26 @@
 - [x] Testar exibição dos dados nos gráficos/KPIs do dashboard
 - [x] Testar exclusão de dados inseridos
 - [x] Garantir que todos os endpoints estão funcionando corretamente
+
+## Versão 17.7 - Legendas Explicativas no Dashboard
+
+### Legendas por Seção
+- [x] Dashboard (Visão Geral) — explicar KPIs: Faturamento, Margem, Pacientes, Taxa de Retorno, cálculos
+- [x] Tempo Real — explicar gráfico de fluxo, como interpretar dados em tempo real
+- [x] Agenda & Capacidade — explicar Mapa de Calor, taxa de ocupação, cálculo de capacidade
+- [x] Equipe & Produtividade — explicar métricas de produtividade, score, cálculos
+- [x] Sprints & OKRs — explicar metodologia OKR, Key Results, progresso
+- [x] Funil Comercial — explicar etapas do funil, taxas de conversão, cálculos
+- [x] Canais de Aquisição — explicar CAC, ROI, LTV, CPC, CTR e outras siglas
+- [x] Integrações — explicar siglas (GTM, CAPI, API, CRM) e métodos de integração
+- [x] Entrada de Dados — explicar tipos de lançamento e categorias
+- [x] Relatórios PDF — explicar métricas incluídas no relatório
+- [x] Configurações — explicar Metas Ouro e como são utilizadas
+
+### Componente de Legenda
+- [x] Criar componente reutilizável de legenda (ícone ℹ️ + tooltip/card expansível)
+- [x] Estilizar legendas para dark/light mode
+- [x] Integrar com sistema de tradução i18n (PT/ES/EN)
+
+### Glossário de Siglas
+- [x] ROI, CAC, LTV, EBITDA, CAPI, GTM, CRM, OKR, KPI, CPC, CTR, CPL, NPS, Churn

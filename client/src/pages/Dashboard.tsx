@@ -120,6 +120,20 @@ const CSS = `
 @keyframes su{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes ti{from{transform:translateY(100px);opacity:0}to{transform:translateY(0);opacity:1}}
 .fu{animation:su .5s ease both}.s1{animation-delay:.05s}.s2{animation-delay:.1s}
+.lgd{background:linear-gradient(135deg,rgba(138,180,248,.06),rgba(197,138,249,.04));border:1px solid var(--bd);border-radius:12px;padding:16px 20px;margin-bottom:20px;transition:all .3s}
+.lgd-hd{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.lgd-ic{width:22px;height:22px;border-radius:50%;background:var(--gbb);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:transform .2s}
+.lgd-ic.open{transform:rotate(180deg)}
+.lgd-tl{font-size:13px;font-weight:600;color:var(--gb);font-family:'Google Sans'}
+.lgd-bd{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;padding-top:0}
+.lgd-bd.open{max-height:2000px;padding-top:14px}
+.lgd-bd p,.lgd-bd li{font-size:12px;color:var(--ts);line-height:1.7;margin-bottom:6px}
+.lgd-bd strong{color:var(--tp);font-weight:600}
+.lgd-bd .lgd-term{display:grid;grid-template-columns:140px 1fr;gap:4px 12px;margin-bottom:8px}
+.lgd-bd .lgd-term dt{font-weight:600;color:var(--gbt);font-size:12px}
+.lgd-bd .lgd-term dd{font-size:12px;color:var(--ts);margin:0}
+.lgd-bd .lgd-calc{background:var(--sfh);border-radius:8px;padding:12px 16px;margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tp);border:1px solid var(--bd)}
+.lgd-bd ul{padding-left:16px;margin:8px 0}
 @media(max-width:768px){.sb{display:none}.mn{margin-left:0}.g2,.g3,.g21{grid-template-columns:1fr}.fr{grid-template-columns:1fr}}
 `;
 
@@ -146,6 +160,8 @@ export default function Dashboard() {
   const [pdf, setPdf] = useState(false);
   const [records, setRecords] = useState<ManualRecord[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [openLegends, setOpenLegends] = useState<Record<string, boolean>>({});
+  const toggleLegend = (id: string) => setOpenLegends(p => ({ ...p, [id]: !p[id] }));
 
   /* ─── tRPC: MANUAL ENTRIES ─── */
   const entriesQuery = trpc.manualEntries.list.useQuery({});
@@ -421,6 +437,17 @@ export default function Dashboard() {
     <div className="lk fu s2">{locked && <div className="lk-o"><div className="lk-cd"><h3>{title}</h3><p>{msg}</p><button className="bt bu">{btn}</button></div></div>}<div className={`lk-c ${locked ? "lkd" : "ulk"}`}>{children}</div></div>
   );
 
+  const Lgd = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
+    <div className="lgd">
+      <div className="lgd-hd" onClick={() => toggleLegend(id)}>
+        <span className={`lgd-ic ${openLegends[id] ? "open" : ""}`}>ℹ️</span>
+        <span className="lgd-tl">{title}</span>
+        <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--ts)" }}>{openLegends[id] ? "▲ Fechar" : "▼ Expandir"}</span>
+      </div>
+      <div className={`lgd-bd ${openLegends[id] ? "open" : ""}`}>{children}</div>
+    </div>
+  );
+
   const nav = [
     { g: _("nav.overview"), items: [{ id: "dashboard", l: _("nav.dashboard"), i: <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> }, { id: "realtime", l: _("nav.realtime"), i: <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> }] },
     { g: _("nav.operations"), items: [{ id: "agenda", l: _("nav.agenda"), i: <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> }, { id: "equipe", l: _("nav.equipe"), i: <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> }, { id: "sprints", l: _("nav.sprints"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h5v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }] },
@@ -477,6 +504,16 @@ export default function Dashboard() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }} className="fu"><div><h1 className="gf" style={{ marginBottom: 4 }}>{_("dash.overview")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>{_("dash.subtitle")}</div></div><select className="fs" style={{ margin: 0, width: 200 }} onChange={() => toast("Filtrando dados pelo período selecionado...")}><option>{_("misc.thisMonth")}</option><option>{_("misc.lastMonth")}</option><option>{_("misc.last90days")}</option></select></div>
         <div className="cd hv fu s1"><div className="cd-h" style={{ background: "rgba(138,180,248,.05)" }}><div className="cd-t">{_("dash.guidedAnalysis")}</div><select className="fs" style={{ width: "auto", margin: 0 }} onChange={e => ansQ(e.target.value)}><option value="">{_("dash.selectQuestion")}</option><option value="cac">Qual é o CAC atual?</option><option value="ltv">Qual é o LTV projetado?</option><option value="roi">Qual é o ROI das campanhas?</option><option value="churn">Qual é o Churn (Cancelamento)?</option><option value="lucro">Qual é a Margem de Lucro?</option></select></div><div className="cd-b"><h2 style={{ fontSize: 28, color: "var(--gb)", fontFamily: "'Google Sans'" }}>{qA}</h2><p style={{ fontSize: 13, color: "var(--ts)", marginTop: 8 }}>{qL}</p></div></div>
         {audit && <div className="ab"><strong className="gf">⚠️ Atenção (Auditoria GLX):</strong> {_("misc.auditWarning")}</div>}
+        <Lgd id="kpi-main" title="Legenda: Métricas Essenciais — Cálculos e Siglas">
+          <dl className="lgd-term">
+            <dt>Faturamento Mês</dt><dd>Soma de todas as receitas brutas registradas no período selecionado (manual + integrações).</dd>
+            <dt>Total Agendamentos</dt><dd>Quantidade total de consultas/atendimentos agendados no período.</dd>
+            <dt>Taxa de No-Show</dt><dd>Percentual de pacientes que não compareceram. <strong>Meta saudável: abaixo de 10%.</strong></dd>
+            <dt>Conversão Geral</dt><dd>Percentual de leads que se tornaram pacientes efetivos.</dd>
+          </dl>
+          <div className="lgd-calc">No-Show (%) = (No-Shows / Total Agendamentos) × 100<br/>Conversão (%) = (Pacientes Atendidos / Total Agendamentos) × 100</div>
+          <p><strong>Fonte dos dados:</strong> Entrada Manual + Integrações (Google Sheets, CRM, API).</p>
+        </Lgd>
         <h3 style={{ marginBottom: 16, color: "var(--ts)" }} className="gf fu s1">{_("dash.essentialMetrics")}</h3>
         <div className="kg fu s2">
           <div className="kp"><div className="kl">{_("kpi.revenue")}</div><div className="kv">R$ {app.faturamento_bruto.toLocaleString("pt-BR")}</div><div className="km">{_("dash.waitingData")}</div></div>
@@ -487,10 +524,29 @@ export default function Dashboard() {
 
         <div className="cd hv fu s2" style={{ marginBottom: 24 }}><div className="cd-h"><div className="cd-t">{_("dash.monthlyTrend")}</div></div><div className="cd-b" style={{ height: 280 }}><Bar data={dCD} options={bO} /></div></div>
 
+        <Lgd id="guided-analysis" title="Legenda: Análise Guiada — Siglas e Fórmulas">
+          <dl className="lgd-term">
+            <dt>CAC</dt><dd><strong>Custo de Aquisição de Cliente.</strong> Quanto custa trazer um novo paciente. Inclui marketing, vendas e operações.</dd>
+            <dt>LTV</dt><dd><strong>Lifetime Value.</strong> Receita total estimada que um paciente gera durante todo o relacionamento com a clínica.</dd>
+            <dt>ROI</dt><dd><strong>Return on Investment.</strong> Retorno sobre o investimento em marketing e operações.</dd>
+            <dt>Churn</dt><dd><strong>Taxa de Cancelamento.</strong> Percentual de pacientes que deixaram de retornar num período.</dd>
+            <dt>Lucro</dt><dd><strong>Margem de Lucro Líquida.</strong> Faturamento menos todos os custos (fixos + variáveis).</dd>
+          </dl>
+          <div className="lgd-calc">CAC = Investimento Total em Marketing / Novos Pacientes<br/>LTV = Ticket Médio × Frequência Anual × Tempo Médio de Retenção<br/>ROI = ((Receita - Investimento) / Investimento) × 100<br/>Churn = Pacientes Perdidos / Total de Pacientes Ativos × 100<br/>Lucro = Faturamento - (Custos Fixos + Custos Variáveis)</div>
+        </Lgd>
         <Lk locked={isE} title="Pareto de Cancelamento" msg="Disponível nos planos Pro e Enterprise." btn="Upgrade para Pro">
           <div className="cd hv"><div className="cd-h"><div className="cd-t">Pareto de Cancelamento (80/20)</div></div><div className="cd-b" style={{ height: 300 }}>{hasParetoData ? <Bar data={pCD} options={pO} /> : <div className="es">{_("dash.waitingData")}</div>}</div></div>
         </Lk>
 
+        <Lgd id="pareto" title="Legenda: Pareto de Cancelamento — Método 80/20">
+          <p><strong>Princípio de Pareto (80/20):</strong> Aproximadamente 80% dos cancelamentos são causados por 20% dos motivos. Este gráfico identifica os principais motivos de cancelamento para que ações corretivas sejam priorizadas.</p>
+          <dl className="lgd-term">
+            <dt>Eixo Esquerdo (Barras)</dt><dd>Frequência absoluta de cada motivo de cancelamento.</dd>
+            <dt>Eixo Direito (Linha)</dt><dd>Percentual acumulado. Quando a linha cruza 80%, os motivos à esquerda representam as causas principais.</dd>
+          </dl>
+          <div className="lgd-calc">% Acumulado = Soma das frequências até o motivo N / Total de cancelamentos × 100</div>
+          <p><strong>Ação recomendada:</strong> Foque nos motivos que estão antes da linha atingir 80% — resolver esses poucos motivos eliminará a maioria dos cancelamentos.</p>
+        </Lgd>
         <Lk locked={isE} title={_("dash.proAnalytics")} msg="Métricas avançadas para tomada de decisão." btn="Upgrade para Pro">
           <div className="kg">
             <div className="kp"><div className="kl">{_("kpi.projRevenue")}</div><div className="kv">R$ {(app.faturamento_bruto * 1.1).toLocaleString("pt-BR")}</div></div>
@@ -505,22 +561,73 @@ export default function Dashboard() {
       </div>
 
       {/* TEMPO REAL */}
-      <div className={`ct ${scr === "realtime" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.realtime")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fluxo de atendimentos em tempo real.</div></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Fluxo de Atendimentos (Hoje)</div><span className="bg sc">Live</span></div><div className="cd-b" style={{ height: 300 }}><Line data={lvCD} options={bO} /></div></div></div>
+      <div className={`ct ${scr === "realtime" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.realtime")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fluxo de atendimentos em tempo real.</div></div>
+        <Lgd id="realtime" title="Legenda: Tempo Real — Fluxo de Atendimentos">
+          <dl className="lgd-term">
+            <dt>Fluxo (Linha)</dt><dd>Quantidade de atendimentos realizados por hora ao longo do dia. Permite identificar <strong>horários de pico</strong> e <strong>ociosidade</strong>.</dd>
+            <dt>Badge "Live"</dt><dd>Indica que os dados são atualizados em tempo real (quando integração ativa) ou na última importação.</dd>
+          </dl>
+          <p><strong>Uso prático:</strong> Redistribua profissionais para horários de pico. Se o fluxo cai após 16h, considere reduzir turnos ou criar promoções para horários ociosos.</p>
+        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Fluxo de Atendimentos (Hoje)</div><span className="bg sc">Live</span></div><div className="cd-b" style={{ height: 300 }}><Line data={lvCD} options={bO} /></div></div></div>
 
       {/* AGENDA */}
-      <div className={`ct ${scr === "agenda" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.agenda")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Mapa de calor de ocupação e capacidade.</div></div><div className="g2 fu s1"><div className="kp"><div className="kl">Slots Disponíveis</div><div className="kv">0</div></div><div className="kp"><div className="kl">Taxa de Ocupação</div><div className="kv">0%</div></div></div><div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">Mapa de Calor Semanal</div><button className="bt bs" onClick={() => setModal("agenda")}>{_("btn.importCsv")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")} — Importe dados via CSV ou integração.</div></div></div></div>
+      <div className={`ct ${scr === "agenda" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.agenda")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Mapa de calor de ocupação e capacidade.</div></div>
+        <Lgd id="agenda" title="Legenda: Agenda & Capacidade — Métricas de Ocupação">
+          <dl className="lgd-term">
+            <dt>Slots Disponíveis</dt><dd>Quantidade de horários livres para agendamento no período. Calculado com base na capacidade total menos agendamentos confirmados.</dd>
+            <dt>Taxa de Ocupação</dt><dd>Percentual de slots preenchidos. <strong>Meta ideal: 75-85%.</strong> Acima de 90% indica risco de sobrecarga; abaixo de 60% indica ociosidade.</dd>
+            <dt>Mapa de Calor</dt><dd>Visualização semanal onde cores mais intensas indicam maior ocupação. Permite identificar dias e horários críticos.</dd>
+          </dl>
+          <div className="lgd-calc">Ocupação (%) = (Slots Preenchidos / Capacidade Total) × 100<br/>Slots Disponíveis = Capacidade Total - Agendamentos Confirmados</div>
+        </Lgd><div className="g2 fu s1"><div className="kp"><div className="kl">Slots Disponíveis</div><div className="kv">0</div></div><div className="kp"><div className="kl">Taxa de Ocupação</div><div className="kv">0%</div></div></div><div className="cd hv fu s2" style={{ marginTop: 24 }}><div className="cd-h"><div className="cd-t">Mapa de Calor Semanal</div><button className="bt bs" onClick={() => setModal("agenda")}>{_("btn.importCsv")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")} — Importe dados via CSV ou integração.</div></div></div></div>
 
       {/* EQUIPE */}
-      <div className={`ct ${scr === "equipe" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.equipe")}</h1></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Profissionais Cadastrados</div><button className="bt bp" onClick={() => setModal("prof")}>{_("btn.addProfessional")}</button></div><div className="cd-b"><table className="dt"><thead><tr><th>Nome</th><th>Função</th><th>Atendimentos</th><th>Conversão</th></tr></thead><tbody><tr><td colSpan={4} style={{ textAlign: "center", color: "var(--ts)" }}>{_("dash.waitingData")}</td></tr></tbody></table></div></div></div>
+      <div className={`ct ${scr === "equipe" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.equipe")}</h1></div>
+        <Lgd id="equipe" title="Legenda: Equipe & Produtividade — Métricas por Profissional">
+          <dl className="lgd-term">
+            <dt>Atendimentos</dt><dd>Total de consultas realizadas pelo profissional no período.</dd>
+            <dt>Conversão</dt><dd>Percentual de pacientes atendidos que retornaram ou fecharam tratamento. Mede a eficácia individual.</dd>
+          </dl>
+          <div className="lgd-calc">Conversão Profissional (%) = (Pacientes Convertidos / Total Atendidos) × 100</div>
+          <p><strong>Benchmark:</strong> Conversão acima de 60% é considerada excelente. Profissionais abaixo de 40% podem precisar de treinamento ou suporte.</p>
+        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Profissionais Cadastrados</div><button className="bt bp" onClick={() => setModal("prof")}>{_("btn.addProfessional")}</button></div><div className="cd-b"><table className="dt"><thead><tr><th>Nome</th><th>Função</th><th>Atendimentos</th><th>Conversão</th></tr></thead><tbody><tr><td colSpan={4} style={{ textAlign: "center", color: "var(--ts)" }}>{_("dash.waitingData")}</td></tr></tbody></table></div></div></div>
 
       {/* SPRINTS & OKRs */}
-      <div className={`ct ${scr === "sprints" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.sprints")}</h1></div><div className="g2 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">Sprints Ativos</div><button className="bt bp" onClick={() => setModal("sprint")}>{_("btn.addSprint")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">OKRs do Trimestre</div><button className="bt bp" onClick={() => setModal("okr")}>{_("btn.addOkr")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
+      <div className={`ct ${scr === "sprints" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.sprints")}</h1></div>
+        <Lgd id="sprints" title="Legenda: Sprints & OKRs — Metodologias de Gestão">
+          <dl className="lgd-term">
+            <dt>Sprint</dt><dd><strong>Ciclo curto de execução</strong> (geralmente 1-4 semanas) com objetivo específico. Baseado na metodologia ágil Scrum. Cada sprint tem: objetivo, responsável, prazo e status.</dd>
+            <dt>OKR</dt><dd><strong>Objectives and Key Results.</strong> Framework de metas onde cada Objetivo tem 2-5 Resultados-Chave mensuráveis. Usado por Google, Intel e empresas de alta performance.</dd>
+            <dt>Objetivo (O)</dt><dd>O que queremos alcançar. Deve ser inspirador e qualitativo. Ex: "Reduzir cancelamentos drasticamente".</dd>
+            <dt>Key Result (KR)</dt><dd>Como medimos o progresso. Deve ser quantitativo. Ex: "Reduzir no-show de 18% para 8%".</dd>
+          </dl>
+          <p><strong>Ciclo recomendado:</strong> OKRs são trimestrais. Sprints são semanais ou quinzenais. Revise OKRs a cada 90 dias e sprints a cada 1-2 semanas.</p>
+        </Lgd><div className="g2 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">Sprints Ativos</div><button className="bt bp" onClick={() => setModal("sprint")}>{_("btn.addSprint")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">OKRs do Trimestre</div><button className="bt bp" onClick={() => setModal("okr")}>{_("btn.addOkr")}</button></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
 
       {/* FUNIL */}
-      <div className={`ct ${scr === "funil" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.funil")}</h1></div><div className="g21 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">Funil de Vendas</div></div><div className="cd-b" style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ width: 260 }}><Doughnut data={fCD} options={{ responsive: true, plugins: { legend: { labels: { color: tc } } } }} /></div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">Resumo</div></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
+      <div className={`ct ${scr === "funil" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.funil")}</h1></div>
+        <Lgd id="funil" title="Legenda: Funil Comercial — Estágios e Conversão">
+          <dl className="lgd-term">
+            <dt>Lead</dt><dd>Contato inicial. Pessoa que demonstrou interesse (preencheu formulário, ligou, enviou mensagem).</dd>
+            <dt>Agendado</dt><dd>Lead que marcou uma consulta/avaliação. Primeiro compromisso concreto.</dd>
+            <dt>Atendido</dt><dd>Paciente que compareceu à consulta agendada.</dd>
+            <dt>Convertido</dt><dd>Paciente que fechou tratamento ou retornou. <strong>É o objetivo final do funil.</strong></dd>
+          </dl>
+          <div className="lgd-calc">Taxa de Conversão do Funil = (Convertidos / Leads Totais) × 100<br/>Taxa por Estágio = (Saídas do Estágio / Entradas do Estágio) × 100</div>
+          <p><strong>Gráfico Doughnut:</strong> Mostra a proporção de cada estágio. Idealmente, a fatia "Convertido" deve crescer ao longo do tempo.</p>
+        </Lgd><div className="g21 fu s1"><div className="cd hv"><div className="cd-h"><div className="cd-t">Funil de Vendas</div></div><div className="cd-b" style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ width: 260 }}><Doughnut data={fCD} options={{ responsive: true, plugins: { legend: { labels: { color: tc } } } }} /></div></div></div><div className="cd hv"><div className="cd-h"><div className="cd-t">Resumo</div></div><div className="cd-b"><div className="es">{_("dash.waitingData")}</div></div></div></div></div>
 
       {/* CANAIS */}
-      <div className={`ct ${scr === "canais" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.canais")}</h1></div><div className="kg fu s1"><div className="kp"><div className="kl">{_("kpi.adsInvestment")}</div><div className="kv">R$ 0</div></div><div className="kp"><div className="kl">{_("kpi.cpl")}</div><div className="kv">R$ 0</div></div><div className="kp"><div className="kl">{_("kpi.roas")}</div><div className="kv">0x</div></div></div></div>
+      <div className={`ct ${scr === "canais" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.canais")}</h1></div>
+        <Lgd id="canais" title="Legenda: Canais de Aquisição — Métricas de Marketing">
+          <dl className="lgd-term">
+            <dt>Investimento (Ads)</dt><dd>Total investido em anúncios pagos (Google Ads, Meta Ads, etc.) no período.</dd>
+            <dt>CPL</dt><dd><strong>Custo por Lead.</strong> Quanto custa gerar um contato interessado. Quanto menor, mais eficiente o canal.</dd>
+            <dt>ROAS</dt><dd><strong>Return on Ad Spend.</strong> Retorno sobre o investimento em anúncios. ROAS de 3x significa que cada R$1 investido gerou R$3 em receita.</dd>
+          </dl>
+          <div className="lgd-calc">CPL = Investimento Total em Ads / Número de Leads Gerados<br/>ROAS = Receita Gerada por Ads / Investimento em Ads<br/>CPA = Investimento Total / Número de Pacientes Convertidos</div>
+          <p><strong>Benchmarks do setor:</strong> CPL saudável para clínicas: R$ 15-50. ROAS mínimo viável: 3x. ROAS excelente: acima de 5x.</p>
+        </Lgd><div className="kg fu s1"><div className="kp"><div className="kl">{_("kpi.adsInvestment")}</div><div className="kv">R$ 0</div></div><div className="kp"><div className="kl">{_("kpi.cpl")}</div><div className="kv">R$ 0</div></div><div className="kp"><div className="kl">{_("kpi.roas")}</div><div className="kv">0x</div></div></div></div>
 
       {/* INTEGRAÇÕES */}
       <div className={`ct ${scr === "integracoes" ? "a" : ""}`}>
@@ -589,6 +696,21 @@ export default function Dashboard() {
       {/* ENTRADA DE DADOS */}
       <div className={`ct ${scr === "dados" ? "a" : ""}`}>
         <div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.dados")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Insira dados manualmente ou importe planilhas.</div></div>
+        <Lgd id="dados" title="Legenda: Entrada de Dados — Tipos e Impacto no Dashboard">
+          <p><strong>Lançamento Financeiro:</strong> Alimenta os KPIs de Faturamento, Lucro, e gráficos de Tendência Mensal.</p>
+          <dl className="lgd-term">
+            <dt>Receita (Faturamento)</dt><dd>Valor bruto recebido por consultas, procedimentos ou serviços. Soma diretamente no KPI "Faturamento Mês".</dd>
+            <dt>Custo Fixo</dt><dd>Despesas recorrentes independentes do volume (aluguel, salários, software). Subtrai do faturamento para calcular lucro.</dd>
+            <dt>Custo Variável</dt><dd>Despesas proporcionais ao volume (materiais, comissões). Subtrai do faturamento para calcular margem.</dd>
+          </dl>
+          <p><strong>Atendimento / Paciente:</strong> Alimenta os KPIs de No-Show, Conversão, e o gráfico Pareto.</p>
+          <dl className="lgd-term">
+            <dt>Compareceu</dt><dd>Paciente que foi atendido. Conta positivamente para Conversão e Total Agendamentos.</dd>
+            <dt>No-Show</dt><dd>Paciente que não compareceu sem avisar. Impacta negativamente a Taxa de No-Show e alimenta o Pareto.</dd>
+            <dt>Cancelada</dt><dd>Consulta cancelada com aviso prévio. O motivo alimenta o Pareto de Cancelamento.</dd>
+          </dl>
+          <div className="lgd-calc">Lucro = Receita Total - (Custos Fixos + Custos Variáveis)<br/>Margem (%) = (Lucro / Receita Total) × 100</div>
+        </Lgd>
         <div className="tn"><button className={`tbn ${dTab === "fin" ? "a" : ""}`} onClick={() => setDTab("fin")}>{_("data.financialTab")}</button><button className={`tbn ${dTab === "att" ? "a" : ""}`} onClick={() => setDTab("att")}>{_("data.attendanceTab")}</button></div>
         {dTab === "fin" && <div className="cd hv fu s1"><div className="cd-b"><div className="fr"><div><label className="fl">{_("data.type")}</label><select className="fs" value={fTipo} onChange={e => setFTipo(e.target.value)}><option>{_("data.revenue")}</option><option>{_("data.cost")}</option><option>{_("data.variableCost")}</option></select></div><div><label className="fl">{_("data.value")}</label><input type="number" className="fi" placeholder="Ex: 500" value={fVal} onChange={e => setFVal(e.target.value)} /></div></div><button className="bt bp" onClick={regFin}>{_("data.registerFinancial")}</button></div></div>}
         {dTab === "att" && <div className="cd hv fu s1"><div className="cd-b"><div className="fr"><div><label className="fl">{_("data.status")}</label><select className="fs" value={pSt} onChange={e => setPSt(e.target.value)}><option>{_("data.attended")}</option><option>No-Show</option><option>{_("data.cancelled")}</option></select></div><div><label className="fl">{_("data.reason")}</label><input type="text" className="fi" placeholder="Ex: Esqueceu, Remarcou..." value={pMot} onChange={e => setPMot(e.target.value)} /></div></div><button className="bt bp" onClick={salvarAt}>{_("data.registerAttendance")}</button></div></div>}
@@ -598,12 +720,30 @@ export default function Dashboard() {
       </div>
 
       {/* RELATÓRIOS */}
-      <div className={`ct ${scr === "relatorios" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.relatorios")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fechamentos e apresentação da base bruta.</div></div><div className="g2 fu s1" style={{ marginBottom: 24 }}><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Relatório Gerencial PDF</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>PDF comercial com legendas explicativas.</p><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.previewPdf")}</button></div></div><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Exportar CSV</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>Toda a base de dados do sistema no formato CSV.</p><button className="bt bs" onClick={() => { toast("Preparando CSV..."); setTimeout(() => toast("Arquivo CSV exportado!"), 1500); }}>{_("btn.downloadCsv")}</button></div></div></div></div>
+      <div className={`ct ${scr === "relatorios" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.relatorios")}</h1><div style={{ color: "var(--ts)", fontSize: 14, marginTop: 4 }}>Fechamentos e apresentação da base bruta.</div></div>
+        <Lgd id="relatorios" title="Legenda: Relatórios — Formatos e Conteúdo">
+          <dl className="lgd-term">
+            <dt>Relatório Gerencial PDF</dt><dd>Documento formatado com KPIs, gráficos e glossário comercial. Ideal para apresentar a sócios, investidores ou em reuniões estratégicas.</dd>
+            <dt>Exportar CSV</dt><dd>Arquivo de dados brutos (valores separados por vírgula). Pode ser aberto no Excel, Google Sheets ou importado em outros sistemas.</dd>
+          </dl>
+          <p><strong>Conteúdo do PDF:</strong> Faturamento, Taxa de No-Show, Pareto de Cancelamento, Glossário Comercial (CAC, LTV, ROI, Churn, EBITDA, NPS, Ticket Médio).</p>
+          <p><strong>Conteúdo do CSV:</strong> Todos os registros manuais e importados, com data, tipo, valor e detalhes.</p>
+        </Lgd><div className="g2 fu s1" style={{ marginBottom: 24 }}><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Relatório Gerencial PDF</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>PDF comercial com legendas explicativas.</p><button className="bt bp" onClick={() => setPdf(true)}>{_("btn.previewPdf")}</button></div></div><div className="cd hv"><div className="cd-b" style={{ textAlign: "center", padding: "40px 20px" }}><h3 style={{ marginBottom: 8 }}>Exportar CSV</h3><p style={{ fontSize: 13, color: "var(--ts)", marginBottom: 24 }}>Toda a base de dados do sistema no formato CSV.</p><button className="bt bs" onClick={() => { toast("Preparando CSV..."); setTimeout(() => toast("Arquivo CSV exportado!"), 1500); }}>{_("btn.downloadCsv")}</button></div></div></div></div>
 
 
 
       {/* CONFIGURAÇÕES */}
-      <div className={`ct ${scr === "configuracoes" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.configuracoes")}</h1></div><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Parâmetros e Metas Ouro</div></div><div className="cd-b"><div className="fr"><div><label className="fl">Meta Faturamento (R$)</label><input type="number" className="fi" placeholder="0,00" /></div><div><label className="fl">Limite Aceitável No-Show (%)</label><input type="number" className="fi" placeholder="Ex: 10" /></div></div><div className="fr"><div><label className="fl">Meta NPS</label><input type="number" className="fi" placeholder="Ex: 75" /></div><div><label className="fl">Tempo Limite Espera Recepção (min)</label><input type="number" className="fi" placeholder="Ex: 15" /></div></div><button className="bt bp" onClick={() => toast(_("toast.settingsSaved"))}>{_("btn.updateGoals")}</button></div></div></div>
+      <div className={`ct ${scr === "configuracoes" ? "a" : ""}`}><div className="fu" style={{ marginBottom: 24 }}><h1 className="gf">{_("title.configuracoes")}</h1></div>
+        <Lgd id="configuracoes" title="Legenda: Configurações — Metas Ouro e Parâmetros">
+          <p><strong>Metas Ouro</strong> são os parâmetros de referência que o sistema usa para avaliar a saúde do negócio. Quando um KPI ultrapassa a meta, ele é destacado em verde; quando fica abaixo, em vermelho.</p>
+          <dl className="lgd-term">
+            <dt>Meta Faturamento</dt><dd>Valor mínimo de receita mensal esperado. Base para calcular se o negócio está no caminho certo.</dd>
+            <dt>Limite No-Show</dt><dd>Percentual máximo aceitável de faltas. <strong>Padrão do setor: 10%.</strong> Acima disso, o sistema emite alertas.</dd>
+            <dt>Meta NPS</dt><dd><strong>Net Promoter Score.</strong> Mede satisfação do paciente de 0 a 100. Acima de 75 = Excelente. 50-74 = Bom. Abaixo de 50 = Crítico.</dd>
+            <dt>Tempo Limite Espera</dt><dd>Tempo máximo aceitável de espera na recepção (em minutos). Impacta diretamente o NPS e a percepção de qualidade.</dd>
+          </dl>
+          <div className="lgd-calc">NPS = % Promotores (nota 9-10) - % Detratores (nota 0-6)<br/>Promotores: pacientes que recomendam. Detratores: pacientes insatisfeitos.</div>
+        </Lgd><div className="cd hv fu s1"><div className="cd-h"><div className="cd-t">Parâmetros e Metas Ouro</div></div><div className="cd-b"><div className="fr"><div><label className="fl">Meta Faturamento (R$)</label><input type="number" className="fi" placeholder="0,00" /></div><div><label className="fl">Limite Aceitável No-Show (%)</label><input type="number" className="fi" placeholder="Ex: 10" /></div></div><div className="fr"><div><label className="fl">Meta NPS</label><input type="number" className="fi" placeholder="Ex: 75" /></div><div><label className="fl">Tempo Limite Espera Recepção (min)</label><input type="number" className="fi" placeholder="Ex: 15" /></div></div><button className="bt bp" onClick={() => toast(_("toast.settingsSaved"))}>{_("btn.updateGoals")}</button></div></div></div>
 
     </main>
   </div></>);
