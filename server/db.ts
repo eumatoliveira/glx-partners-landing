@@ -133,6 +133,13 @@ export async function updateUserRole(userId: number, role: 'user' | 'admin') {
   await db.update(users).set({ role }).where(eq(users.id, userId));
 }
 
+export async function updateUserPlan(userId: number, plan: 'essencial' | 'pro' | 'enterprise') {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(users).set({ plan }).where(eq(users.id, userId));
+}
+
 export async function getUsersCount() {
   const db = await getDb();
   if (!db) return 0;

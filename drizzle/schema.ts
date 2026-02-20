@@ -19,6 +19,8 @@ export const users = mysqlTable("users", {
   passwordHash: varchar("passwordHash", { length: 255 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  /** Subscription plan: essencial, pro, enterprise */
+  plan: mysqlEnum("plan", ["essencial", "pro", "enterprise"]).default("essencial").notNull(),
   mfaEnabled: boolean("mfaEnabled").default(false).notNull(),
   /** Whether the account is active */
   isActive: boolean("isActive").default(true).notNull(),

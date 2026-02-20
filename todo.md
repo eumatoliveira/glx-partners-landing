@@ -600,3 +600,20 @@
 
 - [x] Fix: "Cannot access '_' before initialization" error in Dashboard component
 - [x] Remover aba/formulário de Atendimento/Paciente da seção Entrada de Dados do Dashboard
+
+## Versão 18 - Sistema de Planos (Essencial, Pro, Enterprise)
+
+- [x] Adicionar campo 'plan' ao schema do banco de dados (essencial, pro, enterprise)
+- [x] Atualizar painel admin para gerenciar planos dos usuários
+- [x] Implementar lógica de dashboard diferente por plano (Essencial, Pro, Enterprise)
+- [x] Adicionar itens de menu no sidebar baseados no plano do usuário
+- [x] Cada plano exibe gráficos e dashboards diferentes
+- [x] Procedure updateUserPlan no admin router
+- [x] AdminUsuarios.tsx com coluna de plano e dropdown para alterar
+- [x] Cards de estatísticas por plano (Essencial, Pro, Enterprise) no admin
+- [x] Filtro por plano na lista de usuários
+- [x] Ler plano do usuário logado no Dashboard via useAuth()
+- [x] PLAN_ACCESS com seções permitidas por plano
+- [x] Sidebar: itens bloqueados com ícone de cadeado e opacity reduzida
+- [x] Toast de upgrade ao clicar em item bloqueado
+- [x] Badge do plano atual na sidebar

@@ -80,6 +80,27 @@ export const adminRouter = router({
       return { success: true };
     }),
 
+  updateUserPlan: adminProcedure
+    .input(z.object({
+      userId: z.number(),
+      plan: z.enum(['essencial', 'pro', 'enterprise'])
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await db.updateUserPlan(input.userId, input.plan);
+      
+      // Log the action
+      await db.createAuditLog({
+        userId: ctx.user.id,
+        action: 'UPDATE_USER_PLAN',
+        entity: 'users',
+        entityId: String(input.userId),
+        oldValue: null,
+        newValue: { plan: input.plan }
+      });
+      
+      return { success: true };
+    }),
+
   // ==================== AUDIT LOGS ====================
   getAuditLogs: adminProcedure
     .input(z.object({

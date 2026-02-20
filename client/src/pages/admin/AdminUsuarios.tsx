@@ -9,13 +9,14 @@ import {
   UserCheck,
   UserX,
   Key,
-  LogIn,
   History,
   Download,
   Loader2,
-  Edit,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Crown,
+  Zap,
+  Building2
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,13 +74,31 @@ const roleLabels: Record<string, string> = {
   viewer: "Viewer",
 };
 
+const planColors: Record<string, string> = {
+  essencial: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  pro: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  enterprise: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+};
+
+const planLabels: Record<string, string> = {
+  essencial: "Essencial",
+  pro: "Pro",
+  enterprise: "Enterprise",
+};
+
+const planIcons: Record<string, React.ReactNode> = {
+  essencial: <Zap className="h-3 w-3 mr-1" />,
+  pro: <Crown className="h-3 w-3 mr-1" />,
+  enterprise: <Building2 className="h-3 w-3 mr-1" />,
+};
+
 export default function AdminUsuarios() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [planFilter, setPlanFilter] = useState("all");
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [newUser, setNewUser] = useState({ nome: "", email: "", password: "", role: "user" as "user" | "admin" });
+  const [newUser, setNewUser] = useState({ nome: "", email: "", password: "", role: "user" as "user" | "admin", plan: "essencial" as "essencial" | "pro" | "enterprise" });
 
   // Fetch users from database
   const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = trpc.admin.getUsers.useQuery();
@@ -98,11 +117,21 @@ export default function AdminUsuarios() {
     }
   });
 
+  const updatePlanMutation = trpc.admin.updateUserPlan.useMutation({
+    onSuccess: () => {
+      toast.success("Plano atualizado com sucesso!");
+      refetchUsers();
+    },
+    onError: (error) => {
+      toast.error(`Erro ao atualizar plano: ${error.message}`);
+    }
+  });
+
   const createUserMutation = trpc.emailAuth.register.useMutation({
     onSuccess: () => {
       toast.success("Usuário criado com sucesso!");
       setIsAddUserOpen(false);
-      setNewUser({ nome: "", email: "", password: "", role: "user" });
+      setNewUser({ nome: "", email: "", password: "", role: "user", plan: "essencial" });
       refetchUsers();
     },
     onError: (error) => {
@@ -117,7 +146,8 @@ export default function AdminUsuarios() {
       (user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
       (user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    return matchesSearch && matchesRole;
+    const matchesPlan = planFilter === "all" || (user as any).plan === planFilter;
+    return matchesSearch && matchesRole && matchesPlan;
   });
 
   const mfaStats = {
@@ -125,6 +155,9 @@ export default function AdminUsuarios() {
     comMfa: users.filter(u => u.mfaEnabled).length,
     semMfa: users.filter(u => !u.mfaEnabled).length,
     admins: users.filter(u => u.role === "admin").length,
+    essencial: users.filter(u => (u as any).plan === "essencial").length,
+    pro: users.filter(u => (u as any).plan === "pro").length,
+    enterprise: users.filter(u => (u as any).plan === "enterprise").length,
   };
 
   const handleAddUser = () => {
@@ -141,6 +174,10 @@ export default function AdminUsuarios() {
 
   const handleUpdateRole = (userId: number, newRole: "user" | "admin") => {
     updateRoleMutation.mutate({ userId, role: newRole });
+  };
+
+  const handleUpdatePlan = (userId: number, newPlan: "essencial" | "pro" | "enterprise") => {
+    updatePlanMutation.mutate({ userId, plan: newPlan });
   };
 
   const handleToggleActive = (user: any) => {
@@ -163,7 +200,7 @@ export default function AdminUsuarios() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Controle de Acessos</h1>
-            <p className="text-muted-foreground">Gestão de usuários e segurança (RBAC)</p>
+            <p className="text-muted-foreground">Gestão de usuários, planos e segurança (RBAC)</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => refetchUsers()}>
@@ -230,6 +267,34 @@ export default function AdminUsuarios() {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="plan">Plano</Label>
+                    <Select value={newUser.plan} onValueChange={(v: "essencial" | "pro" | "enterprise") => setNewUser({...newUser, plan: v})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="essencial">
+                          <div className="flex items-center gap-2">
+                            <Zap className="h-4 w-4 text-emerald-400" />
+                            Essencial
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="pro">
+                          <div className="flex items-center gap-2">
+                            <Crown className="h-4 w-4 text-amber-400" />
+                            Pro
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="enterprise">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-4 w-4 text-purple-400" />
+                            Enterprise
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>Cancelar</Button>
@@ -259,40 +324,36 @@ export default function AdminUsuarios() {
 
           <Card className="bg-card/50 border-border/50">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Com MFA Ativo</CardTitle>
-              <Shield className="h-4 w-4 text-green-500" />
+              <CardTitle className="text-sm font-medium text-emerald-400">Essencial</CardTitle>
+              <Zap className="h-4 w-4 text-emerald-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-500">
-                {usersLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : mfaStats.comMfa}
+              <div className="text-2xl font-bold text-emerald-400">
+                {usersLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : mfaStats.essencial}
               </div>
-              <p className="text-xs text-muted-foreground">
-                {mfaStats.total > 0 ? Math.round(mfaStats.comMfa / mfaStats.total * 100) : 0}% do total
-              </p>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 border-border/50">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Sem MFA</CardTitle>
-              <Shield className="h-4 w-4 text-yellow-500" />
+              <CardTitle className="text-sm font-medium text-amber-400">Pro</CardTitle>
+              <Crown className="h-4 w-4 text-amber-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-500">
-                {usersLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : mfaStats.semMfa}
+              <div className="text-2xl font-bold text-amber-400">
+                {usersLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : mfaStats.pro}
               </div>
-              <p className="text-xs text-muted-foreground">Requer atenção</p>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 border-border/50">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Admins</CardTitle>
-              <Key className="h-4 w-4 text-red-500" />
+              <CardTitle className="text-sm font-medium text-purple-400">Enterprise</CardTitle>
+              <Building2 className="h-4 w-4 text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {usersLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : mfaStats.admins}
+              <div className="text-2xl font-bold text-purple-400">
+                {usersLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : mfaStats.enterprise}
               </div>
             </CardContent>
           </Card>
@@ -304,7 +365,7 @@ export default function AdminUsuarios() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <CardTitle>Usuários</CardTitle>
-                <CardDescription>Gerencie permissões e acessos</CardDescription>
+                <CardDescription>Gerencie permissões, planos e acessos</CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 <div className="relative">
@@ -318,12 +379,23 @@ export default function AdminUsuarios() {
                 </div>
                 <Select value={roleFilter} onValueChange={setRoleFilter}>
                   <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Filtrar" />
+                    <SelectValue placeholder="Permissão" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="user">Usuário</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={planFilter} onValueChange={setPlanFilter}>
+                  <SelectTrigger className="w-36">
+                    <SelectValue placeholder="Plano" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos Planos</SelectItem>
+                    <SelectItem value="essencial">Essencial</SelectItem>
+                    <SelectItem value="pro">Pro</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -344,6 +416,7 @@ export default function AdminUsuarios() {
                   <TableRow>
                     <TableHead>Usuário</TableHead>
                     <TableHead>Permissão</TableHead>
+                    <TableHead>Plano</TableHead>
                     <TableHead>MFA</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Último Acesso</TableHead>
@@ -370,6 +443,41 @@ export default function AdminUsuarios() {
                         <Badge className={roleColors[user.role] || roleColors.user}>
                           {roleLabels[user.role] || user.role}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Select 
+                          value={(user as any).plan || "essencial"} 
+                          onValueChange={(v: "essencial" | "pro" | "enterprise") => handleUpdatePlan(user.id, v)}
+                        >
+                          <SelectTrigger className="w-36 h-8">
+                            <SelectValue>
+                              <Badge variant="outline" className={planColors[(user as any).plan || "essencial"]}>
+                                {planIcons[(user as any).plan || "essencial"]}
+                                {planLabels[(user as any).plan || "essencial"]}
+                              </Badge>
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="essencial">
+                              <div className="flex items-center gap-2">
+                                <Zap className="h-4 w-4 text-emerald-400" />
+                                Essencial
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="pro">
+                              <div className="flex items-center gap-2">
+                                <Crown className="h-4 w-4 text-amber-400" />
+                                Pro
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="enterprise">
+                              <div className="flex items-center gap-2">
+                                <Building2 className="h-4 w-4 text-purple-400" />
+                                Enterprise
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell>
                         {user.mfaEnabled ? (
@@ -415,6 +523,21 @@ export default function AdminUsuarios() {
                               <Key className="h-4 w-4 mr-2" />
                               {user.role === "admin" ? "Remover Admin" : "Tornar Admin"}
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel className="text-xs text-muted-foreground">Alterar Plano</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleUpdatePlan(user.id, "essencial")}>
+                              <Zap className="h-4 w-4 mr-2 text-emerald-400" />
+                              Essencial
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdatePlan(user.id, "pro")}>
+                              <Crown className="h-4 w-4 mr-2 text-amber-400" />
+                              Pro
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdatePlan(user.id, "enterprise")}>
+                              <Building2 className="h-4 w-4 mr-2 text-purple-400" />
+                              Enterprise
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleToggleActive(user)}>
                               {user.isActive ? (
                                 <>

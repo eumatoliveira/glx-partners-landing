@@ -134,6 +134,9 @@ const CSS = `
 .lgd-bd .lgd-term dd{font-size:12px;color:var(--ts);margin:0}
 .lgd-bd .lgd-calc{background:var(--sfh);border-radius:8px;padding:12px 16px;margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tp);border:1px solid var(--bd)}
 .lgd-bd ul{padding-left:16px;margin:8px 0}
+.ni.lk{opacity:.45;cursor:not-allowed}
+.ni.lk:hover{background:transparent !important;opacity:.55}
+.ni-lock{margin-left:auto;font-size:11px}
 @media(max-width:768px){.sb{display:none}.mn{margin-left:0}.g2,.g3,.g21{grid-template-columns:1fr}.fr{grid-template-columns:1fr}}
 `;
 
@@ -142,7 +145,7 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [app, setApp] = useState<AppState>(INIT);
   const [scr, setScr] = useState("dashboard");
-  const plan: string = "Pro";
+  const plan: string = (user as any)?.plan || "essencial";
   const [lt, setLt] = useState(false);
   const [lang, setLang] = useState<Lang>("pt");
   const [toasts, setToasts] = useState<string[]>([]);
@@ -436,11 +439,25 @@ export default function Dashboard() {
     </div>
   );
 
+  // Plan access control: which sections each plan can access
+  const PLAN_ACCESS: Record<string, string[]> = {
+    essencial: ["dashboard", "dados", "configuracoes"],
+    pro: ["dashboard", "realtime", "agenda", "equipe", "sprints", "funil", "canais", "dados", "relatorios", "configuracoes"],
+    enterprise: ["dashboard", "realtime", "agenda", "equipe", "sprints", "funil", "canais", "integracoes", "dados", "relatorios", "configuracoes"],
+  };
+  const canAccess = (sectionId: string) => (PLAN_ACCESS[plan] || PLAN_ACCESS.essencial).includes(sectionId);
+  // Minimum plan required for a section
+  const MIN_PLAN: Record<string, string> = {
+    dashboard: "essencial", realtime: "pro", agenda: "pro", equipe: "pro", sprints: "pro",
+    funil: "pro", canais: "pro", integracoes: "enterprise", dados: "essencial",
+    relatorios: "pro", configuracoes: "essencial",
+  };
+
   const nav = [
-    { g: _("nav.overview"), items: [{ id: "dashboard", l: _("nav.dashboard"), i: <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> }, { id: "realtime", l: _("nav.realtime"), i: <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> }] },
-    { g: _("nav.operations"), items: [{ id: "agenda", l: _("nav.agenda"), i: <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> }, { id: "equipe", l: _("nav.equipe"), i: <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> }, { id: "sprints", l: _("nav.sprints"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h5v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }] },
-    { g: _("nav.commercial"), items: [{ id: "funil", l: _("nav.funil"), i: <svg viewBox="0 0 24 24"><path d="M3 4l9 16 9-16H3zm3.38 2h11.25L12 16 6.38 6z"/></svg> }, { id: "canais", l: _("nav.canais"), i: <svg viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27z"/></svg> }] },
-    { g: _("nav.management"), items: [{ id: "integracoes", l: _("nav.integracoes"), i: <svg viewBox="0 0 24 24"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }, { id: "dados", l: _("nav.dados"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }, { id: "relatorios", l: _("nav.relatorios"), i: <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H5v-8h14v8z"/><path d="M18 4l-4-4h-4l-4 4h12z"/></svg> }, { id: "configuracoes", l: _("nav.configuracoes"), i: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }] },
+    { g: _("nav.overview"), items: [{ id: "dashboard", l: _("nav.dashboard"), i: <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> }, { id: "realtime", l: _("nav.realtime"), i: <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>, min: "pro" }] },
+    { g: _("nav.operations"), items: [{ id: "agenda", l: _("nav.agenda"), i: <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>, min: "pro" }, { id: "equipe", l: _("nav.equipe"), i: <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>, min: "pro" }, { id: "sprints", l: _("nav.sprints"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h5v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>, min: "pro" }] },
+    { g: _("nav.commercial"), items: [{ id: "funil", l: _("nav.funil"), i: <svg viewBox="0 0 24 24"><path d="M3 4l9 16 9-16H3zm3.38 2h11.25L12 16 6.38 6z"/></svg>, min: "pro" }, { id: "canais", l: _("nav.canais"), i: <svg viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27z"/></svg>, min: "pro" }] },
+    { g: _("nav.management"), items: [{ id: "integracoes", l: _("nav.integracoes"), i: <svg viewBox="0 0 24 24"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg>, min: "enterprise" }, { id: "dados", l: _("nav.dados"), i: <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> }, { id: "relatorios", l: _("nav.relatorios"), i: <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H5v-8h14v8z"/><path d="M18 4l-4-4h-4l-4 4h12z"/></svg>, min: "pro" }, { id: "configuracoes", l: _("nav.configuracoes"), i: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9c.04-.65-.2-1.29-.67-1.72l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06c.43.47 1.07.71 1.72.67H9a2 2 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a2 2 0 0 0 1 1.51c.65.04 1.29-.2 1.72-.67l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06c-.47.43-.71 1.07-.67 1.72V9a2 2 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a2 2 0 0 0-1.51 1z"/></svg> }] },
   ];
 
   return (<><style>{CSS}</style><div className={`D ${lt ? "lt" : ""}`}>
@@ -470,7 +487,8 @@ export default function Dashboard() {
     {/* SIDEBAR */}
     <aside className="sb">
       <div className="sb-l"><div className="sb-i"><img src="/images/logo-transparent.png" alt="GLX" /></div><div className="sb-n">GLX CONTROL TOWER</div></div>
-      <nav className="sb-nv">{nav.map(g => <div key={g.g}><div className="sb-gl">{g.g}</div>{g.items.map(it => <div key={it.id} className={`ni ${scr === it.id ? "a" : ""}`} onClick={() => setScr(it.id)}>{it.i} {it.l}</div>)}</div>)}</nav>
+      <nav className="sb-nv">{nav.map(g => <div key={g.g}><div className="sb-gl">{g.g}</div>{g.items.map(it => { const locked = !canAccess(it.id); return <div key={it.id} className={`ni ${scr === it.id ? "a" : ""} ${locked ? "lk" : ""}`} onClick={() => { if (locked) { toast(`${_("plan.upgradeMsg")} ${(it as any).min ? _("plan." + (it as any).min as any) : "Pro"}.`); } else { setScr(it.id); } }}>{it.i} {it.l}{locked && <span className="ni-lock">🔒</span>}</div>; })}</div>)}</nav>
+      <div className="plan-badge" style={{ margin: "8px 16px", padding: "8px 12px", borderRadius: 8, background: plan === "enterprise" ? "rgba(168,85,247,.15)" : plan === "pro" ? "rgba(245,158,11,.15)" : "rgba(16,185,129,.15)", border: `1px solid ${plan === "enterprise" ? "rgba(168,85,247,.3)" : plan === "pro" ? "rgba(245,158,11,.3)" : "rgba(16,185,129,.3)"}`, textAlign: "center", fontSize: 12 }}><div style={{ fontWeight: 600, color: plan === "enterprise" ? "#a855f7" : plan === "pro" ? "#f59e0b" : "#10b981" }}>{_("plan.current")}: {_((`plan.${plan}`) as any)}</div></div>
       <div className="lang-sel">
         <label>{_("misc.language")}</label>
         <div className="lang-opts">

@@ -4,6 +4,19 @@ export const LANG_LABELS: Record<Lang, string> = { pt: "Português", es: "Españ
 export const LANG_FLAGS: Record<Lang, string> = { pt: "🇧🇷", es: "🇪🇸", en: "🇺🇸" };
 
 const T = {
+  // ─── Plan labels ───
+  "plan.essencial": { pt: "Essencial", es: "Esencial", en: "Essential" },
+  "plan.pro": { pt: "Pro", es: "Pro", en: "Pro" },
+  "plan.enterprise": { pt: "Enterprise", es: "Enterprise", en: "Enterprise" },
+  "plan.current": { pt: "Plano atual", es: "Plan actual", en: "Current plan" },
+  "plan.upgrade": { pt: "Upgrade necessário", es: "Actualización necesaria", en: "Upgrade required" },
+  "plan.upgradeMsg": { pt: "Este recurso está disponível a partir do plano", es: "Esta función está disponible a partir del plan", en: "This feature is available from the" },
+  "plan.contact": { pt: "Fale com nosso time", es: "Contacte a nuestro equipo", en: "Contact our team" },
+  "plan.locked": { pt: "Bloqueado", es: "Bloqueado", en: "Locked" },
+  "plan.badge.essencial": { pt: "⚡ Essencial", es: "⚡ Esencial", en: "⚡ Essential" },
+  "plan.badge.pro": { pt: "👑 Pro", es: "👑 Pro", en: "👑 Pro" },
+  "plan.badge.enterprise": { pt: "🏢 Enterprise", es: "🏢 Enterprise", en: "🏢 Enterprise" },
+
   // ─── Sidebar groups ───
   "nav.overview": { pt: "Visão Geral", es: "Visión General", en: "Overview" },
   "nav.operations": { pt: "Operação & Equipe", es: "Operación & Equipo", en: "Operations & Team" },

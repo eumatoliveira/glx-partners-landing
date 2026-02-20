@@ -43,6 +43,13 @@
       "when": 1771606883858,
       "tag": "0005_third_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1771615822426,
+      "tag": "0006_broad_chat",
+      "breakpoints": true
     }
   ]
 }
