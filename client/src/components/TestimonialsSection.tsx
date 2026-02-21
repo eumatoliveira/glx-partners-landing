@@ -73,7 +73,7 @@ export default function TestimonialsSection() {
           <span className="text-white">{t.title}</span> <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-300">{t.titleHighlight}</span>
         </motion.h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-24 mb-24 perspective-1000">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-24 mb-24 [perspective:1000px]">
           {t.testimonials.map((item, index) => (
             <motion.div
               key={index}

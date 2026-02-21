@@ -224,13 +224,13 @@ export default function Login() {
               loop
               playsInline
               preload="metadata"
-              poster="/images/ImagemInicial.png"
+              poster="/ImagemInicial.png"
               onError={() => setVideoFailed(true)}
             >
               <source src="/videos/login-business-loop.webm" type="video/webm" />
               <source src="/videos/login-business-loop.mp4" type="video/mp4" />
               <img
-                src="/images/ImagemInicial.png"
+                src="/ImagemInicial.png"
                 alt="GLX Partners Office"
                 className="w-full h-full object-cover"
                 style={{ filter: videoFilter }}
@@ -238,7 +238,7 @@ export default function Login() {
             </video>
           ) : (
             <img
-              src="/images/ImagemInicial.png"
+              src="/ImagemInicial.png"
               alt="GLX Partners Office"
               className="w-full h-full object-cover transition-[filter,transform] duration-500"
               style={{ filter: videoFilter, transform: `scale(${1 + typingProgress * 0.03})` }}

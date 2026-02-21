@@ -39,7 +39,7 @@ export default function WhySection() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 perspective-1000">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 [perspective:1000px]">
           {items.map((item, index) => (
             <motion.div
               key={index}

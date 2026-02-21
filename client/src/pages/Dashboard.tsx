@@ -338,7 +338,7 @@ export default function Dashboard() {
         type: e.category as "financial" | "attendance",
         label: e.label,
         value: e.value ? parseFloat(e.value) : 0,
-        detail: e.detail || "â€”",
+        detail: e.detail || "\u2014",
         createdAt: e.createdAt ? new Date(e.createdAt).toISOString() : new Date().toISOString(),
       }));
       setRecords(mapped);
@@ -346,7 +346,7 @@ export default function Dashboard() {
       let fat = 0, pac = 0, ns = 0;
       const paretoMap: Record<string, number> = {};
       mapped.forEach(r => {
-        if (r.type === "financial" && (r.label === "Receita" || r.label === "Receita (Faturamento)" || r.label === "Revenue" || r.label === "Ingreso" || r.label === "Ingreso (FacturaciÃ³n)")) fat += (r.value as number);
+        if (r.type === "financial" && (r.label === "Receita" || r.label === "Receita (Faturamento)" || r.label === "Revenue" || r.label === "Ingreso" || r.label === "Ingreso (Facturaci\u00F3n)")) fat += (r.value as number);
         if (r.type === "attendance") { pac++; if (r.label === "No-Show" || r.label === "Cancelada" || r.label === "Cancelled" || r.label === "Cancelado") { ns++; const m = r.detail === "\u2014" ? t("misc.notIdentified", lang) : r.detail; paretoMap[m] = (paretoMap[m] || 0) + 1; } }
       });
       setApp(p => ({ ...p, faturamento_bruto: fat, total_pacientes: pac, no_shows_abs: ns, pareto: Object.entries(paretoMap).map(([motivo, freq]) => ({ motivo, freq })) }));

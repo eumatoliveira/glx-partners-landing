@@ -172,7 +172,7 @@ export default function HowSection() {
             whileInView={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="relative hidden lg:block perspective-1000"
+            className="relative hidden lg:block [perspective:1000px]"
           >
             <div className="relative z-10 rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
               <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none" />

@@ -144,7 +144,7 @@ export default function WhatSection() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 perspective-1000">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 [perspective:1000px]">
           {t.services.map((service, index) => (
             <motion.div
               key={index}

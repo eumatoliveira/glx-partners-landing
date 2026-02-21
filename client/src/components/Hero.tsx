@@ -41,7 +41,7 @@ export default function Hero() {
   };
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center pt-32 pb-16 overflow-hidden bg-[#07080b] perspective-1000">
+    <section ref={ref} className="relative min-h-screen flex items-center pt-32 pb-16 overflow-hidden bg-[#07080b] [perspective:1000px]">
       {/* Background Cinematic Elements */}
       <motion.div style={{ y: yBg }} className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-orange-500/12 blur-[120px]" />
@@ -108,7 +108,7 @@ export default function Hero() {
           initial={{ opacity: 0, filter: "blur(10px)", x: 20 }}
           animate={{ opacity: 1, filter: "blur(0px)", x: 0 }}
           transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-6 relative order-2 lg:order-2 flex justify-center lg:justify-end perspective-1000"
+          className="lg:col-span-6 relative order-2 lg:order-2 flex justify-center lg:justify-end [perspective:1000px]"
         >
           <div className="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] max-w-[520px] overflow-hidden rounded-3xl group border border-white/10 shadow-[0_24px_90px_rgba(0,0,0,0.55)]">
             <motion.div 
@@ -122,7 +122,7 @@ export default function Hero() {
               loading="eager"
             />
             {/* Vignette Overlay */}
-            <div className="absolute inset-0 bg-radial-gradient from-transparent to-[#0A0A0B]/80 z-10 pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle,_transparent_35%,rgba(10,10,11,0.8)_100%)] z-10 pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/20 to-transparent z-10 pointer-events-none" />
           </div>
         </motion.div>
