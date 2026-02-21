@@ -29,31 +29,36 @@ export default function ResultsSection() {
   const t = content[language];
 
   return (
-    <section id="results" className="py-24 bg-background relative">
-      <div className="container">
-        <div className="bg-card border border-border p-8 md:p-16 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+    <section id="results" className="py-24 bg-[#0A0A0B] relative overflow-hidden border-t border-white/5">
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
+      
+      <div className="container relative z-10">
+        <div className="bg-[#111113] border border-orange-500/20 p-10 md:p-20 relative overflow-hidden rounded-2xl shadow-[0_0_50px_rgba(255,122,0,0.05)]">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-orange-500/10 rounded-full blur-[100px] pointer-events-none" />
           
-          <div className="relative z-10 text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
+          <div className="relative z-10 text-center max-w-4xl mx-auto">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-white tracking-tight leading-[1.1]">
               {t.title}
             </h2>
-            <p className="text-xl text-muted-foreground mb-10">
+            <p className="text-xl md:text-2xl text-gray-400 font-light mb-12 leading-relaxed">
               {t.subtitle}
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wider rounded-none h-16 px-10 text-lg group"
+                className="group relative bg-orange-500 hover:bg-orange-600 text-white font-bold uppercase tracking-widest h-16 px-12 text-base transition-all duration-300 w-full sm:w-auto overflow-hidden shadow-[0_0_30px_rgba(255,122,0,0.3)] hover:shadow-[0_0_40px_rgba(255,122,0,0.5)]"
                 onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
               >
-                {t.cta}
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <span className="relative z-10 flex items-center gap-3">
+                  {t.cta}
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
               </Button>
             </div>
             
-            <p className="mt-6 text-sm text-muted-foreground">
+            <p className="mt-8 text-sm text-gray-500 font-medium tracking-wide uppercase">
               {t.note}
             </p>
           </div>

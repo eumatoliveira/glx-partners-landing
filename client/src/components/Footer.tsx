@@ -116,7 +116,7 @@ export default function Footer() {
             </ul>
             <Button 
               variant="outline" 
-              className="w-full border-white/10 hover:bg-white/5 text-white rounded-none"
+              className="w-full border-white/10 hover:bg-white/5 text-white"
               onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             >
               {t.scheduleBtn}

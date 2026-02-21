@@ -1,25 +1,134 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import ClientDashboardLayout from "@/components/client/ClientDashboardLayout";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import AlertSlider from "@/components/client/AlertSlider";
+import { classifyAlerts, type Alert as AlertType, type KPIData } from "@/lib/alertEngine";
 import {
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
   DollarSign,
   Users,
   Star,
-  Calendar,
   ArrowRight,
-  Bell,
   Target,
   Activity,
+  UploadCloud,
+  Database,
+  RefreshCw,
+  FileSpreadsheet,
 } from "lucide-react";
 
-// Mock data for sparklines
+const copyByLang = {
+  pt: {
+    title: "CEO Scorecard",
+    subtitle: "Visao executiva em tempo real - ultima atualizacao: agora",
+    syncData: "Sincronizar dados",
+    syncTitle: "Sincronizacao de dados",
+    syncDescription: "Escolha o metodo de importacao para atualizar o dashboard.",
+    crmTab: "API CRM",
+    sheetTab: "Planilha",
+    crmHelp: "Integracao automatica com Salesforce, HubSpot ou Pipedrive.",
+    syncNow: "Sincronizar agora",
+    syncing: "Sincronizando...",
+    sheetDrop: "Clique ou arraste a planilha (Excel/CSV)",
+    sheetFallback: "Fallback manual para preenchimento de equipe.",
+    opsSystem: "Sistema Operacional",
+    targetLabel: "Meta",
+    versusGoal: "vs meta",
+    pendingActions: "Acoes pendentes",
+    actionItems: [
+      "Revisar no-shows criticos",
+      "Aprovar orcamentos",
+      "Responder NPS detratores",
+      "Validar dados pendentes",
+    ],
+    forecastTitle: "Forecast vs Realizado vs Meta",
+    forecastSubtitle: "Projecao de faturamento (R$ mil)",
+    realized: "Realizado",
+    target: "Meta",
+    forecast: "Forecast",
+    crmToast: "Dados do CRM sincronizados com sucesso!",
+    sheetToast: "Planilha processada com sucesso!",
+    sheetToastDesc: "Dashboard e scorecards atualizados.",
+    kpis: ["Faturamento", "Margem Liquida", "NPS Score", "No-Show"],
+    months: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
+  },
+  en: {
+    title: "CEO Scorecard",
+    subtitle: "Real-time executive view - last update: now",
+    syncData: "Sync data",
+    syncTitle: "Data synchronization",
+    syncDescription: "Choose the import method to update the dashboard.",
+    crmTab: "CRM API",
+    sheetTab: "Spreadsheet",
+    crmHelp: "Automatic integration with Salesforce, HubSpot or Pipedrive.",
+    syncNow: "Sync now",
+    syncing: "Syncing...",
+    sheetDrop: "Click or drag the spreadsheet (Excel/CSV)",
+    sheetFallback: "Manual fallback for team updates.",
+    opsSystem: "Operating System",
+    targetLabel: "Target",
+    versusGoal: "vs target",
+    pendingActions: "Pending actions",
+    actionItems: [
+      "Review critical no-shows",
+      "Approve budgets",
+      "Respond to NPS detractors",
+      "Validate pending data",
+    ],
+    forecastTitle: "Forecast vs Actual vs Target",
+    forecastSubtitle: "Revenue projection (R$ thousand)",
+    realized: "Actual",
+    target: "Target",
+    forecast: "Forecast",
+    crmToast: "CRM data synced successfully!",
+    sheetToast: "Spreadsheet processed successfully!",
+    sheetToastDesc: "Dashboard and scorecards updated.",
+    kpis: ["Revenue", "Net Margin", "NPS Score", "No-Show"],
+    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  },
+  es: {
+    title: "CEO Scorecard",
+    subtitle: "Vision ejecutiva en tiempo real - ultima actualizacion: ahora",
+    syncData: "Sincronizar datos",
+    syncTitle: "Sincronizacion de datos",
+    syncDescription: "Elija el metodo de importacion para actualizar el dashboard.",
+    crmTab: "API CRM",
+    sheetTab: "Planilla",
+    crmHelp: "Integracion automatica con Salesforce, HubSpot o Pipedrive.",
+    syncNow: "Sincronizar ahora",
+    syncing: "Sincronizando...",
+    sheetDrop: "Haga clic o arrastre la planilla (Excel/CSV)",
+    sheetFallback: "Fallback manual para carga del equipo.",
+    opsSystem: "Sistema Operacional",
+    targetLabel: "Meta",
+    versusGoal: "vs meta",
+    pendingActions: "Acciones pendientes",
+    actionItems: [
+      "Revisar no-shows criticos",
+      "Aprobar presupuestos",
+      "Responder NPS detractores",
+      "Validar datos pendientes",
+    ],
+    forecastTitle: "Forecast vs Real vs Meta",
+    forecastSubtitle: "Proyeccion de ingresos (R$ mil)",
+    realized: "Real",
+    target: "Meta",
+    forecast: "Forecast",
+    crmToast: "Datos del CRM sincronizados con exito!",
+    sheetToast: "Planilla procesada con exito!",
+    sheetToastDesc: "Dashboard y scorecards actualizados.",
+    kpis: ["Facturacion", "Margen Neto", "NPS Score", "No-Show"],
+    months: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
+  },
+} as const;
+
 const generateSparklineData = (trend: "up" | "down" | "stable") => {
   const base = 50;
   const data = [];
@@ -31,72 +140,72 @@ const generateSparklineData = (trend: "up" | "down" | "stable") => {
   return data;
 };
 
-// Sparkline component
 function Sparkline({ data, color = "#f97316" }: { data: number[]; color?: string }) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
   const width = 80;
   const height = 24;
-  
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * width;
-    const y = height - ((value - min) / range) * height;
-    return `${x},${y}`;
-  }).join(" ");
+  const points = data
+    .map((value, index) => {
+      const x = (index / (data.length - 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   return (
     <svg width={width} height={height} className="inline-block ml-2">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-// KPI Card component
 interface KPICardProps {
   title: string;
   value: string;
+  target?: string;
+  status?: "green" | "yellow" | "red";
   change: number;
   changeLabel: string;
   icon: React.ReactNode;
   sparklineData: number[];
-  trend: "up" | "down" | "stable";
 }
 
-function KPICard({ title, value, change, changeLabel, icon, sparklineData, trend }: KPICardProps) {
+function KPICard({ title, value, target, status = "green", change, changeLabel, icon, sparklineData }: KPICardProps) {
   const isPositive = change >= 0;
-  const trendColor = trend === "up" ? "#22c55e" : trend === "down" ? "#ef4444" : "#f97316";
-  
+  const statusStyles = {
+    green: "bg-green-500/10 border-green-500/30",
+    yellow: "bg-yellow-500/10 border-yellow-500/30",
+    red: "bg-red-500/10 border-red-500/30",
+  };
+  const hexColors = { green: "#22c55e", yellow: "#eab308", red: "#ef4444" };
+  const currentColor = hexColors[status];
+
   return (
-    <Card className="bg-[#1E1E1E] border-[#2a2a2a] hover:border-orange-500/50 transition-all">
+    <Card className={cn("transition-all", statusStyles[status])}>
       <CardContent className="p-4 sm:p-6">
         <div className="flex items-start justify-between mb-3 sm:mb-4">
-          <div className="p-1.5 sm:p-2 rounded-lg bg-orange-500/10 text-orange-500">
+          <div className="p-1.5 sm:p-2 rounded-lg bg-black/20" style={{ color: currentColor }}>
             {icon}
           </div>
-          <Sparkline data={sparklineData} color={trendColor} />
+          <Sparkline data={sparklineData} color={currentColor} />
         </div>
         <div className="space-y-1">
           <p className="text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wide">{title}</p>
-          <p className="text-2xl sm:text-3xl font-bold text-white">{value}</p>
-          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-            {isPositive ? (
-              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
-            ) : (
-              <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
-            )}
-            <span className={cn(
-              "text-xs sm:text-sm font-medium",
-              isPositive ? "text-green-500" : "text-red-500"
-            )}>
-              {isPositive ? "+" : ""}{change}%
+          <div className="flex items-end gap-2">
+            <p className="text-2xl sm:text-3xl font-bold text-white">{value}</p>
+            {target ? (
+              <p className="text-xs sm:text-sm font-medium pb-1" style={{ color: currentColor }}>
+                {target}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-1 sm:gap-2 flex-wrap mt-2">
+            {isPositive ? <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" /> : <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />}
+            <span className={cn("text-xs sm:text-sm font-medium", isPositive ? "text-green-500" : "text-red-500")}>
+              {isPositive ? "+" : ""}
+              {change}%
             </span>
             <span className="text-gray-500 text-xs sm:text-sm">{changeLabel}</span>
           </div>
@@ -106,223 +215,231 @@ function KPICard({ title, value, change, changeLabel, icon, sparklineData, trend
   );
 }
 
-// Alert item component
-interface AlertItemProps {
-  type: "critical" | "warning" | "info";
-  message: string;
-  time: string;
-  action?: string;
-}
-
-function AlertItem({ type, message, time, action }: AlertItemProps) {
-  const colors = {
-    critical: "bg-red-500/10 border-red-500/30 text-red-500",
-    warning: "bg-orange-500/10 border-orange-500/30 text-orange-500",
-    info: "bg-blue-500/10 border-blue-500/30 text-blue-500",
-  };
-  
-  const icons = {
-    critical: <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />,
-    warning: <Clock className="w-4 h-4 sm:w-5 sm:h-5" />,
-    info: <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />,
-  };
-
-  return (
-    <div className={cn(
-      "flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border",
-      colors[type]
-    )}>
-      <div className="flex-shrink-0 mt-0.5">{icons[type]}</div>
-      <div className="flex-1 min-w-0">
-        <p className="text-white text-xs sm:text-sm font-medium leading-tight">{message}</p>
-        <p className="text-gray-500 text-xs mt-1">{time}</p>
-      </div>
-      {action && (
-        <Button size="sm" variant="ghost" className="text-orange-500 hover:text-orange-400 hover:bg-orange-500/10 text-xs sm:text-sm px-2 sm:px-3 hidden sm:flex">
-          {action}
-          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
-        </Button>
-      )}
-    </div>
-  );
-}
-
 export default function CEOScorecard() {
-  const kpiData = [
+  const { language } = useLanguage();
+  const c = copyByLang[language];
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncModalOpen, setSyncModalOpen] = useState(false);
+
+  const kpiCardData = [
     {
-      title: "Faturamento",
+      title: c.kpis[0],
       value: "R$ 2.4M",
-      change: 12.5,
-      changeLabel: "vs mês anterior",
+      target: `${c.targetLabel} 2.8M`,
+      status: "red" as const,
+      change: -14.2,
+      changeLabel: c.versusGoal,
       icon: <DollarSign className="w-5 h-5" />,
-      sparklineData: generateSparklineData("up"),
-      trend: "up" as const,
+      sparklineData: generateSparklineData("down"),
     },
     {
-      title: "EBITDA",
-      value: "R$ 480K",
-      change: 8.3,
-      changeLabel: "vs mês anterior",
+      title: c.kpis[1],
+      value: "14.2%",
+      target: `${c.targetLabel} 20%`,
+      status: "yellow" as const,
+      change: -5.8,
+      changeLabel: c.versusGoal,
       icon: <TrendingUp className="w-5 h-5" />,
-      sparklineData: generateSparklineData("up"),
-      trend: "up" as const,
+      sparklineData: generateSparklineData("stable"),
     },
     {
-      title: "NPS Score",
+      title: c.kpis[2],
       value: "72",
-      change: -2.1,
-      changeLabel: "vs mês anterior",
+      target: `${c.targetLabel} 85`,
+      status: "red" as const,
+      change: -13,
+      changeLabel: c.versusGoal,
       icon: <Star className="w-5 h-5" />,
       sparklineData: generateSparklineData("down"),
-      trend: "down" as const,
     },
     {
-      title: "Ocupação",
-      value: "87%",
-      change: 5.2,
-      changeLabel: "vs mês anterior",
-      icon: <Calendar className="w-5 h-5" />,
+      title: c.kpis[3],
+      value: "18.5%",
+      target: `${c.targetLabel} 5%`,
+      status: "red" as const,
+      change: 13.5,
+      changeLabel: c.versusGoal,
+      icon: <Users className="w-5 h-5" />,
       sparklineData: generateSparklineData("up"),
-      trend: "up" as const,
     },
   ];
 
-  const alerts = [
-    {
-      type: "critical" as const,
-      message: "Taxa de No-show acima do Limite de Controle Superior em Dermatologia (18.5%)",
-      time: "2 horas atrás",
-      action: "Investigar",
-    },
-    {
-      type: "warning" as const,
-      message: "Churn rate aumentou 0.8% esta semana - 3 cancelamentos detectados",
-      time: "4 horas atrás",
-      action: "Ver detalhes",
-    },
-    {
-      type: "warning" as const,
-      message: "Margem de contribuição abaixo da meta em Procedimentos Estéticos",
-      time: "6 horas atrás",
-      action: "Analisar",
-    },
-    {
-      type: "info" as const,
-      message: "Backup automático concluído com sucesso",
-      time: "8 horas atrás",
-    },
-  ];
+  const alertKpiData: KPIData = useMemo(
+    () => ({
+      noShowRate: 18.5,
+      margemLiquida: 14.2,
+      nps: 7.2,
+      faturamento: 2400000,
+      metaFaturamento: 2800000,
+      churnRate: 3.2,
+      fluxoCaixa: 120000,
+      occupancyRate: 87,
+      cac: 280,
+      ltv: 1200,
+    }),
+    [],
+  );
 
-  // Forecast data
+  const [alertState, setAlertState] = useState<AlertType[]>(() => classifyAlerts(alertKpiData));
+
+  const handleResolve = useCallback((alertId: string) => {
+    setAlertState((prev) => prev.map((a) => (a.id === alertId ? { ...a, acknowledged: true, resolvedAt: new Date() } : a)));
+  }, []);
+
+  const handleDismiss = useCallback((alertId: string) => {
+    setAlertState((prev) => prev.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a)));
+  }, []);
+
   const forecastData = [
-    { month: "Jan", realizado: 2100, meta: 2000, forecast: 2150 },
-    { month: "Fev", realizado: 2250, meta: 2100, forecast: 2300 },
-    { month: "Mar", realizado: 2180, meta: 2200, forecast: 2250 },
-    { month: "Abr", realizado: 2400, meta: 2300, forecast: 2450 },
-    { month: "Mai", realizado: null, meta: 2400, forecast: 2500 },
-    { month: "Jun", realizado: null, meta: 2500, forecast: 2600 },
+    { month: c.months[0], realizado: 2100, meta: 2000, forecast: 2150 },
+    { month: c.months[1], realizado: 2250, meta: 2100, forecast: 2300 },
+    { month: c.months[2], realizado: 2180, meta: 2200, forecast: 2250 },
+    { month: c.months[3], realizado: 2400, meta: 2300, forecast: 2450 },
+    { month: c.months[4], realizado: null, meta: 2400, forecast: 2500 },
+    { month: c.months[5], realizado: null, meta: 2500, forecast: 2600 },
   ];
 
-  const maxValue = Math.max(...forecastData.flatMap(d => [d.realizado || 0, d.meta, d.forecast]));
+  const maxValue = Math.max(...forecastData.flatMap((d) => [d.realizado || 0, d.meta, d.forecast]));
 
   return (
     <ClientDashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white">CEO Scorecard</h1>
-            <p className="text-gray-400 mt-1">Visão executiva em tempo real • Última atualização: agora</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-white">{c.title}</h1>
+            <p className="text-gray-400 mt-1">{c.subtitle}</p>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Activity className="w-4 h-4 text-green-500" />
-            <span className="text-green-500 font-medium">Sistema Operacional</span>
+          <div className="flex items-center gap-4 text-sm">
+            <Dialog open={syncModalOpen} onOpenChange={setSyncModalOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white gap-2 h-9">
+                  <RefreshCw className="w-4 h-4" />
+                  {c.syncData}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#111113] border-[#2a2a2e] text-white sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="text-xl">{c.syncTitle}</DialogTitle>
+                  <DialogDescription className="text-gray-400">{c.syncDescription}</DialogDescription>
+                </DialogHeader>
+
+                <Tabs defaultValue="crm" className="w-full mt-4">
+                  <TabsList className="grid w-full grid-cols-2 bg-[#1A1A1D] border border-[#2a2a2e]">
+                    <TabsTrigger value="crm" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-500 text-gray-400">
+                      <Database className="w-4 h-4 mr-2" />
+                      {c.crmTab}
+                    </TabsTrigger>
+                    <TabsTrigger value="excel" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-500 text-gray-400">
+                      <FileSpreadsheet className="w-4 h-4 mr-2" />
+                      {c.sheetTab}
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="crm" className="space-y-4 pt-4">
+                    <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                      <p className="text-sm text-gray-300">{c.crmHelp}</p>
+                    </div>
+                    <Button
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                      disabled={isSyncing}
+                      onClick={() => {
+                        setIsSyncing(true);
+                        setTimeout(() => {
+                          setIsSyncing(false);
+                          setSyncModalOpen(false);
+                          toast.success(c.crmToast);
+                        }, 2000);
+                      }}
+                    >
+                      {isSyncing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
+                      {isSyncing ? c.syncing : c.syncNow}
+                    </Button>
+                  </TabsContent>
+
+                  <TabsContent value="excel" className="space-y-4 pt-4">
+                    <div
+                      className="border-2 border-dashed border-[#2a2a2e] rounded-lg p-6 text-center hover:bg-[#1A1A1D] transition-colors cursor-pointer"
+                      onClick={() => {
+                        setIsSyncing(true);
+                        setTimeout(() => {
+                          setIsSyncing(false);
+                          setSyncModalOpen(false);
+                          toast.success(c.sheetToast, { description: c.sheetToastDesc });
+                        }, 2000);
+                      }}
+                    >
+                      <UploadCloud className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-white">{c.sheetDrop}</p>
+                      <p className="text-xs text-gray-500 mt-1">{c.sheetFallback}</p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </DialogContent>
+            </Dialog>
+
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-green-500" />
+              <span className="text-green-500 font-medium hidden sm:inline">{c.opsSystem}</span>
+            </div>
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpiData.map((kpi, index) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-6">
+          {kpiCardData.map((kpi, index) => (
             <KPICard key={index} {...kpi} />
           ))}
         </div>
 
-        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Alerts Section */}
           <div className="lg:col-span-2">
-            <Card className="bg-[#1E1E1E] border-[#2a2a2a] h-full">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div className="flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-orange-500" />
-                  <CardTitle className="text-white text-lg">Alertas Andon</CardTitle>
-                </div>
-                <span className="text-xs text-gray-500 bg-[#2a2a2a] px-2 py-1 rounded">
-                  {alerts.filter(a => a.type === "critical").length} críticos
-                </span>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {alerts.map((alert, index) => (
-                  <AlertItem key={index} {...alert} />
-                ))}
-                <Button variant="ghost" className="w-full text-orange-500 hover:text-orange-400 hover:bg-orange-500/10 mt-2">
-                  Ver todos os alertas
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </CardContent>
-            </Card>
+            <AlertSlider alerts={alertState} onResolve={handleResolve} onDismiss={handleDismiss} />
           </div>
 
-          {/* Quick Actions */}
           <div>
-            <Card className="bg-[#1E1E1E] border-[#2a2a2a] h-full">
+            <Card className="bg-[#111113] border-[#2a2a2e] h-full">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Target className="w-5 h-5 text-orange-500" />
-                  <CardTitle className="text-white text-lg">Ações Pendentes</CardTitle>
+                  <CardTitle className="text-white text-lg">{c.pendingActions}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#2a2a2a] hover:bg-[#333] transition-colors cursor-pointer">
-                  <span className="text-white text-sm">Revisar no-shows críticos</span>
-                  <span className="bg-red-500/20 text-red-500 text-xs font-bold px-2 py-1 rounded">5</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#2a2a2a] hover:bg-[#333] transition-colors cursor-pointer">
-                  <span className="text-white text-sm">Aprovar orçamentos</span>
-                  <span className="bg-orange-500/20 text-orange-500 text-xs font-bold px-2 py-1 rounded">3</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#2a2a2a] hover:bg-[#333] transition-colors cursor-pointer">
-                  <span className="text-white text-sm">Responder NPS detratores</span>
-                  <span className="bg-yellow-500/20 text-yellow-500 text-xs font-bold px-2 py-1 rounded">8</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#2a2a2a] hover:bg-[#333] transition-colors cursor-pointer">
-                  <span className="text-white text-sm">Validar dados pendentes</span>
-                  <span className="bg-blue-500/20 text-blue-500 text-xs font-bold px-2 py-1 rounded">12</span>
-                </div>
+                {c.actionItems.map((item, idx) => (
+                  <div key={item} className="flex items-center justify-between p-3 rounded-lg bg-[#1A1A1D] hover:bg-[#333] transition-colors cursor-pointer">
+                    <span className="text-white text-sm">{item}</span>
+                    <span
+                      className={cn(
+                        "text-xs font-bold px-2 py-1 rounded",
+                        idx === 0 ? "bg-red-500/20 text-red-500" : idx === 1 ? "bg-orange-500/20 text-orange-500" : idx === 2 ? "bg-yellow-500/20 text-yellow-500" : "bg-blue-500/20 text-blue-500",
+                      )}
+                    >
+                      {idx === 0 ? "5" : idx === 1 ? "3" : idx === 2 ? "8" : "12"}
+                    </span>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Forecast Section */}
-        <Card className="bg-[#1E1E1E] border-[#2a2a2a]">
+        <Card className="bg-[#111113] border-[#2a2a2e]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
-              <CardTitle className="text-white text-lg">Forecast vs Realizado vs Meta</CardTitle>
-              <p className="text-gray-400 text-sm mt-1">Projeção de faturamento (R$ mil)</p>
+              <CardTitle className="text-white text-lg">{c.forecastTitle}</CardTitle>
+              <p className="text-gray-400 text-sm mt-1">{c.forecastSubtitle}</p>
             </div>
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-orange-500" />
-                <span className="text-gray-400">Realizado</span>
+                <span className="text-gray-400">{c.realized}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-gray-500" />
-                <span className="text-gray-400">Meta</span>
+                <span className="text-gray-400">{c.target}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-cyan-500" />
-                <span className="text-gray-400">Forecast</span>
+                <span className="text-gray-400">{c.forecast}</span>
               </div>
             </div>
           </CardHeader>
@@ -331,26 +448,11 @@ export default function CEOScorecard() {
               {forecastData.map((item, index) => (
                 <div key={index} className="flex-1 flex flex-col items-center gap-2">
                   <div className="w-full flex items-end justify-center gap-1 h-48">
-                    {/* Realizado */}
-                    {item.realizado && (
-                      <div
-                        className="w-6 bg-orange-500 rounded-t transition-all hover:bg-orange-400"
-                        style={{ height: `${(item.realizado / maxValue) * 100}%` }}
-                        title={`Realizado: R$ ${item.realizado}k`}
-                      />
-                    )}
-                    {/* Meta */}
-                    <div
-                      className="w-6 bg-gray-600 rounded-t transition-all hover:bg-gray-500"
-                      style={{ height: `${(item.meta / maxValue) * 100}%` }}
-                      title={`Meta: R$ ${item.meta}k`}
-                    />
-                    {/* Forecast */}
-                    <div
-                      className="w-6 bg-cyan-500/50 rounded-t border-2 border-dashed border-cyan-500 transition-all hover:bg-cyan-500/70"
-                      style={{ height: `${(item.forecast / maxValue) * 100}%` }}
-                      title={`Forecast: R$ ${item.forecast}k`}
-                    />
+                    {item.realizado ? (
+                      <div className="w-6 bg-orange-500 rounded-t transition-all hover:bg-orange-400" style={{ height: `${(item.realizado / maxValue) * 100}%` }} title={`${c.realized}: R$ ${item.realizado}k`} />
+                    ) : null}
+                    <div className="w-6 bg-gray-600 rounded-t transition-all hover:bg-gray-500" style={{ height: `${(item.meta / maxValue) * 100}%` }} title={`${c.target}: R$ ${item.meta}k`} />
+                    <div className="w-6 bg-cyan-500/50 rounded-t border-2 border-dashed border-cyan-500 transition-all hover:bg-cyan-500/70" style={{ height: `${(item.forecast / maxValue) * 100}%` }} title={`${c.forecast}: R$ ${item.forecast}k`} />
                   </div>
                   <span className="text-gray-400 text-xs font-medium">{item.month}</span>
                 </div>

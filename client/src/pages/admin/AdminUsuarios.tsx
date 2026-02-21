@@ -59,6 +59,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { MIN_PLAN_BY_SECTION, PLAN_ACCESS, type PlanTier, type SectionId } from "@shared/controlTowerRules";
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-500/20 text-red-500",
@@ -92,13 +93,43 @@ const planIcons: Record<string, React.ReactNode> = {
   enterprise: <Building2 className="h-3 w-3 mr-1" />,
 };
 
+const DASHBOARD_SECTION_ORDER: SectionId[] = [
+  "dashboard",
+  "realtime",
+  "agenda",
+  "equipe",
+  "sprints",
+  "funil",
+  "canais",
+  "integracoes",
+  "dados",
+  "relatorios",
+  "configuracoes",
+];
+
+const DASHBOARD_SECTION_LABELS: Record<SectionId, string> = {
+  dashboard: "Dashboard",
+  realtime: "Realtime",
+  agenda: "Agenda",
+  equipe: "Equipe",
+  sprints: "Sprints",
+  funil: "Funil",
+  canais: "Canais",
+  integracoes: "Integracoes",
+  dados: "Dados",
+  relatorios: "Relatorios",
+  configuracoes: "Configuracoes",
+};
+
+const PLAN_ORDER: PlanTier[] = ["essencial", "pro", "enterprise"];
+
 export default function AdminUsuarios() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [planFilter, setPlanFilter] = useState("all");
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [newUser, setNewUser] = useState({ nome: "", email: "", password: "", role: "user" as "user" | "admin", plan: "essencial" as "essencial" | "pro" | "enterprise" });
+  const [newUser, setNewUser] = useState({ nome: "", email: "", password: "", role: "user" as "user" | "admin", plan: "essencial" as PlanTier });
 
   // Fetch users from database
   const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = trpc.admin.getUsers.useQuery();
@@ -127,7 +158,7 @@ export default function AdminUsuarios() {
     }
   });
 
-  const createUserMutation = trpc.emailAuth.register.useMutation({
+  const createUserMutation = trpc.emailAuth.createUser.useMutation({
     onSuccess: () => {
       toast.success("Usuário criado com sucesso!");
       setIsAddUserOpen(false);
@@ -165,10 +196,16 @@ export default function AdminUsuarios() {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
+    if (newUser.password.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
     createUserMutation.mutate({
       name: newUser.nome,
       email: newUser.email,
       password: newUser.password,
+      role: newUser.role,
+      plan: newUser.plan,
     });
   };
 
@@ -176,7 +213,7 @@ export default function AdminUsuarios() {
     updateRoleMutation.mutate({ userId, role: newRole });
   };
 
-  const handleUpdatePlan = (userId: number, newPlan: "essencial" | "pro" | "enterprise") => {
+  const handleUpdatePlan = (userId: number, newPlan: PlanTier) => {
     updatePlanMutation.mutate({ userId, plan: newPlan });
   };
 
@@ -269,7 +306,7 @@ export default function AdminUsuarios() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="plan">Plano</Label>
-                    <Select value={newUser.plan} onValueChange={(v: "essencial" | "pro" | "enterprise") => setNewUser({...newUser, plan: v})}>
+                    <Select value={newUser.plan} onValueChange={(v) => setNewUser({...newUser, plan: v as PlanTier})}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -359,6 +396,53 @@ export default function AdminUsuarios() {
           </Card>
         </div>
 
+        <Card className="bg-card/50 border-border/50">
+          <CardHeader>
+            <CardTitle>Acesso por Plano no Dashboard</CardTitle>
+            <CardDescription>
+              Matriz centralizada por funcao. Alteracoes de plano aqui impactam diretamente os modulos liberados no dashboard.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Funcao</TableHead>
+                  <TableHead>Plano Minimo</TableHead>
+                  <TableHead>Essencial</TableHead>
+                  <TableHead>Pro</TableHead>
+                  <TableHead>Enterprise</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {DASHBOARD_SECTION_ORDER.map((sectionId) => (
+                  <TableRow key={sectionId}>
+                    <TableCell className="font-medium">{DASHBOARD_SECTION_LABELS[sectionId]}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={planColors[MIN_PLAN_BY_SECTION[sectionId]]}>
+                        {planLabels[MIN_PLAN_BY_SECTION[sectionId]]}
+                      </Badge>
+                    </TableCell>
+                    {PLAN_ORDER.map((planTier) => (
+                      <TableCell key={`${sectionId}-${planTier}`}>
+                        {PLAN_ACCESS[planTier].includes(sectionId) ? (
+                          <Badge variant="outline" className="text-emerald-400 border-emerald-500/30">
+                            Liberado
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-zinc-400 border-zinc-500/30">
+                            Bloqueado
+                          </Badge>
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
         {/* Users Table */}
         <Card className="bg-card/50 border-border/50">
           <CardHeader>
@@ -447,7 +531,7 @@ export default function AdminUsuarios() {
                       <TableCell>
                         <Select 
                           value={(user as any).plan || "essencial"} 
-                          onValueChange={(v: "essencial" | "pro" | "enterprise") => handleUpdatePlan(user.id, v)}
+                          onValueChange={(v) => handleUpdatePlan(user.id, v as PlanTier)}
                         >
                           <SelectTrigger className="w-36 h-8">
                             <SelectValue>

@@ -93,24 +93,26 @@ export default function FaqSection() {
   const t = content[language];
 
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
-      <div className="container max-w-4xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 tracking-tight">
+    <section className="py-32 bg-[#0A0A0B] relative overflow-hidden">
+      <div className="absolute top-[30%] left-[-10%] w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[150px] pointer-events-none" />
+      
+      <div className="container max-w-4xl mx-auto px-4 relative z-10">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight text-white">
             {t.title}
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-gray-400 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
             {t.subtitle}
           </p>
         </div>
 
         <Accordion type="single" collapsible className="w-full space-y-4">
           {t.faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border border-white/10 bg-white/5 px-6 rounded-lg">
-              <AccordionTrigger className="text-lg font-medium hover:text-primary transition-colors py-6">
+            <AccordionItem key={index} value={`item-${index}`} className="border border-white/5 bg-[#111113]/80 backdrop-blur-sm px-6 rounded-xl hover:border-orange-500/30 transition-all duration-300">
+              <AccordionTrigger className="text-lg lg:text-xl font-bold hover:text-orange-500 transition-colors py-6 hover:no-underline text-left text-white">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-base pb-6 leading-relaxed">
+              <AccordionContent className="text-gray-400 text-base md:text-lg pb-6 leading-relaxed font-light">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>

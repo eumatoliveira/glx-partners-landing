@@ -236,7 +236,7 @@ export default function Plans() {
             <div className="text-center">
               <Button 
                 onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-12 py-6 text-lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider px-12 py-6 text-lg"
               >
                 {t.plans.requestProposal}
               </Button>
@@ -331,7 +331,7 @@ export default function Plans() {
 
               <Button 
                 onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
-                className="w-full bg-white/10 hover:bg-white/20 text-white font-bold uppercase tracking-wider rounded-none"
+                className="w-full bg-white/10 hover:bg-white/20 text-white font-bold uppercase tracking-wider"
               >
                 {t.plans.requestProposal}
               </Button>
@@ -386,7 +386,7 @@ export default function Plans() {
 
               <Button 
                 onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
-                className="w-full bg-primary hover:bg-primary/90 font-bold uppercase tracking-wider rounded-none"
+                className="w-full bg-primary hover:bg-primary/90 font-bold uppercase tracking-wider"
               >
                 {t.plans.requestProposal}
               </Button>
@@ -437,7 +437,7 @@ export default function Plans() {
 
               <Button 
                 onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
-                className="w-full bg-white/10 hover:bg-white/20 text-white font-bold uppercase tracking-wider rounded-none"
+                className="w-full bg-white/10 hover:bg-white/20 text-white font-bold uppercase tracking-wider"
               >
                 {t.plans.requestProposal}
               </Button>
@@ -465,14 +465,14 @@ export default function Plans() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-8 py-6 text-lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider px-8 py-6 text-lg"
               >
                 {t.plans.finalCta}
               </Button>
               <Link href="/">
                 <Button 
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider rounded-none px-8 py-6 text-lg"
+                  className="border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider px-8 py-6 text-lg"
                 >
                   {t.plans.finalSecondary}
                 </Button>

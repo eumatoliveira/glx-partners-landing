@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, Variants } from "framer-motion";
 import { useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -11,87 +11,120 @@ export default function Hero() {
     offset: ["start start", "end start"]
   });
   
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  // Spring physics for smooth scroll connection
+  const smoothProgress = useSpring(scrollYProgress, { mass: 0.1, stiffness: 100, damping: 20 });
+  
+  // Cinematic translations
+  const yBg = useTransform(smoothProgress, [0, 1], ["0%", "20%"]);
+  const yImg = useTransform(smoothProgress, [0, 1], ["0%", "10%"]);
+  const xImg = useTransform(smoothProgress, [0, 1], ["0%", "-5%"]);
+  const rotateImg = useTransform(smoothProgress, [0, 1], ["0deg", "-1.8deg"]);
+  const opacityText = useTransform(smoothProgress, [0, 0.8], [1, 0]);
+  const scaleImg = useTransform(smoothProgress, [0, 1], [1, 1.05]);
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 30, filter: "blur(4px)" },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      filter: "blur(0px)",
+      transition: { type: "spring" as const, stiffness: 100, damping: 20, mass: 1 }
+    }
+  };
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden bg-background">
-      {/* Background Elements */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-card/10 to-transparent" />
-        <div className="absolute inset-0" style={{ 
-          backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px)',
-          backgroundSize: '6rem 6rem'
-        }} />
-      </div>
+    <section ref={ref} className="relative min-h-screen flex items-center pt-32 pb-16 overflow-hidden bg-[#07080b] perspective-1000">
+      {/* Background Cinematic Elements */}
+      <motion.div style={{ y: yBg }} className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-orange-500/12 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-cyan-500/12 blur-[100px]" />
+        <div className="absolute left-[30%] top-[18%] h-[220px] w-[220px] rounded-full bg-white/10 blur-[90px]" />
+        <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)", backgroundSize: "38px 38px" }} />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay" />
+      </motion.div>
 
-      <div className="container relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        {/* Coluna da Esquerda: Texto */}
+      <div className="container relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        {/* Text Composition (Left) */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="order-1 lg:order-1"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          style={{ opacity: opacityText }}
+          className="lg:col-span-6 flex flex-col justify-center order-1 lg:order-1 relative z-20"
         >
-          <div className="inline-block mb-8 px-0 py-1 border-b border-primary text-white text-sm font-bold tracking-[0.2em] uppercase">
-            {t.hero.badge}
-          </div>
+          <motion.div variants={itemVariants} className="mb-6 flex items-center gap-3">
+            <div className="h-[1px] w-8 bg-orange-500" />
+            <span className="text-orange-500 text-xs font-bold tracking-[0.25em] uppercase">
+              {t.hero.badge}
+            </span>
+          </motion.div>
           
-          <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-tight text-white">
-            {t.hero.title1}<br />
-            {t.hero.title2}<br />
-            <span className="text-white/50">{t.hero.title3}</span>
-          </h1>
+          <motion.h1 variants={itemVariants} className="text-5xl md:text-6xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-[-0.02em] text-white mb-6">
+            <span className="block">{t.hero.title1}</span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">{t.hero.title2}</span>
+            <span className="block opacity-50 font-light italic mt-1">{t.hero.title3}</span>
+          </motion.h1>
           
-          <p className="text-2xl text-white font-medium mb-6 leading-relaxed">
-            {t.hero.subtitle} <span className="text-primary">{t.hero.subtitleHighlight}</span>.
-          </p>
+          <motion.p variants={itemVariants} className="text-xl md:text-2xl text-gray-300 font-medium mb-6 leading-relaxed max-w-xl">
+            {t.hero.subtitle} <span className="text-orange-500">{t.hero.subtitleHighlight}</span>.
+          </motion.p>
 
-          <p className="text-lg text-muted-foreground mb-10 max-w-lg leading-relaxed font-light">
+          <motion.p variants={itemVariants} className="text-base md:text-lg text-gray-500 mb-10 max-w-lg leading-relaxed font-light">
             {t.hero.description}
-          </p>
+          </motion.p>
           
-          <div className="flex flex-col sm:flex-row gap-0">
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 items-center">
             <Button 
               size="lg" 
-              className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wider rounded-none h-16 px-10 text-base transition-all duration-300 w-full sm:w-auto"
+              className="group neon-btn-solid relative bg-orange-500 hover:bg-orange-600 text-white font-bold uppercase tracking-widest h-14 px-10 text-sm transition-all duration-300 w-full sm:w-auto overflow-hidden"
               onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
             >
-              {t.hero.cta}
+              <span className="relative z-10">{t.hero.cta}</span>
+              <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
             </Button>
             <Button 
               variant="outline" 
               size="lg" 
-              className="border-white/10 hover:bg-white/5 text-white font-medium uppercase tracking-wider rounded-none h-16 px-10 text-base backdrop-blur-sm w-full sm:w-auto"
+              className="neon-btn-outline border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold uppercase tracking-widest h-14 px-8 text-sm backdrop-blur-md transition-all duration-300 w-full sm:w-auto hover:border-white/30"
               onClick={() => document.getElementById('cases')?.scrollIntoView({behavior: 'smooth'})}
             >
               {t.hero.secondary}
             </Button>
-          </div>
+          </motion.div>
+
         </motion.div>
 
-        {/* Coluna da Direita: Imagem com Parallax */}
+        {/* Hero Image / Visual Concept (Right) */}
         <motion.div 
-          style={{ y, opacity }}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="relative order-2 lg:order-2 flex justify-center lg:justify-end"
+          style={{ y: yImg, x: xImg, rotate: rotateImg, scale: scaleImg }}
+          initial={{ opacity: 0, filter: "blur(10px)", x: 20 }}
+          animate={{ opacity: 1, filter: "blur(0px)", x: 0 }}
+          transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="lg:col-span-6 relative order-2 lg:order-2 flex justify-center lg:justify-end perspective-1000"
         >
-          <div className="relative z-10 w-full max-w-lg lg:max-w-full">
-            {/* Imagem principal usando ImagemInicial.png conforme solicitado */}
-            <img 
-              src="/ImagemInicial.png" 
-              alt="GLX Strategy Meeting" 
-              className="w-full h-auto grayscale contrast-125 shadow-2xl border border-white/5 object-cover rounded-sm"
+          <div className="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] max-w-[520px] overflow-hidden rounded-3xl group border border-white/10 shadow-[0_24px_90px_rgba(0,0,0,0.55)]">
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"
             />
-            
-            {/* Overlay sutil para integrar com o fundo escuro */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent opacity-40" />
+            {/* Management GIF loop with cinematic grade */}
+            <motion.img 
+              src="/images/management-loop.gif" 
+              alt="Loop de gestao GLX" 
+              className="object-cover w-full h-full contrast-[1.06] brightness-[0.9] saturate-[1.05] transition-transform duration-1000 group-hover:scale-105"
+              loading="eager"
+            />
+            {/* Vignette Overlay */}
+            <div className="absolute inset-0 bg-radial-gradient from-transparent to-[#0A0A0B]/80 z-10 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/20 to-transparent z-10 pointer-events-none" />
           </div>
-          
-          {/* Elemento gráfico decorativo atrás da imagem */}
-          <div className="absolute -bottom-6 -left-6 w-full h-full border border-white/5 -z-10 hidden lg:block" />
         </motion.div>
       </div>
     </section>

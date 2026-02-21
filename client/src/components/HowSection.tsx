@@ -95,62 +95,95 @@ export default function HowSection() {
   const t = content[language];
 
   return (
-    <section id="how" className="py-24 bg-card relative overflow-hidden">
+    <section id="how" className="py-24 bg-[#0A0A0B] relative overflow-hidden border-t border-white/5">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
-        <div className="absolute right-0 top-0 w-1/2 h-full bg-primary/20 blur-3xl" />
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div className="absolute right-0 top-1/2 w-[500px] h-[500px] rounded-full bg-orange-500/10 blur-[150px] -translate-y-1/2" />
       </div>
 
       <div className="container relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <div>
-            <h2 className="text-primary font-bold tracking-widest uppercase mb-4 text-sm">{t.badge}</h2>
-            <h3 className="text-3xl md:text-4xl font-bold mb-8 leading-tight text-white">
-              <span className="text-muted-foreground">{t.title1}</span> <span className="text-white">{t.title2}</span>
-            </h3>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              className="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full border border-orange-500/20 bg-orange-500/10 mb-6"
+            >
+              <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+              <h2 className="text-orange-500 font-bold tracking-[0.2em] uppercase text-xs">{t.badge}</h2>
+            </motion.div>
             
-            <div className="space-y-12">
+            <motion.h3 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 100, damping: 20 }}
+              className="text-4xl md:text-5xl lg:text-5xl font-extrabold mb-10 leading-[1.1] tracking-tight"
+            >
+              <span className="text-gray-400 font-light">{t.title1}</span> <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">{t.title2}</span>
+            </motion.h3>
+            
+            <div className="space-y-4 relative">
+              {/* Connecting Line */}
+              <div className="absolute left-6 lg:left-8 top-10 bottom-10 w-[1px] bg-gradient-to-b from-orange-500 via-orange-500/20 to-transparent hidden sm:block" />
+
               {t.steps.map((item, index) => (
                 <motion.div 
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -30 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  className="flex gap-6 group"
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: index * 0.15, type: "spring", stiffness: 100, damping: 20 }}
+                  className="flex gap-6 sm:gap-8 group relative bg-[#111113]/50 p-6 rounded-2xl border border-white/5 hover:border-orange-500/30 hover:bg-[#111113] transition-all duration-500"
                 >
-                  <div className="text-4xl font-bold text-muted-foreground/20 group-hover:text-primary transition-colors duration-300 font-mono">
+                  <div className="relative z-10 flex-shrink-0 w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-[#0A0A0B] border border-white/10 flex items-center justify-center text-xl lg:text-2xl font-bold text-gray-500 group-hover:text-orange-500 group-hover:border-orange-500/50 shadow-lg transition-all duration-500 font-mono">
                     {item.step}
                   </div>
-                  <div>
-                    <h4 className="text-xl font-bold mb-2 text-white">{item.title}</h4>
-                    <p className="text-muted-foreground">{item.desc}</p>
+                  <div className="pt-2 lg:pt-3">
+                    <h4 className="text-xl font-bold mb-2 text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/70 transition-colors">{item.title}</h4>
+                    <p className="text-gray-400 font-light leading-relaxed text-sm md:text-base">{item.desc}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            <div className="mt-12">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.6, type: "spring", stiffness: 100, damping: 20 }}
+              className="mt-12"
+            >
               <Button 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-8 py-6"
+                size="lg"
+                className="group relative bg-orange-500 hover:bg-orange-600 text-white font-bold uppercase tracking-widest h-14 px-10 text-sm transition-all duration-300 w-full sm:w-auto overflow-hidden"
                 onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
               >
-                {t.cta}
+                <span className="relative z-10">{t.cta}</span>
+                <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
               </Button>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="relative hidden lg:block">
-            <div className="relative z-10 border border-white/10 bg-background p-2 shadow-2xl">
+          <motion.div 
+            initial={{ opacity: 0, filter: "blur(10px)", scale: 0.95 }}
+            whileInView={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="relative hidden lg:block perspective-1000"
+          >
+            <div className="relative z-10 rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none" />
               <img 
                 src="/images/healthcare-dashboard.webp" 
                 alt="GLX Dashboard Methodology" 
-                className="w-full h-auto opacity-90 hover:opacity-100 transition-opacity grayscale contrast-110"
+                className="w-full h-auto object-cover grayscale-[0.8] contrast-[1.1] transition-transform duration-1000 group-hover:scale-105"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent z-10 pointer-events-none opacity-80" />
             </div>
-            
-
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

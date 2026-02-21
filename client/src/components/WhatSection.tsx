@@ -108,48 +108,75 @@ export default function WhatSection() {
   const t = content[language];
 
   return (
-    <section id="what" className="py-24 bg-background relative">
-      <div className="container">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-primary font-bold tracking-widest uppercase mb-4 text-sm">{t.badge}</h2>
-          <h3 className="text-3xl md:text-5xl font-bold mb-6 text-white">
+    <section id="what" className="py-24 bg-[#050505] relative overflow-hidden">
+      <div className="absolute top-[20%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-orange-500/5 blur-[120px] pointer-events-none" />
+      
+      <div className="container relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            className="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full border border-orange-500/20 bg-orange-500/10 mb-6"
+          >
+            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+            <h2 className="text-orange-500 font-bold tracking-[0.2em] uppercase text-xs">{t.badge}</h2>
+          </motion.div>
+          
+          <motion.h3 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 100, damping: 20 }}
+            className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 text-white tracking-tight leading-[1.1]"
+          >
             {t.title}
-          </h3>
-          <p className="text-muted-foreground text-lg">
+          </motion.h3>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 100, damping: 20 }}
+            className="text-gray-400 text-xl font-light leading-relaxed"
+          >
             {t.subtitle}
-          </p>
+          </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 perspective-1000">
           {t.services.map((service, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              initial={{ opacity: 0, y: 30, rotateX: 5 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: index * 0.1, type: "spring", stiffness: 100, damping: 20 }}
+              className="h-full bg-[#0A0A0B] border border-white/5 hover:border-orange-500/40 rounded-xl transition-all duration-500 group relative overflow-hidden flex flex-col"
             >
-              <Card className="h-full bg-card border-border/50 hover:border-primary/50 transition-colors duration-300 group">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                    <service.icon className="h-6 w-6 text-primary group-hover:text-white" />
+              <div className="p-8 lg:p-10 flex-grow relative z-10">
+                <div className="w-16 h-16 rounded-xl bg-orange-500/10 flex items-center justify-center mb-8 group-hover:bg-orange-500 group-hover:scale-110 transition-all duration-500 border border-orange-500/20 shadow-[0_0_30px_rgba(255,122,0,0.1)] group-hover:shadow-[0_0_40px_rgba(255,122,0,0.4)]">
+                  <service.icon className="h-8 w-8 text-orange-500 group-hover:text-white transition-colors duration-500" />
+                </div>
+                
+                <h4 className="text-2xl font-bold text-white mb-4 tracking-tight">{service.title}</h4>
+                <p className="text-gray-400 font-light leading-relaxed mb-8">{service.description}</p>
+                
+                <div className="mt-auto">
+                  <div className="h-[1px] w-full bg-gradient-to-r from-white/10 to-transparent mb-6" />
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-orange-500 mb-4 font-bold">{t.metricsLabel}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {service.metrics.map((metric, i) => (
+                      <span key={i} className="text-xs bg-[#111113] text-gray-300 border border-white/5 px-3 py-1.5 rounded-sm font-medium">
+                        {metric}
+                      </span>
+                    ))}
                   </div>
-                  <CardTitle className="text-2xl font-bold text-white">{service.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-6 min-h-[5rem]">{service.description}</p>
-                  <div className="border-t border-border/50 pt-4">
-                    <p className="text-xs uppercase tracking-widest text-primary mb-2 font-bold">{t.metricsLabel}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {service.metrics.map((metric, i) => (
-                        <span key={i} className="text-xs bg-secondary text-secondary-foreground px-2 py-1 font-medium">
-                          {metric}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+              
+              {/* Hover Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             </motion.div>
           ))}
         </div>

@@ -21,6 +21,8 @@ type LoginFormValues = {
 export default function Login() {
   const { language } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const { user, isAuthenticated, loading } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
@@ -148,6 +150,14 @@ export default function Login() {
     },
   });
 
+  const emailInput = form.watch("email") ?? "";
+  const passwordInput = form.watch("password") ?? "";
+  const typingProgressRaw = Math.min(1, (emailInput.trim().length / 24) * 0.55 + (passwordInput.length / 12) * 0.45);
+  const typingProgress = prefersReducedMotion ? 0 : typingProgressRaw;
+  const videoFilter = `grayscale(${Math.max(0.08, 1 - typingProgress * 0.8)}) brightness(${(0.56 + typingProgress * 0.44).toFixed(2)}) saturate(${(0.68 + typingProgress * 0.52).toFixed(2)})`;
+  const blackOverlayOpacity = Math.max(0.12, 0.48 - typingProgress * 0.3);
+  const gradientOverlayOpacity = Math.max(0.24, 0.72 - typingProgress * 0.36);
+
   // Se o usuário já está autenticado, redireciona para o dashboard apropriado
   useEffect(() => {
     if (!loading && isAuthenticated && user && !loginSuccess) {
@@ -164,6 +174,21 @@ export default function Login() {
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, user, loading, loginSuccess, redirectToAdmin, redirectToDashboard]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    onChange();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", onChange);
+      return () => mediaQuery.removeEventListener("change", onChange);
+    }
+
+    mediaQuery.addListener(onChange);
+    return () => mediaQuery.removeListener(onChange);
+  }, []);
 
   function onSubmit(data: LoginFormValues) {
     console.log("[Login] Submitting login form:", data.email);
@@ -189,14 +214,41 @@ export default function Login() {
     <div className="min-h-screen bg-background flex">
       {/* Lado Esquerdo - Imagem/Branding (Desktop) */}
       <div className="hidden lg:flex w-1/2 bg-black relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 opacity-40">
-           <img 
-            src="/images/ImagemInicial.png" 
-            alt="GLX Partners Office" 
-            className="w-full h-full object-cover grayscale"
-          />
+        <div className="absolute inset-0 pointer-events-none">
+          {!prefersReducedMotion && !videoFailed ? (
+            <video
+              className="w-full h-full object-cover transition-[filter,transform] duration-500"
+              style={{ filter: videoFilter, transform: `scale(${1 + typingProgress * 0.03})` }}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster="/images/ImagemInicial.png"
+              onError={() => setVideoFailed(true)}
+            >
+              <source src="/videos/login-business-loop.webm" type="video/webm" />
+              <source src="/videos/login-business-loop.mp4" type="video/mp4" />
+              <img
+                src="/images/ImagemInicial.png"
+                alt="GLX Partners Office"
+                className="w-full h-full object-cover"
+                style={{ filter: videoFilter }}
+              />
+            </video>
+          ) : (
+            <img
+              src="/images/ImagemInicial.png"
+              alt="GLX Partners Office"
+              className="w-full h-full object-cover transition-[filter,transform] duration-500"
+              style={{ filter: videoFilter, transform: `scale(${1 + typingProgress * 0.03})` }}
+            />
+          )}
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+        <div className="absolute inset-0 bg-black transition-opacity duration-500" style={{ opacity: blackOverlayOpacity }} />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent transition-opacity duration-500" style={{ opacity: gradientOverlayOpacity }} />
+        <div className="absolute inset-x-10 top-10 h-[1px] bg-gradient-to-r from-transparent via-orange-400/45 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-10 bottom-10 h-[1px] bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent pointer-events-none" />
         
         <div className="relative z-10 p-12 max-w-lg">
           <motion.div

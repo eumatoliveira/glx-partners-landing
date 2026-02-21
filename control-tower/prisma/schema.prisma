@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN_GLX
+  CLINIC_OWNER
+  MANAGER
+}
+
+enum Plan {
+  ESSENTIALS
+  PRO
+  ENTERPRISE
+}
+
+enum AlertLevel {
+  P1
+  P2
+  P3
+}
+
+enum AlertStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+model Clinic {
+  id        String   @id @default(uuid())
+  name      String
+  cnpj      String?
+  plan      Plan
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+
+  users             User[]
+  kpis              KPI[]
+  financialReports  FinancialReport[]
+  marketingMetrics  MarketingMetric[]
+  alerts            Alert[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+}
+
+model KPI {
+  id        String   @id @default(uuid())
+  type      String
+  value     Float
+  reference Float?
+  period    String
+  date      DateTime
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId])
+}
+
+model FinancialReport {
+  id            String   @id @default(uuid())
+  periodStart   DateTime
+  periodEnd     DateTime
+  grossRevenue  Float
+  netRevenue    Float
+  fixedCosts    Float
+  variableCosts Float
+  ebitda        Float
+  margin        Float
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId])
+}
+
+model MarketingMetric {
+  id        String   @id @default(uuid())
+  channel   String
+  leads     Int
+  appointments Int
+  attended  Int
+  cost      Float
+  cac       Float?
+  ltv       Float?
+  roi       Float?
+  periodStart DateTime
+  periodEnd   DateTime
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId])
+}
+
+model Alert {
+  id        String      @id @default(uuid())
+  kpiType   String
+  level     AlertLevel
+  message   String
+  impact    Float?
+  status    AlertStatus @default(OPEN)
+  createdAt DateTime    @default(now())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  rootCause RootCauseAnalysis?
+}
+
+model RootCauseAnalysis {
+  id          String   @id @default(uuid())
+  description String
+  actionPlan  String
+  responsible String
+  deadline    DateTime
+
+  alertId String @unique
+  alert   Alert  @relation(fields: [alertId], references: [id])
+}

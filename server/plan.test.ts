@@ -1,100 +1,103 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import {
+  MIN_PLAN_BY_SECTION,
+  PLAN_ACCESS,
+  canAccessSection,
+  getMinPlanForSection,
+  normalizePlanTier,
+  type PlanTier,
+  type SectionId,
+} from "@shared/controlTowerRules";
 
-/**
- * Tests for the plan system:
- * 1. Plan access control logic (which sections each plan can access)
- * 2. updateUserPlan input validation via tRPC schema
- */
+const ALL_SECTIONS: SectionId[] = [
+  "dashboard",
+  "realtime",
+  "agenda",
+  "equipe",
+  "sprints",
+  "funil",
+  "canais",
+  "integracoes",
+  "dados",
+  "relatorios",
+  "configuracoes",
+];
 
-// Plan access control logic (mirrors Dashboard.tsx PLAN_ACCESS)
-const PLAN_ACCESS: Record<string, string[]> = {
-  essencial: ["dashboard", "dados", "configuracoes"],
-  pro: ["dashboard", "realtime", "agenda", "equipe", "sprints", "funil", "canais", "dados", "relatorios", "configuracoes"],
-  enterprise: ["dashboard", "realtime", "agenda", "equipe", "sprints", "funil", "canais", "integracoes", "dados", "relatorios", "configuracoes"],
-};
-
-const canAccess = (plan: string, sectionId: string) =>
-  (PLAN_ACCESS[plan] || PLAN_ACCESS.essencial).includes(sectionId);
-
-describe("Plan Access Control", () => {
-  it("essencial plan should only access dashboard, dados, and configuracoes", () => {
-    expect(canAccess("essencial", "dashboard")).toBe(true);
-    expect(canAccess("essencial", "dados")).toBe(true);
-    expect(canAccess("essencial", "configuracoes")).toBe(true);
-    expect(canAccess("essencial", "realtime")).toBe(false);
-    expect(canAccess("essencial", "agenda")).toBe(false);
-    expect(canAccess("essencial", "equipe")).toBe(false);
-    expect(canAccess("essencial", "sprints")).toBe(false);
-    expect(canAccess("essencial", "funil")).toBe(false);
-    expect(canAccess("essencial", "canais")).toBe(false);
-    expect(canAccess("essencial", "integracoes")).toBe(false);
-    expect(canAccess("essencial", "relatorios")).toBe(false);
+describe("Plan Access Matrix", () => {
+  it("uses Template A as source of truth", () => {
+    expect(PLAN_ACCESS.essencial).toEqual(["dashboard", "dados", "configuracoes"]);
+    expect(PLAN_ACCESS.pro).toEqual([
+      "dashboard",
+      "realtime",
+      "agenda",
+      "equipe",
+      "sprints",
+      "funil",
+      "canais",
+      "dados",
+      "relatorios",
+      "configuracoes",
+    ]);
+    expect(PLAN_ACCESS.enterprise).toEqual([
+      "dashboard",
+      "realtime",
+      "agenda",
+      "equipe",
+      "sprints",
+      "funil",
+      "canais",
+      "integracoes",
+      "dados",
+      "relatorios",
+      "configuracoes",
+    ]);
   });
 
-  it("pro plan should access all except integracoes", () => {
-    expect(canAccess("pro", "dashboard")).toBe(true);
-    expect(canAccess("pro", "realtime")).toBe(true);
-    expect(canAccess("pro", "agenda")).toBe(true);
-    expect(canAccess("pro", "equipe")).toBe(true);
-    expect(canAccess("pro", "sprints")).toBe(true);
-    expect(canAccess("pro", "funil")).toBe(true);
-    expect(canAccess("pro", "canais")).toBe(true);
-    expect(canAccess("pro", "dados")).toBe(true);
-    expect(canAccess("pro", "relatorios")).toBe(true);
-    expect(canAccess("pro", "configuracoes")).toBe(true);
-    expect(canAccess("pro", "integracoes")).toBe(false);
+  it("falls back to essencial when plan is invalid", () => {
+    expect(normalizePlanTier("unknown")).toBe("essencial");
+    expect(canAccessSection("unknown", "dashboard")).toBe(true);
+    expect(canAccessSection("unknown", "relatorios")).toBe(false);
   });
 
-  it("enterprise plan should access everything", () => {
-    const allSections = ["dashboard", "realtime", "agenda", "equipe", "sprints", "funil", "canais", "integracoes", "dados", "relatorios", "configuracoes"];
-    for (const section of allSections) {
-      expect(canAccess("enterprise", section)).toBe(true);
+  it("keeps access tiers as supersets (essencial ⊆ pro ⊆ enterprise)", () => {
+    for (const section of PLAN_ACCESS.essencial) {
+      expect(PLAN_ACCESS.pro).toContain(section);
+    }
+    for (const section of PLAN_ACCESS.pro) {
+      expect(PLAN_ACCESS.enterprise).toContain(section);
     }
   });
 
-  it("unknown plan should fall back to essencial access", () => {
-    expect(canAccess("unknown", "dashboard")).toBe(true);
-    expect(canAccess("unknown", "dados")).toBe(true);
-    expect(canAccess("unknown", "realtime")).toBe(false);
-    expect(canAccess("unknown", "integracoes")).toBe(false);
-  });
-
-  it("each plan should be a superset of the previous tier", () => {
-    const essencialSections = PLAN_ACCESS.essencial;
-    const proSections = PLAN_ACCESS.pro;
-    const enterpriseSections = PLAN_ACCESS.enterprise;
-
-    // Every essencial section should be in pro
-    for (const section of essencialSections) {
-      expect(proSections).toContain(section);
-    }
-
-    // Every pro section should be in enterprise
-    for (const section of proSections) {
-      expect(enterpriseSections).toContain(section);
-    }
+  it("blocks integracoes outside enterprise", () => {
+    expect(canAccessSection("essencial", "integracoes")).toBe(false);
+    expect(canAccessSection("pro", "integracoes")).toBe(false);
+    expect(canAccessSection("enterprise", "integracoes")).toBe(true);
   });
 });
 
-describe("Plan Enum Validation", () => {
-  const validPlans = ["essencial", "pro", "enterprise"];
-
-  it("should accept valid plan values", () => {
-    for (const plan of validPlans) {
-      expect(validPlans.includes(plan)).toBe(true);
+describe("Minimum Plan Mapping", () => {
+  it("returns required plan for each dashboard function", () => {
+    for (const section of ALL_SECTIONS) {
+      expect(getMinPlanForSection(section)).toBe(MIN_PLAN_BY_SECTION[section]);
     }
   });
 
-  it("should reject invalid plan values", () => {
-    const invalidPlans = ["free", "basic", "premium", "gold", ""];
-    for (const plan of invalidPlans) {
-      expect(validPlans.includes(plan)).toBe(false);
-    }
+  it("matches explicit high-impact expectations", () => {
+    expect(getMinPlanForSection("dashboard")).toBe("essencial");
+    expect(getMinPlanForSection("relatorios")).toBe("pro");
+    expect(getMinPlanForSection("integracoes")).toBe("enterprise");
   });
 
-  it("default plan should be essencial", () => {
-    const defaultPlan = "essencial";
-    expect(validPlans.includes(defaultPlan)).toBe(true);
-    expect(defaultPlan).toBe("essencial");
+  it("enforces access consistency with min-plan policy", () => {
+    const rank: Record<PlanTier, number> = { essencial: 0, pro: 1, enterprise: 2 };
+    const plans: PlanTier[] = ["essencial", "pro", "enterprise"];
+
+    for (const section of ALL_SECTIONS) {
+      const minimum = getMinPlanForSection(section);
+      for (const plan of plans) {
+        const expected = rank[plan] >= rank[minimum];
+        expect(canAccessSection(plan, section)).toBe(expected);
+      }
+    }
   });
 });

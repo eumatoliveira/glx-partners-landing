@@ -9,6 +9,7 @@ import {
   updateUserLastSignIn,
   getAllUsers,
   updateUser,
+  updateUserPlan,
   deleteUser,
   updateUserStatus,
   createAuditLog
@@ -22,8 +23,11 @@ const ADMIN_EMAIL = "dev.glxpartners@gmail.com";
 const ADMIN_PASSWORD = "Dev.glxpartners!311";
 
 // Test client user
-const CLIENT_EMAIL = "cliente.teste@glxpartners.com";
-const CLIENT_PASSWORD = "Cliente123!";
+const TEST_CLIENT_PASSWORD = "Cliente123!";
+const TEST_CLIENTS = [
+  { email: "cliente.teste@glxpartners.com", name: "Conta de Teste GLX" },
+  { email: "teste@glx.com", name: "Conta de Teste GLX" },
+] as const;
 
 // Initialize admin user on first load
 async function initializeAdminUser() {
@@ -40,24 +44,42 @@ async function initializeAdminUser() {
   }
 }
 
-// Initialize test client user
-async function initializeClientUser() {
-  const existingClient = await getUserByEmail(CLIENT_EMAIL);
-  if (!existingClient) {
-    const passwordHash = await bcrypt.hash(CLIENT_PASSWORD, 12);
-    await createUserWithPassword({
-      email: CLIENT_EMAIL,
-      passwordHash,
-      name: "Cliente Teste GLX",
-      role: "user",
-    });
-    console.log("[Auth] Client test user created:", CLIENT_EMAIL);
+// Ensure test client users exist and can always login with the documented credentials.
+async function ensureTestClientUsers() {
+  const passwordHash = await bcrypt.hash(TEST_CLIENT_PASSWORD, 12);
+
+  for (const testClient of TEST_CLIENTS) {
+    const existingClient = await getUserByEmail(testClient.email);
+
+    if (!existingClient) {
+      const user = await createUserWithPassword({
+        email: testClient.email,
+        passwordHash,
+        name: testClient.name,
+        role: "user",
+      });
+      if (user) {
+        await updateUserPlan(user.id, "enterprise");
+        await updateUserStatus(user.id, true);
+      }
+      console.log("[Auth] Client test user created:", testClient.email);
+      continue;
+    }
+
+    await Promise.all([
+      updateUserPassword(existingClient.id, passwordHash),
+      updateUserStatus(existingClient.id, true),
+      updateUserPlan(existingClient.id, "enterprise"),
+      existingClient.name ? Promise.resolve() : updateUser(existingClient.id, { name: testClient.name }),
+    ]);
+
+    console.log("[Auth] Client test user ensured:", testClient.email);
   }
 }
 
 // Call initialization
 initializeAdminUser().catch(console.error);
-initializeClientUser().catch(console.error);
+ensureTestClientUsers().catch(console.error);
 
 export const authRouter = router({
   // Login with email/password
@@ -67,7 +89,8 @@ export const authRouter = router({
       password: z.string().min(6),
     }))
     .mutation(async ({ input, ctx }) => {
-      const user = await getUserByEmail(input.email);
+      const normalizedEmail = input.email.trim().toLowerCase();
+      const user = await getUserByEmail(normalizedEmail);
       
       if (!user) {
         throw new TRPCError({
@@ -151,7 +174,8 @@ export const authRouter = router({
       name: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
-      const existingUser = await getUserByEmail(input.email);
+      const normalizedEmail = input.email.trim().toLowerCase();
+      const existingUser = await getUserByEmail(normalizedEmail);
       
       if (existingUser) {
         throw new TRPCError({
@@ -163,7 +187,7 @@ export const authRouter = router({
       const passwordHash = await bcrypt.hash(input.password, 12);
       
       const user = await createUserWithPassword({
-        email: input.email,
+        email: normalizedEmail,
         passwordHash,
         name: input.name,
         role: "user",
@@ -220,6 +244,7 @@ export const authRouter = router({
       password: z.string().min(6),
       name: z.string().optional(),
       role: z.enum(["user", "admin"]).default("user"),
+      plan: z.enum(["essencial", "pro", "enterprise"]).default("essencial"),
     }))
     .mutation(async ({ input, ctx }) => {
       if (ctx.user.role !== "admin") {
@@ -229,7 +254,8 @@ export const authRouter = router({
         });
       }
 
-      const existingUser = await getUserByEmail(input.email);
+      const normalizedEmail = input.email.trim().toLowerCase();
+      const existingUser = await getUserByEmail(normalizedEmail);
       
       if (existingUser) {
         throw new TRPCError({
@@ -241,18 +267,23 @@ export const authRouter = router({
       const passwordHash = await bcrypt.hash(input.password, 12);
       
       const user = await createUserWithPassword({
-        email: input.email,
+        email: normalizedEmail,
         passwordHash,
         name: input.name,
         role: input.role,
       });
+
+      // Apply the selected plan if not default
+      if (user && input.plan && input.plan !== 'essencial') {
+        await updateUserPlan(user.id, input.plan);
+      }
 
       await createAuditLog({
         userId: ctx.user.id,
         action: "create_user",
         entity: "user",
         entityId: user?.id.toString(),
-        newValue: { email: input.email, role: input.role },
+        newValue: { email: normalizedEmail, role: input.role, plan: input.plan },
       });
 
       return { success: true, message: "Usuário criado com sucesso" };
@@ -395,6 +426,7 @@ export const authRouter = router({
         email: u.email,
         name: u.name,
         role: u.role,
+        plan: (u as any).plan ?? 'essencial',
         isActive: u.isActive,
         mfaEnabled: u.mfaEnabled,
         loginMethod: u.loginMethod,

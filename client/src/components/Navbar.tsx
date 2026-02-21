@@ -77,7 +77,7 @@ export default function Navbar() {
           <Link href="/login">
             <Button 
               variant="outline"
-              className="hidden md:flex border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider rounded-none px-6"
+              className="hidden md:flex neon-btn-outline border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider px-6"
             >
               {t.nav.membersArea}
             </Button>
@@ -86,7 +86,7 @@ export default function Navbar() {
           {/* Botão Agendar - Desktop */}
           <Button 
             onClick={() => window.open("http://www.calendly.com/glxpartners", "_blank")}
-            className="hidden md:flex bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider rounded-none px-6"
+            className="hidden md:flex neon-btn-solid bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider px-6"
           >
             {t.nav.schedule}
           </Button>

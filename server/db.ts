@@ -37,6 +37,27 @@ export async function getDb() {
   return _db;
 }
 
+// ==================== IN-MEMORY USER STORE (fallback when no DB) ====================
+
+interface InMemoryUser {
+  id: number;
+  openId: string;
+  name: string | null;
+  email: string | null;
+  passwordHash: string | null;
+  loginMethod: string | null;
+  role: 'user' | 'admin';
+  plan: 'essencial' | 'pro' | 'enterprise';
+  mfaEnabled: boolean;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  lastSignedIn: Date;
+}
+
+const inMemoryUsers: InMemoryUser[] = [];
+let inMemoryIdCounter = 1;
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
@@ -44,7 +65,14 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
+    // In-memory fallback: update existing user or ignore
+    const existing = inMemoryUsers.find(u => u.openId === user.openId);
+    if (existing) {
+      if (user.name !== undefined) existing.name = user.name ?? null;
+      if (user.email !== undefined) existing.email = user.email ?? null;
+      if (user.lastSignedIn !== undefined) existing.lastSignedIn = user.lastSignedIn;
+      existing.updatedAt = new Date();
+    }
     return;
   }
 
@@ -98,14 +126,14 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
+  if (db) {
+    const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+    return result.length > 0 ? result[0] : undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  // In-memory fallback
+  const user = inMemoryUsers.find(u => u.openId === openId);
+  return user || undefined;
 }
 
 // ==================== ADMIN DASHBOARD QUERIES ====================
@@ -113,9 +141,12 @@ export async function getUserByOpenId(openId: string) {
 // Users Management
 export async function getAllUsers(limit = 100, offset = 0) {
   const db = await getDb();
-  if (!db) return [];
+  if (db) {
+    return await db.select().from(users).limit(limit).offset(offset).orderBy(desc(users.createdAt));
+  }
   
-  return await db.select().from(users).limit(limit).offset(offset).orderBy(desc(users.createdAt));
+  // In-memory fallback
+  return inMemoryUsers.slice(offset, offset + limit).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 export async function getUserById(id: number) {
@@ -128,32 +159,62 @@ export async function getUserById(id: number) {
 
 export async function updateUserRole(userId: number, role: 'user' | 'admin') {
   const db = await getDb();
-  if (!db) return;
-  
-  await db.update(users).set({ role }).where(eq(users.id, userId));
+  if (db) {
+    await db.update(users).set({ role }).where(eq(users.id, userId));
+    return;
+  }
+  // In-memory fallback
+  const user = inMemoryUsers.find(u => u.id === userId);
+  if (user) user.role = role;
 }
 
 export async function updateUserPlan(userId: number, plan: 'essencial' | 'pro' | 'enterprise') {
   const db = await getDb();
-  if (!db) return;
-  
-  await db.update(users).set({ plan }).where(eq(users.id, userId));
+  if (db) {
+    await (db.update(users) as any).set({ plan }).where(eq(users.id, userId));
+    return;
+  }
+  // In-memory fallback
+  const user = inMemoryUsers.find(u => u.id === userId);
+  if (user) user.plan = plan;
+}
+
+export async function searchUsers(query: string) {
+  const db = await getDb();
+  const q = query.toLowerCase();
+  if (db) {
+    // Simple search using like patterns
+    const allUsers = await db.select().from(users).limit(100);
+    return allUsers.filter(u =>
+      u.email?.toLowerCase().includes(q) ||
+      u.name?.toLowerCase().includes(q)
+    );
+  }
+  // In-memory fallback
+  return inMemoryUsers.filter(u =>
+    u.email?.toLowerCase().includes(q) ||
+    u.name?.toLowerCase().includes(q)
+  );
 }
 
 export async function getUsersCount() {
   const db = await getDb();
-  if (!db) return 0;
-  
-  const result = await db.select({ count: count() }).from(users);
-  return result[0]?.count ?? 0;
+  if (db) {
+    const result = await db.select({ count: count() }).from(users);
+    return result[0]?.count ?? 0;
+  }
+  // In-memory fallback
+  return inMemoryUsers.length;
 }
 
 export async function getMfaEnabledCount() {
   const db = await getDb();
-  if (!db) return 0;
-  
-  const result = await db.select({ count: count() }).from(users).where(eq(users.mfaEnabled, true));
-  return result[0]?.count ?? 0;
+  if (db) {
+    const result = await db.select({ count: count() }).from(users).where(eq(users.mfaEnabled, true));
+    return result[0]?.count ?? 0;
+  }
+  // In-memory fallback
+  return inMemoryUsers.filter(u => u.mfaEnabled).length;
 }
 
 // Audit Logs
@@ -376,25 +437,20 @@ export async function upsertServiceStatus(status: InsertServiceStatus) {
   });
 }
 
-// Search users by email or name
-export async function searchUsers(query: string, limit = 20) {
-  const db = await getDb();
-  if (!db) return [];
-  
-  return await db.select()
-    .from(users)
-    .where(sql`${users.email} LIKE ${`%${query}%`} OR ${users.name} LIKE ${`%${query}%`}`)
-    .limit(limit);
-}
+
 
 // ==================== EMAIL/PASSWORD AUTHENTICATION ====================
 
 export async function getUserByEmail(email: string) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (db) {
+    const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  }
   
-  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  // In-memory fallback
+  const user = inMemoryUsers.find(u => u.email === email);
+  return user || undefined;
 }
 
 export async function createUserWithPassword(userData: {
@@ -404,62 +460,115 @@ export async function createUserWithPassword(userData: {
   role?: 'user' | 'admin';
 }) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (db) {
+    // Generate a unique openId for email/password users
+    const openId = `email_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    
+    await db.insert(users).values({
+      openId,
+      email: userData.email,
+      passwordHash: userData.passwordHash,
+      name: userData.name || userData.email.split('@')[0],
+      loginMethod: 'email',
+      role: userData.role || 'user',
+      isActive: true,
+      lastSignedIn: new Date(),
+    });
+    
+    return await getUserByEmail(userData.email);
+  }
   
-  // Generate a unique openId for email/password users
+  // In-memory fallback
   const openId = `email_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-  
-  await db.insert(users).values({
+  const now = new Date();
+  const newUser: InMemoryUser = {
+    id: inMemoryIdCounter++,
     openId,
     email: userData.email,
     passwordHash: userData.passwordHash,
     name: userData.name || userData.email.split('@')[0],
     loginMethod: 'email',
     role: userData.role || 'user',
+    plan: 'essencial',
+    mfaEnabled: false,
     isActive: true,
-    lastSignedIn: new Date(),
-  });
-  
-  return await getUserByEmail(userData.email);
+    createdAt: now,
+    updatedAt: now,
+    lastSignedIn: now,
+  };
+  inMemoryUsers.push(newUser);
+  console.log(`[InMemory] User created: ${userData.email} (role: ${userData.role || 'user'})`);
+  return newUser;
 }
 
 export async function updateUserPassword(userId: number, passwordHash: string) {
   const db = await getDb();
-  if (!db) return;
+  if (db) {
+    await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
+    return;
+  }
   
-  await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
+  // In-memory fallback
+  const user = inMemoryUsers.find(u => u.id === userId);
+  if (user) user.passwordHash = passwordHash;
 }
 
 export async function updateUserStatus(userId: number, isActive: boolean) {
   const db = await getDb();
-  if (!db) return;
+  if (db) {
+    await db.update(users).set({ isActive }).where(eq(users.id, userId));
+    return;
+  }
   
-  await db.update(users).set({ isActive }).where(eq(users.id, userId));
+  // In-memory fallback
+  const user = inMemoryUsers.find(u => u.id === userId);
+  if (user) user.isActive = isActive;
 }
 
 export async function updateUserLastSignIn(userId: number) {
   const db = await getDb();
-  if (!db) return;
+  if (db) {
+    await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, userId));
+    return;
+  }
   
-  await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, userId));
+  // In-memory fallback
+  const user = inMemoryUsers.find(u => u.id === userId);
+  if (user) user.lastSignedIn = new Date();
 }
 
 export async function deleteUser(userId: number) {
   const db = await getDb();
-  if (!db) return;
+  if (db) {
+    await db.delete(users).where(eq(users.id, userId));
+    return;
+  }
   
-  await db.delete(users).where(eq(users.id, userId));
+  // In-memory fallback
+  const idx = inMemoryUsers.findIndex(u => u.id === userId);
+  if (idx !== -1) inMemoryUsers.splice(idx, 1);
 }
 
 export async function updateUser(userId: number, updates: { name?: string; email?: string; role?: 'user' | 'admin'; isActive?: boolean }) {
   const db = await getDb();
-  if (!db) return;
+  if (db) {
+    await db.update(users).set(updates).where(eq(users.id, userId));
+    return;
+  }
   
-  await db.update(users).set(updates).where(eq(users.id, userId));
+  // In-memory fallback
+  const user = inMemoryUsers.find(u => u.id === userId);
+  if (user) {
+    if (updates.name !== undefined) user.name = updates.name;
+    if (updates.email !== undefined) user.email = updates.email;
+    if (updates.role !== undefined) user.role = updates.role;
+    if (updates.isActive !== undefined) user.isActive = updates.isActive;
+  }
 }
 
 
 // ==================== DASHBOARD CLIENTE - DATA ACCESS ====================
+
 
 import {
   clients,
@@ -1012,9 +1121,61 @@ export async function getAllDashboardData(clientId: number) {
 
 // ==================== MANUAL ENTRIES ====================
 
+const TEST_CLIENT_EMAILS = new Set([
+  "cliente.teste@glxpartners.com",
+  "teste@glx.com",
+]);
+const inMemoryManualEntries: any[] = [];
+let manualEntryIdCounter = 1;
+
+const createInMemoryManualEntry = (
+  userId: number,
+  category: "financial" | "attendance",
+  label: string,
+  value: string,
+  detail: string
+) => ({
+  id: manualEntryIdCounter++,
+  userId,
+  category,
+  entryType: label,
+  label,
+  value,
+  detail,
+  createdAt: new Date().toISOString(),
+});
+
+const seedManualEntriesForTestUser = (userId: number) => {
+  const alreadySeeded = inMemoryManualEntries.some(e => e.userId === userId);
+  if (alreadySeeded) return;
+
+  inMemoryManualEntries.push(
+    createInMemoryManualEntry(userId, "financial", "Receita (Faturamento)", "2400000", "Receita Recorrente + Projetos"),
+    createInMemoryManualEntry(userId, "financial", "CAC", "280", "Custo por lead convertido"),
+    createInMemoryManualEntry(userId, "financial", "LTV", "1200", "Projetado")
+  );
+
+  for (let i = 0; i < 98; i++) {
+    inMemoryManualEntries.push(createInMemoryManualEntry(userId, "attendance", "Paciente", "1", "Atendimento Normal"));
+  }
+  for (let i = 0; i < 22; i++) {
+    const reason = i % 2 === 0 ? "Esqueceu" : (i % 3 === 0 ? "Imprevisto" : "Emergencia de ultima hora");
+    inMemoryManualEntries.push(createInMemoryManualEntry(userId, "attendance", "No-Show", "1", reason));
+  }
+};
+
 export async function getManualEntries(userId: number, category?: "financial" | "attendance") {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) {
+    const currentUser = inMemoryUsers.find(u => u.id === userId);
+    const normalizedEmail = currentUser?.email?.toLowerCase();
+    if (normalizedEmail && TEST_CLIENT_EMAILS.has(normalizedEmail)) {
+      seedManualEntriesForTestUser(userId);
+    }
+    return inMemoryManualEntries
+      .filter(e => e.userId === userId && (!category || e.category === category))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
   if (category) {
     return db.select().from(manualEntries)
       .where(and(eq(manualEntries.userId, userId), eq(manualEntries.category, category)))
@@ -1027,14 +1188,24 @@ export async function getManualEntries(userId: number, category?: "financial" | 
 
 export async function createManualEntry(data: InsertManualEntry) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) {
+    const entry = { id: manualEntryIdCounter++, ...data, createdAt: new Date().toISOString() };
+    inMemoryManualEntries.push(entry);
+    console.log("[InMemory] Manual entry created:", entry);
+    return entry.id;
+  }
   const result = await db.insert(manualEntries).values(data);
   return result[0].insertId;
 }
 
 export async function deleteManualEntry(id: number, userId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) {
+    const idx = inMemoryManualEntries.findIndex(e => e.id === id && e.userId === userId);
+    if (idx !== -1) inMemoryManualEntries.splice(idx, 1);
+    return { success: true };
+  }
   await db.delete(manualEntries).where(and(eq(manualEntries.id, id), eq(manualEntries.userId, userId)));
   return { success: true };
 }
+
