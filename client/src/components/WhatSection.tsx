@@ -1,0 +1,516 @@
+import { useRef, useState } from "react";
+import { m, type Variants } from "framer-motion";
+import { BarChart3, Scissors, Settings, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { ScrollWordHighlight } from "@/animation/components/ScrollWordHighlight";
+import SplitText from "@/animation/components/SplitText";
+import { useMotionCapabilities } from "@/animation/hooks/useMotionCapabilities";
+import { useParallaxScene } from "@/animation/hooks/useParallaxScene";
+import { shouldEnableParallax } from "@/animation/utils/perfGuards";
+import { ParallaxTiltCard } from "@/animation/components/ParallaxTiltCard";
+import { cn } from "@/lib/utils";
+
+type ServiceCard = {
+  icon: typeof TrendingUp;
+  title: string;
+  description: string;
+  metrics: string[];
+  outcome: string;
+  mechanism: string;
+  learnMoreTitle: string;
+  learnMoreBody: string;
+  visualType: "bars" | "pipeline" | "signal" | "savings";
+};
+
+type WhatCopy = {
+  badge: string;
+  title: string;
+  subtitle: string;
+  resultLabel: string;
+  mechanismLabel: string;
+  learnMore: string;
+  hideMore: string;
+  services: ServiceCard[];
+};
+
+function FeatureMiniVisual({
+  type,
+  reducedMotion,
+  active,
+}: {
+  type: ServiceCard["visualType"];
+  reducedMotion: boolean;
+  active: boolean;
+}) {
+  if (type === "bars") {
+    return (
+      <div className="grid h-24 grid-cols-5 gap-2 rounded-xl border border-white/10 bg-[#0d1014]/80 p-3">
+        {[0.35, 0.48, 0.62, 0.78, 0.68].map((v, i) => (
+          <div key={i} className="flex items-end rounded-md border border-white/6 bg-white/[0.015] p-1">
+            <m.div
+              className="w-full rounded bg-gradient-to-t from-orange-500/80 to-cyan-300/55"
+              initial={{ height: 0 }}
+              whileInView={{ height: `${Math.round(v * 100)}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, ease: "easeOut", delay: 0.12 + i * 0.04 }}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (type === "pipeline") {
+    return (
+      <div className="relative h-24 overflow-hidden rounded-xl border border-white/10 bg-[#0d1014]/80 p-3">
+        <div className="grid h-full grid-cols-3 gap-2">
+          {["Lead", "Qualify", "Close"].map((label) => (
+            <div key={label} className="flex items-center justify-center rounded-md border border-white/6 bg-white/[0.02] text-[10px] uppercase tracking-[0.16em] text-white/55">
+              {label}
+            </div>
+          ))}
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3">
+          <m.div
+            className="h-6 w-6 rounded-full border border-orange-300/30 bg-orange-500/25 shadow-[0_0_14px_rgba(230,126,34,0.18)]"
+            animate={reducedMotion ? undefined : { x: ["0%", "250%", "510%"] }}
+            transition={reducedMotion ? undefined : { duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+            style={{ opacity: active ? 1 : 0.75 }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "signal") {
+    return (
+      <div className="relative h-24 overflow-hidden rounded-xl border border-white/10 bg-[#0d1014]/80 p-3">
+        <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-white/45">
+          <span>Signal</span>
+          <span>Live</span>
+        </div>
+        <svg viewBox="0 0 220 48" className="h-14 w-full">
+          <path d="M0 34 C22 34, 22 10, 44 10 S66 38, 88 38 S110 16, 132 16 S154 30, 176 30 S198 12, 220 12" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2" />
+          <m.path
+            d="M0 34 C22 34, 22 10, 44 10 S66 38, 88 38 S110 16, 132 16 S154 30, 176 30 S198 12, 220 12"
+            fill="none"
+            stroke="url(#signal-gradient)"
+            strokeWidth="2.5"
+            initial={{ pathLength: 0.1, pathOffset: 0.9 }}
+            whileInView={{ pathLength: 1, pathOffset: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.75, ease: "easeOut", delay: 0.14 }}
+          />
+          <defs>
+            <linearGradient id="signal-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="rgba(230,126,34,0.55)" />
+              <stop offset="100%" stopColor="rgba(34,211,238,0.78)" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative h-24 rounded-xl border border-white/10 bg-[#0d1014]/80 p-3">
+      <div className="mb-2 text-[10px] uppercase tracking-[0.16em] text-white/45">Savings map</div>
+      <div className="grid grid-cols-2 gap-2">
+        {[["Espera", "24%"], ["Retrabalho", "18%"], ["Glosa", "11%"], ["No-show", "15%"]].map(([label, value]) => (
+          <div key={label} className="rounded-md border border-white/6 bg-white/[0.02] px-2 py-1.5">
+            <div className="text-[9px] uppercase tracking-[0.14em] text-white/45">{label}</div>
+            <div className="text-sm font-semibold tracking-tight text-white">{value}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function WhatSection() {
+  const { language } = useLanguage();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const capabilities = useMotionCapabilities();
+  const reducedMotion = capabilities.prefersReducedMotion || capabilities.motionLevel === "off";
+  const parallaxEnabled = shouldEnableParallax(capabilities);
+  const { ySoft, yDeep, xSoft } = useParallaxScene({
+    target: sectionRef,
+    motionLevel: capabilities.motionLevel,
+    enabled: parallaxEnabled,
+    offset: ["start end", "end start"],
+  });
+
+  const content: Record<"pt" | "en" | "es", WhatCopy> = {
+    pt: {
+      badge: "ONDE ATUAMOS",
+      title: "Quatro alavancas. Um unico sistema integrado.",
+      subtitle:
+        "Cada frente ataca uma camada diferente do mesmo problema: sua clinica tem capacidade para lucrar mais — e voce ainda nao sabe exatamente quanto.",
+      resultLabel: "Resultado",
+      mechanismLabel: "Mecanismo",
+      learnMore: "Ver detalhes",
+      hideMore: "Ocultar detalhes",
+      services: [
+        {
+          icon: TrendingUp,
+          title: "01 — Growth & Captacao",
+          description: "Mais pacientes certos, com CAC controlado.",
+          outcome: "Sem aumentar o investimento em midia - aumentando a conversao do que ja entra.",
+          mechanism: "Estruturamos funil, canais e mensagem para aumentar demanda qualificada.",
+          learnMoreTitle: "Growth & Captacao",
+          learnMoreBody:
+            "Estruturamos funil, canais e mensagem para aumentar demanda qualificada. Sem aumentar o investimento em midia — aumentando a conversao do que ja entra.",
+          metrics: ["CAC", "Lead→Consulta", "No-Show", "Conversao"],
+          visualType: "bars",
+        },
+        {
+          icon: Settings,
+          title: "02 — Operacao & Capacidade",
+          description: "Mesma estrutura. Mais resultado.",
+          outcome: "Escala operacional sem caos, fila e retrabalho drenando energia do time.",
+          mechanism: "Eliminamos gargalos na agenda, no fluxo de atendimento e nos processos repetitivos que drenam tempo da equipe.",
+          learnMoreTitle: "Operacao & Capacidade",
+          learnMoreBody:
+            "Desenhamos a operacao para escalar sem caos. Eliminamos gargalos na agenda, no fluxo de atendimento e nos processos repetitivos que drenam tempo da equipe.",
+          metrics: ["Tempo de Ciclo", "Ocupacao", "Capacidade", "NPS"],
+          visualType: "pipeline",
+        },
+        {
+          icon: Scissors,
+          title: "03 — Margem & Financeiro",
+          description: "Descubra onde o dinheiro some.",
+          outcome: "Mapeamos a margem real por servico, por medico e por canal.",
+          mechanism: "Identificamos custos invisiveis - glosas, retrabalho e descontos sem politica - e recuperamos margem que ja e sua.",
+          learnMoreTitle: "Margem & Financeiro",
+          learnMoreBody:
+            "Mapeamos a margem real por servico, por medico e por canal. Identificamos custos invisiveis — glosas, retrabalho, descontos sem politica — e recuperamos margem que ja e sua.",
+          metrics: ["EBITDA", "Margem/Servico", "Break-even", "Glosas"],
+          visualType: "savings",
+        },
+        {
+          icon: BarChart3,
+          title: "04 — Dados & Governanca",
+          description: "Decisoes por KPI. Nao por extrato.",
+          outcome: "Voce para de apagar incendio e comeca a liderar com dados.",
+          mechanism: "Instalamos o GLX Control Tower: dashboard executivo com alertas automaticos, sprints semanais e rituais de gestao.",
+          learnMoreTitle: "Dados & Governanca",
+          learnMoreBody:
+            "Instalamos o GLX Control Tower: dashboard executivo com alertas automaticos, sprints semanais e rituais de gestao. Voce para de apagar incendio e comeca a liderar com dados.",
+          metrics: ["Dashboard", "KPIs", "Alertas", "Forecast"],
+          visualType: "signal",
+        },
+      ],
+    },
+    en: {
+      badge: "Performance Blocks",
+      title: "Execution system built like product blocks.",
+      subtitle:
+        "Each workstream combines outcome, mechanism and operating cadence. Modular structure to scale with clarity without losing control.",
+      resultLabel: "Result",
+      mechanismLabel: "Mechanism",
+      learnMore: "Learn more",
+      hideMore: "Hide details",
+      services: [
+        {
+          icon: TrendingUp,
+          title: "Growth & Acquisition",
+          description: "Qualified demand and predictable revenue without inflating CAC.",
+          outcome: "More qualified appointments with controlled CAC and conversion.",
+          mechanism: "Offer, messaging, funnel and weekly optimization cadence.",
+          learnMoreTitle: "Growth Operating Layer",
+          learnMoreBody:
+            "We design growth as a product system: channels, copy, sales handoff and a conversion dashboard with weekly optimization based on signal quality.",
+          metrics: ["CAC", "Conversion", "Revenue"],
+          visualType: "bars",
+        },
+        {
+          icon: Settings,
+          title: "Operations & Lean Design",
+          description: "Operational scale with less queueing, bottlenecks and rework.",
+          outcome: "Released capacity and more predictable operating flow.",
+          mechanism: "Process map, bottleneck analysis, standardization and Lean rituals.",
+          learnMoreTitle: "Operational Architecture",
+          learnMoreBody:
+            "We structure the end-to-end flow, define service standards and follow-up routines to reduce variability, waiting and throughput loss.",
+          metrics: ["Cycle Time", "Capacity", "NPS"],
+          visualType: "pipeline",
+        },
+        {
+          icon: BarChart3,
+          title: "KPIs & Execution Sprints",
+          description: "Strategy translated into operating cadence with owner and deadline.",
+          outcome: "Faster decisions with the right indicators and delivery rhythm.",
+          mechanism: "Scorecards, executive rituals and weekly sprints.",
+          learnMoreTitle: "Execution Control System",
+          learnMoreBody:
+            "We build a decision cockpit with a few high-quality indicators and a short-sprint routine to remove blockers, test levers and register gains.",
+          metrics: ["Goals", "Speed", "Adherence"],
+          visualType: "signal",
+        },
+        {
+          icon: Scissors,
+          title: "Waste Elimination",
+          description: "Margin recovery by cutting invisible costs and operational waste.",
+          outcome: "Higher net margin with recurring loss reduction.",
+          mechanism: "Loss diagnosis, prioritization and gain-capture plan.",
+          learnMoreTitle: "Margin Recovery Engine",
+          learnMoreBody:
+            "We identify waiting, rework, denials and no-show waste, prioritize by financial impact and implement capture mechanisms to sustain gains.",
+          metrics: ["Margin", "Reduction", "EBITDA"],
+          visualType: "savings",
+        },
+      ],
+    },
+    es: {
+      badge: "Performance Blocks",
+      title: "Sistema de ejecucion construido como bloques de producto.",
+      subtitle:
+        "Cada frente combina resultado, mecanismo y ritmo operativo. Estructura modular para escalar con claridad sin perder control.",
+      resultLabel: "Resultado",
+      mechanismLabel: "Mecanismo",
+      learnMore: "Learn more",
+      hideMore: "Hide details",
+      services: [
+        {
+          icon: TrendingUp,
+          title: "Growth & Adquisicion",
+          description: "Demanda calificada y previsibilidad de ingresos sin inflar CAC.",
+          outcome: "Mas agendas calificadas con CAC y conversion controlados.",
+          mechanism: "Oferta, mensaje, embudo y rutina semanal de optimizacion.",
+          learnMoreTitle: "Growth Operating Layer",
+          learnMoreBody:
+            "Disenamos growth como sistema de producto: canales, copy, handoff comercial y panel de conversion con ajustes semanales por calidad de senal.",
+          metrics: ["CAC", "Conversion", "Ingresos"],
+          visualType: "bars",
+        },
+        {
+          icon: Settings,
+          title: "Operacion & Lean Design",
+          description: "Escala operativa con menos filas, cuellos y retrabajo.",
+          outcome: "Capacidad liberada y flujo operativo mas predecible.",
+          mechanism: "Mapa de procesos, cuellos, estandarizacion y rituales Lean.",
+          learnMoreTitle: "Operational Architecture",
+          learnMoreBody:
+            "Estructuramos el flujo de punta a punta, definimos estandares de servicio y rutinas de seguimiento para reducir variabilidad y espera.",
+          metrics: ["Tiempo de Ciclo", "Capacidad", "NPS"],
+          visualType: "pipeline",
+        },
+        {
+          icon: BarChart3,
+          title: "KPIs & Sprints de Ejecucion",
+          description: "Estrategia traducida en cadencia operativa con responsable y plazo.",
+          outcome: "Decision rapida con indicadores correctos y ritmo de entrega.",
+          mechanism: "Scorecards, rituales ejecutivos y sprints semanales.",
+          learnMoreTitle: "Execution Control System",
+          learnMoreBody:
+            "Construimos un cockpit de decision con pocos indicadores de alta calidad y una rutina de sprints cortos para remover bloqueos y capturar ganancias.",
+          metrics: ["Metas", "Velocidad", "Adherencia"],
+          visualType: "signal",
+        },
+        {
+          icon: Scissors,
+          title: "Eliminacion de Desperdicios",
+          description: "Recuperacion de margen eliminando costo invisible y desperdicio.",
+          outcome: "Mas margen neto con reduccion de perdidas recurrentes.",
+          mechanism: "Diagnostico de perdidas, priorizacion y plan de captura.",
+          learnMoreTitle: "Margin Recovery Engine",
+          learnMoreBody:
+            "Identificamos desperdicios de espera, retrabajo, glosas y no-show, priorizamos por impacto financiero e implantamos mecanismos para sostener la mejora.",
+          metrics: ["Margen", "Reduccion", "EBITDA"],
+          visualType: "savings",
+        },
+      ],
+    },
+  };
+
+  const t = content[language];
+  const gridVariants: Variants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.55,
+        ease: "easeOut",
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.55, ease: "easeOut" },
+    },
+  };
+
+  return (
+    <section ref={sectionRef} id="what" className="relative overflow-hidden border-t border-white/5 bg-[#050506] py-24 md:py-28">
+      <m.div
+        aria-hidden="true"
+        style={{ y: ySoft, x: xSoft }}
+        className="pointer-events-none absolute left-[-10%] top-[20%] h-[40vw] w-[40vw] rounded-full bg-orange-500/8 blur-[120px]"
+      />
+      <m.div
+        aria-hidden="true"
+        style={{ y: yDeep }}
+        className="pointer-events-none absolute right-[-6%] top-[45%] h-[28rem] w-[28rem] rounded-full bg-cyan-500/8 blur-[130px]"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+
+      <div className="container relative z-10">
+        <m.div style={{ y: ySoft }} className="mx-auto mb-16 max-w-3xl text-center md:mb-20">
+          <m.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="mb-6 inline-flex items-center justify-center gap-2 rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1"
+          >
+            <span className="h-2 w-2 rounded-full bg-orange-500" />
+            <SplitText
+              text={t.badge}
+              tag="h2"
+              splitType="words"
+              className="text-xs font-bold uppercase tracking-[0.2em] text-orange-500"
+              delay={18}
+              duration={0.35}
+              threshold={0.2}
+              rootMargin="-80px"
+              from={{ opacity: 0, transform: "translateY(5px)" }}
+              to={{ opacity: 1, transform: "translateY(0px)" }}
+            />
+          </m.div>
+
+          <m.h3
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ delay: 0.08, duration: 0.55, ease: "easeOut" }}
+            className="mb-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-white md:text-5xl lg:text-6xl"
+          >
+            <SplitText
+              text={t.title}
+              tag="span"
+              splitType="chars"
+              className="block text-center"
+              textAlign="center"
+              delay={12}
+              duration={0.36}
+              threshold={0.12}
+              rootMargin="-80px"
+              from={{ opacity: 0, transform: "translateY(12px)" }}
+              to={{ opacity: 1, transform: "translateY(0px)" }}
+            />
+          </m.h3>
+
+          <m.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ delay: 0.14, duration: 0.5, ease: "easeOut" }}
+            style={{ y: yDeep }}
+            className="text-lg font-light leading-relaxed md:text-xl"
+          >
+            <ScrollWordHighlight text={t.subtitle} wordClassName="text-gray-500" activeWordClassName="text-gray-300" />
+          </m.div>
+        </m.div>
+
+        <m.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          variants={gridVariants}
+          className="grid grid-cols-1 gap-6 md:grid-cols-2"
+        >
+          {t.services.map((service, index) => {
+            const active = hoveredIndex === index;
+            const dimmed = hoveredIndex !== null && hoveredIndex !== index;
+
+            return (
+              <m.div
+                key={service.title}
+                variants={itemVariants}
+                className={cn("transition-opacity duration-[180ms] ease-out", dimmed && "opacity-[0.88]")}
+              >
+                <ParallaxTiltCard
+                  intensity={capabilities.motionLevel === "full" ? 5 : 3}
+                  onHoverStart={() => setHoveredIndex(index)}
+                  onHoverEnd={() => setHoveredIndex((current) => (current === index ? null : current))}
+                  whileHover={
+                    reducedMotion
+                      ? undefined
+                      : { y: -4, scale: 1.008, transition: { duration: 0.18, ease: "easeOut" } }
+                  }
+                  whileTap={reducedMotion ? undefined : { scale: 0.997 }}
+                  className={cn(
+                    "group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-[#0b0c10] p-6 transition-[border-color,background-color] duration-[220ms] md:p-8",
+                    "hover:border-orange-400/30",
+                    active && "border-orange-400/35",
+                  )}
+                >
+                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.004)_46%,rgba(255,255,255,0.002))]" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-orange-500/70 via-orange-300/25 to-transparent" />
+
+                  <div className="relative z-10 flex h-full flex-col">
+                    <div className="mb-6">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-orange-400/25 bg-orange-500/5 text-orange-300 md:h-11 md:w-11">
+                          <service.icon className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xl font-bold leading-tight tracking-tight text-white md:text-[1.45rem]">
+                            {service.title}
+                          </h4>
+                          <p className="mt-2 max-w-[48ch] text-sm leading-6 text-white/65 md:text-[15px]">
+                            {service.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mb-6 grid gap-3 md:grid-cols-2">
+                      <div className="rounded-xl border border-white/8 bg-transparent px-4 py-3.5">
+                        <div className="mb-1.5 text-[10px] uppercase tracking-[0.14em] text-orange-300/85">
+                          {t.resultLabel}
+                        </div>
+                        <div className="text-[13px] leading-6 text-white/88 md:text-sm">
+                          {service.outcome}
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-white/8 bg-transparent px-4 py-3.5">
+                        <div className="mb-1.5 text-[10px] uppercase tracking-[0.14em] text-cyan-200/70">
+                          {t.mechanismLabel}
+                        </div>
+                        <div className="text-[13px] leading-6 text-white/80 md:text-sm">
+                          {service.mechanism}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto border-t border-white/8 pt-4">
+                      <div className="flex flex-wrap gap-2">
+                        {service.metrics.map((metric) => (
+                          <span
+                            key={metric}
+                            className="rounded-full border border-white/10 bg-transparent px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/55"
+                          >
+                            {metric}
+                          </span>
+                        ))}
+                      </div>
+
+                    </div>
+                  </div>
+                </ParallaxTiltCard>
+              </m.div>
+            );
+          })}
+        </m.div>
+      </div>
+    </section>
+  );
+}

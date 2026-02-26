@@ -1,0 +1,134 @@
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { lazy, Suspense } from "react";
+import { Redirect, Route, Switch, useLocation } from "wouter";
+import { MotionRouteTransition } from "@/animation/components/MotionRouteTransition";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import AdminRoute from "./components/AdminRoute";
+import ClientRoute from "./components/ClientRoute";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+
+const ThankYou = lazy(() => import("./pages/ThankYou"));
+const Plans = lazy(() => import("./pages/Plans"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminFinanceiro = lazy(() => import("./pages/admin/AdminFinanceiro"));
+const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
+const AdminSistema = lazy(() => import("./pages/admin/AdminSistema"));
+const AdminErros = lazy(() => import("./pages/admin/AdminErros"));
+const AdminFeatureFlags = lazy(() => import("./pages/admin/AdminFeatureFlags"));
+
+const CEOScorecard = lazy(() => import("./pages/client/CEOScorecard"));
+const OperationalWaste = lazy(() => import("./pages/client/OperationalWaste"));
+const GrowthEngine = lazy(() => import("./pages/client/GrowthEngine"));
+const Financials = lazy(() => import("./pages/client/Financials"));
+const Operations = lazy(() => import("./pages/client/Operations"));
+const Quality = lazy(() => import("./pages/client/Quality"));
+const People = lazy(() => import("./pages/client/People"));
+const DataGovernance = lazy(() => import("./pages/client/DataGovernance"));
+const Ingestao = lazy(() => import("./pages/client/Ingestao"));
+const WarRoomPage = lazy(() => import("./pages/client/WarRoomPage"));
+const CeoDashboardPage = lazy(() => import("./pages/client/RoleDashboardPage").then(m => ({ default: m.CeoDashboardPage })));
+const GestorDashboardPage = lazy(() => import("./pages/client/RoleDashboardPage").then(m => ({ default: m.GestorDashboardPage })));
+const OperacionalDashboardPage = lazy(() => import("./pages/client/RoleDashboardPage").then(m => ({ default: m.OperacionalDashboardPage })));
+
+function RouteFallback() {
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+      <div className="relative">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -m-8 rounded-full bg-primary/5 blur-2xl animate-pulse-glow"
+        />
+      </div>
+      <p className="text-xs text-muted-foreground tracking-widest uppercase animate-pulse">
+        Carregando...
+      </p>
+    </div>
+  );
+}
+
+function Router() {
+  const [location] = useLocation();
+
+  return (
+    <MotionRouteTransition routeKey={location}>
+      <Suspense fallback={<RouteFallback />}>
+        <Switch location={location}>
+          <Route path="/"><Home /></Route>
+          <Route path="/obrigado"><ThankYou /></Route>
+          <Route path="/login"><Login /></Route>
+          <Route path="/dashboard"><ClientRoute><Dashboard /></ClientRoute></Route>
+          <Route path="/ceo"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/gestor"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/operacional"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/warroom"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/financeiro"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/operacoes"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/growth"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/qualidade"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/equipe"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/ingestao"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/integracoes"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
+          <Route path="/planos"><Plans /></Route>
+          <Route path="/privacy"><Privacy /></Route>
+          <Route path="/terms"><Terms /></Route>
+          <Route path="/privacidade"><Privacy /></Route>
+          <Route path="/termos"><Terms /></Route>
+
+          <Route path="/admin"><AdminRoute><AdminDashboard /></AdminRoute></Route>
+          <Route path="/admin/financeiro"><AdminRoute><AdminFinanceiro /></AdminRoute></Route>
+          <Route path="/admin/usuarios"><AdminRoute><AdminUsuarios /></AdminRoute></Route>
+          <Route path="/admin/sistema"><AdminRoute><AdminSistema /></AdminRoute></Route>
+          <Route path="/admin/erros"><AdminRoute><AdminErros /></AdminRoute></Route>
+          <Route path="/admin/flags"><AdminRoute><AdminFeatureFlags /></AdminRoute></Route>
+
+          <Route path="/performance"><Redirect to="/ceo" /></Route>
+          <Route path="/performance/financials"><Redirect to="/financeiro" /></Route>
+          <Route path="/performance/operations"><Redirect to="/operacoes" /></Route>
+          <Route path="/performance/waste"><Redirect to="/warroom" /></Route>
+          <Route path="/performance/growth"><Redirect to="/growth" /></Route>
+          <Route path="/performance/quality"><Redirect to="/qualidade" /></Route>
+          <Route path="/performance/people"><Redirect to="/equipe" /></Route>
+          <Route path="/performance/data"><Redirect to="/ingestao" /></Route>
+
+          <Route path="/404"><NotFound /></Route>
+          <Route><NotFound /></Route>
+        </Switch>
+      </Suspense>
+    </MotionRouteTransition>
+  );
+}
+
+// NOTE: About Theme
+// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
+//   to keep consistent foreground/background color across components
+// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <ThemeProvider
+        defaultTheme="dark"
+        // switchable
+      >
+        <LanguageProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+}
+
+export default App;

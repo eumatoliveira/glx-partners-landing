@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+.git-push-sync-20260223
+.manus
+.manus-logs
+.trunk
+.codex-pdf-extracts
+*.log
+.env
+
