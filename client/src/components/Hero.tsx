@@ -169,7 +169,7 @@ export default function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex min-h-screen items-center overflow-hidden bg-[#050608] pb-20 pt-28 md:pt-36"
+      className="relative flex min-h-screen items-center overflow-hidden bg-[#050608] pb-16 pt-24 md:pb-20 md:pt-36"
     >
       {/* ── Video Background ── */}
       <m.div
@@ -260,7 +260,7 @@ export default function Hero() {
                   <m.h1
                     key={i}
                     variants={lineVariants}
-                    className="text-[2.75rem] font-extrabold leading-[0.96] tracking-[-0.04em] text-white sm:text-6xl lg:text-[5.4rem]"
+                    className="text-[2.05rem] font-extrabold leading-[0.98] tracking-[-0.04em] text-white sm:text-6xl lg:text-[5.4rem]"
                   >
                     {line}
                   </m.h1>
@@ -270,7 +270,7 @@ export default function Hero() {
 
             {/* Problem Lines + Body */}
             <m.div variants={fadeUp} className="mt-9 max-w-3xl space-y-5">
-              <div className="space-y-1.5 text-[1.08rem] font-medium leading-snug text-white/90 sm:text-[1.22rem]">
+              <div className="space-y-1.5 text-[1.35rem] font-medium leading-tight text-white/90 sm:text-[1.75rem] lg:text-[2.44rem]">
                 {heroCopy.problemLines.map((line) => (
                   <p key={line}>{line}</p>
                 ))}
@@ -290,7 +290,7 @@ export default function Hero() {
               >
                 <Button
                   size="lg"
-                  className="h-[3.4rem] w-full rounded-xl border border-orange-400/20 bg-orange-500 px-9 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-[0_8px_24px_rgba(230,126,34,0.24)] transition-all duration-250 hover:bg-orange-500/90 hover:shadow-[0_14px_34px_rgba(230,126,34,0.30),0_0_0_1px_rgba(255,255,255,0.06)_inset] sm:w-auto"
+                  className="h-[3.4rem] w-full rounded-xl border border-orange-400/20 bg-orange-500 px-6 text-sm font-bold uppercase tracking-[0.08em] text-white shadow-[0_8px_24px_rgba(230,126,34,0.24)] transition-all duration-250 hover:bg-orange-500/90 hover:shadow-[0_14px_34px_rgba(230,126,34,0.30),0_0_0_1px_rgba(255,255,255,0.06)_inset] sm:w-auto sm:px-9 sm:tracking-[0.18em]"
                   onClick={openCalendly}
                 >
                   {t.hero.cta}
@@ -306,7 +306,7 @@ export default function Hero() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="h-[3.4rem] w-full rounded-xl border-white/12 bg-white/[0.03] px-9 text-sm font-semibold uppercase tracking-[0.15em] text-white backdrop-blur-lg transition-all duration-250 hover:border-orange-400/30 hover:bg-white/[0.06] hover:shadow-[0_10px_24px_rgba(0,0,0,0.2),0_0_0_1px_rgba(230,126,34,0.1)_inset] sm:w-auto"
+                  className="h-[3.4rem] w-full rounded-xl border-white/12 bg-white/[0.03] px-6 text-sm font-semibold uppercase tracking-[0.08em] text-white backdrop-blur-lg transition-all duration-250 hover:border-orange-400/30 hover:bg-white/[0.06] hover:shadow-[0_10px_24px_rgba(0,0,0,0.2),0_0_0_1px_rgba(230,126,34,0.1)_inset] sm:w-auto sm:px-9 sm:tracking-[0.15em]"
                   onClick={scrollToPortfolio}
                 >
                   {t.hero.secondary}

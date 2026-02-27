@@ -26,7 +26,7 @@ export default function Footer() {
 
   const content = {
     pt: {
-      description: "Consultoria de Crescimento e Eficiência Operacional especializada no setor de saúde. Unimos Estratégia, Lean e Tecnologia.",
+      description: "Consultoria premium de crescimento e eficiência operacional para empresas de saúde. Unimos estratégia, Lean, tecnologia e IA para transformar performance em rotina — com margem e previsibilidade.",
       menu: "Menu",
       menuItems: {
         about: "A GLX",
@@ -106,19 +106,11 @@ export default function Footer() {
             <img 
               src="/images/logo-white-on-black.jpg" 
               alt="GLX Partners" 
-              className="h-32 w-auto mix-blend-screen mb-8" style={{width: '150px', height: '150px'}} 
+              className="mb-8 h-24 w-24 rounded-lg object-cover mix-blend-screen md:h-32 md:w-32"
             />
-            <BlurText
-              as="p"
-              text={t.description}
-              className="text-muted-foreground max-w-sm mb-6"
-              animateBy="words"
-              direction="bottom"
-              delay={14}
-              threshold={0.2}
-              rootMargin="-40px"
-              stepDuration={0.16}
-            />
+            <p className="mb-6 max-w-sm text-muted-foreground">
+              {t.description}
+            </p>
             <div className="flex gap-4">
               <m.a href="https://linkedin.com/company/glxpartners" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors" whileHover={reducedMotion ? undefined : { y: -3, scale: 1.08 }} whileTap={{ scale: 0.96 }}>
                 <Linkedin className="h-6 w-6" />
@@ -126,7 +118,7 @@ export default function Footer() {
               <m.a href="https://instagram.com/glxpartners" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors" whileHover={reducedMotion ? undefined : { y: -3, scale: 1.08 }} whileTap={{ scale: 0.96 }}>
                 <Instagram className="h-6 w-6" />
               </m.a>
-              <m.a href="https://wa.me/5511944223257" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors" whileHover={reducedMotion ? undefined : { y: -3, scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+              <m.a href="https://wa.me/5511970837585" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors" whileHover={reducedMotion ? undefined : { y: -3, scale: 1.08 }} whileTap={{ scale: 0.96 }}>
                 <WhatsAppIcon className="h-6 w-6" />
               </m.a>
               <m.a href="https://www.youtube.com/@glxpartners" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors" whileHover={reducedMotion ? undefined : { y: -3, scale: 1.08 }} whileTap={{ scale: 0.96 }}>
@@ -156,13 +148,13 @@ export default function Footer() {
               />
             </h4>
             <ul className="space-y-4">
-              {[
-                { href: "#why", label: t.menuItems.about },
-                { href: "#what", label: t.menuItems.services },
-                { href: "#how", label: t.menuItems.method },
-                { href: "/planos", label: language === "pt" ? "Planos" : language === "en" ? "Plans" : "Planes", isRoute: true },
-                { href: "#cases", label: t.menuItems.cases },
-              ].map((item, index) => (
+                {[
+                  { href: "#why", label: t.menuItems.about },
+                  { href: "#what", label: t.menuItems.services },
+                  { href: "#how", label: t.menuItems.method },
+                  { href: "/planos", label: language === "pt" ? "Planos" : language === "en" ? "Plans" : "Planes", isRoute: true },
+                  { href: "#portfolio", label: t.menuItems.cases },
+                ].map((item, index) => (
                 <m.li
                   key={item.href}
                   initial={{ opacity: 0, x: -8 }}
@@ -212,12 +204,12 @@ export default function Footer() {
             <ul className="space-y-4 mb-6">
               <li className="flex items-center gap-3 text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
-                <a href="mailto:contato@glxpartners.io" className="hover:text-white transition-colors">
+                <a href="mailto:contato@glxpartners.io" className="break-all hover:text-white transition-colors">
                   <SplitText
                     text="contato@glxpartners.io"
                     tag="span"
                     splitType="chars"
-                    className="inline-block"
+                    className="inline-block text-sm"
                     delay={8}
                     duration={0.2}
                     threshold={0.2}

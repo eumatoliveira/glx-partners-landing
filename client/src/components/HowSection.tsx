@@ -25,22 +25,22 @@ export default function HowSection() {
         {
           step: "01",
           title: "Diagnóstico Baseado em Dados",
-          desc: "Mapeamos a verdade operacional da clínica para entender onde o dinheiro está vazando.",
+          desc: "Auditamos a operação de ponta a ponta para revelar os vazamentos de margem e os gargalos que travam o crescimento.",
         },
         {
           step: "02",
           title: "Setup e Implementação",
-          desc: "Instalamos os processos, dashboards e automações necessárias para a operação rodar.",
+          desc: "Instalamos processos, dashboards e automações para a operação rodar com previsibilidade. Aplicamos IA para capturar dados, gerar alertas e recomendar ações — reduzindo retrabalho e acelerando decisões.",
         },
         {
           step: "03",
           title: "Execução & Sprints",
-          desc: "Rotina de gestão semanal. Acompanhamento de metas e correção de rota rápida.",
+          desc: "Cadência semanal de gestão com metas claras, responsáveis definidos e correção de rota orientada a dados. Prioridades da semana, decisões rápidas e tracking do impacto em receita, capacidade e margem.",
         },
         {
           step: "04",
           title: "Gestão Contínua / Partners",
-          desc: "Acompanhamento de longo prazo para garantir escala sustentável e novos patamares.",
+          desc: "Acompanhamento recorrente para sustentar performance, proteger margem e escalar com previsibilidade — trimestre após trimestre. Governança de indicadores, prioridades e alocação de capacidade para manter o time no eixo e o resultado em alta performance.",
         },
       ],
     },
@@ -310,20 +310,59 @@ export default function HowSection() {
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="relative hidden lg:block [perspective:1000px]"
           >
-            <div className="relative z-10 rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
-              <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none" />
-              <m.div
-                aria-hidden="true"
-                className="absolute inset-y-0 left-0 z-20 w-20 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none"
-                animate={reducedMotion ? undefined : { x: ["-30%", "520%"] }}
-                transition={reducedMotion ? undefined : { duration: 4.6, repeat: Infinity, ease: "linear", repeatDelay: 1.8 }}
-              />
-              <img
-                src="/images/healthcare-dashboard.webp"
-                alt="GLX Dashboard Methodology"
-                className="w-full h-auto object-cover grayscale-[0.8] contrast-[1.1] transition-transform duration-1000 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent z-10 pointer-events-none opacity-80" />
+            <div className="relative z-10 overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(160deg,#0b111d_0%,#0a0f1a_45%,#111727_100%)] p-5 shadow-2xl">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h4 className="text-lg font-semibold tracking-tight text-white">GLX Control Tower</h4>
+                  <p className="text-sm text-white/55">Painel Executivo</p>
+                </div>
+                <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-cyan-200">
+                  Live
+                </span>
+              </div>
+
+              <div className="mb-4 grid grid-cols-3 gap-2">
+                <div className="rounded-lg border border-white/10 bg-black/20 p-2.5">
+                  <div className="text-[10px] uppercase tracking-[0.12em] text-white/45">Receita</div>
+                  <div className="mt-1 text-lg font-bold text-cyan-300">R$ 2.4M</div>
+                </div>
+                <div className="rounded-lg border border-white/10 bg-black/20 p-2.5">
+                  <div className="text-[10px] uppercase tracking-[0.12em] text-white/45">No-show</div>
+                  <div className="mt-1 text-lg font-bold text-orange-300">18.3%</div>
+                </div>
+                <div className="rounded-lg border border-white/10 bg-black/20 p-2.5">
+                  <div className="text-[10px] uppercase tracking-[0.12em] text-white/45">Conversão</div>
+                  <div className="mt-1 text-lg font-bold text-emerald-300">81.7%</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="group/table rounded-lg border border-white/10 bg-black/20 p-3 transition-colors duration-250 hover:border-cyan-300/45 hover:bg-cyan-400/[0.06]">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="h-0 w-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-cyan-300/80 transition-colors group-hover/table:border-b-cyan-200" />
+                    <div className="text-xs uppercase tracking-[0.12em] text-white/60">Faturamento x Custo</div>
+                  </div>
+                  <div className="flex h-28 items-end gap-2">
+                    {[36, 55, 48, 68, 74].map((h, i) => (
+                      <div
+                        key={i}
+                        className="w-5 rounded-t bg-gradient-to-t from-cyan-500/55 to-cyan-300/80 opacity-75 transition-opacity group-hover/table:opacity-100"
+                        style={{ height: `${h}%` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="group/table rounded-lg border border-white/10 bg-black/20 p-3 transition-colors duration-250 hover:border-emerald-300/45 hover:bg-emerald-400/[0.06]">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="h-0 w-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-emerald-300/80 transition-colors group-hover/table:border-b-emerald-200" />
+                    <div className="text-xs uppercase tracking-[0.12em] text-white/60">Fluxo em Tempo Real</div>
+                  </div>
+                  <svg viewBox="0 0 210 110" className="h-28 w-full">
+                    <path d="M8 78 L42 66 L74 50 L108 44 L142 58 L176 70 L202 62" fill="none" stroke="rgba(52,211,153,0.9)" strokeWidth="3" strokeLinecap="round" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </m.div>
         </div>

@@ -25,28 +25,28 @@ type WhyMeta = {
 
 const whyMetaByLanguage: Record<"pt" | "en" | "es", WhyMeta> = {
   pt: {
-    labelWhat: "Diagnostico",
+    labelWhat: "Diagnóstico",
     labelHow: "Sistema GLX",
     cards: [
       {
-        whatLabel: "Como sua clinica opera hoje",
+        whatLabel: "Como sua clínica opera hoje",
         howLabel: "Como isso aparece na rotina",
         what:
-          "Gestao no feeling e no extrato bancario\nNo-show sem protocolo de recuperacao\nLead esperando horas por uma resposta\nServico popular com margem negativa\nVoce no centro de toda decisao\nCrescimento que depende de mais esforco",
+          "Gestão no feeling e no extrato bancário\nNo-show sem protocolo de recuperação\nLead esperando horas por uma resposta\nServiço popular com margem negativa\nVocê no centro de toda decisão\nCrescimento que depende de mais esforço",
         how:
-          "A operacao ate vende, mas perde margem e previsibilidade.\nO dinheiro entra, mas parte dele vaza em no-show, atraso de resposta e processo sem dono.",
+          "A operação até vende, mas perde margem e previsibilidade.\nO dinheiro entra, mas parte dele vaza em no-show, atraso de resposta e processo sem dono.",
         microTitle: "Estado Atual",
         microSubtitle: "Onde o lucro se perde",
       },
       {
-        whatLabel: "Beneficios com GLX Partners",
-        howLabel: "Parceria de execucao",
+        whatLabel: "Benefícios com a GLX Partners",
+        howLabel: "Parceria de execução",
         what:
-          "Dashboard executivo com decisoes em dados\nProtocolo que reduz no-show em 40%\nSLA de resposta abaixo de 1 hora\nMapa de margem por procedimento e medico\nTime operando por sistema, nao por voce\nMeta e sprint semanal para crescimento previsivel",
+          "Dashboard executivo com decisões em dados\nProtocolo que reduz no-show em 40%\nSLA de resposta abaixo de 1 hora\nMapa de margem por procedimento e médico\nTime operando por sistema, não por você\nMeta e sprint semanal para crescimento previsível",
         how:
-          "A GLX nao e agencia.\nNao e consultoria que entrega diagnostico e some.\nSomos uma parceira de execucao:\ndiagnosticamos com dados,\ninstalamos o sistema e\nficamos ate o resultado virar rotina.",
+          "A operação deixa de depender de você e vira sistema.\nNo-show cai, resposta acelera e a margem aparece.\nResultado: governança, previsibilidade e crescimento com controle.",
         microTitle: "Estado GLX",
-        microSubtitle: "Operacao com captura",
+        microSubtitle: "Operação com captura",
       },
       {
         whatLabel: "Metodologia",
@@ -54,9 +54,9 @@ const whyMetaByLanguage: Record<"pt" | "en" | "es", WhyMeta> = {
         what:
           "Growth Strategy + Lean Six Sigma + IA\n\nCertificados pelos maiores conselhos de Lean Health e Six Sigma do mundo.",
         how:
-          "Execucao. Nao so estrategia.\n\nA estrategia e apenas o comeco. O que entregamos e o resultado funcionando.",
+          "Execução. Não só estratégia.\n\nA estratégia é apenas o começo. O que entregamos é o resultado funcionando.",
         microTitle: "Arquitetura GLX",
-        microSubtitle: "Metodo + execucao",
+        microSubtitle: "Método + execução",
       },
     ],
   },
@@ -239,10 +239,10 @@ export default function WhySection() {
   const sectionCopy =
     language === "pt"
       ? {
-          title1: "Voce ja tem o ativo.",
+          title1: "Você já tem o ativo.",
           title2: "Falta o sistema que o monetiza.",
           subtitle:
-            "A maioria das clinicas privadas de alto padrao nao tem problema de demanda. Tem problema de captura: o dinheiro existe na operacao, mas vaza silenciosamente — em no-show sem protocolo, em leads que demoram horas para receber resposta, em servicos com margem negativa que ninguem mapeou.",
+            "A maioria das clínicas privadas de alto padrão não tem problema de demanda. Tem problema de captura: o dinheiro existe na operação, mas vaza silenciosamente — em no-show sem protocolo, em leads que demoram horas para receber resposta, em serviços com margem negativa que ninguém mapeou.",
         }
       : {
           title1: t.why.whyTitle1,
@@ -253,16 +253,16 @@ export default function WhySection() {
     language === "pt"
       ? [
           {
-            title: "Como sua clinica opera hoje",
-            desc: "Operacao dependente de voce, com vazamentos silenciosos e margem sem previsibilidade.",
+            title: "Como sua clínica opera hoje",
+            desc: "Operação dependente de você, com vazamentos silenciosos e margem sem previsibilidade.",
           },
           {
             title: "Como opera com a GLX Partners",
-            desc: "Sistema integrado, execucao disciplinada e crescimento com previsibilidade.",
+            desc: "Sistema integrado, execução disciplinada e crescimento com previsibilidade.",
           },
           {
             title: "Metodologia + Entrega",
-            desc: "Growth Strategy + Lean Six Sigma + IA.\nExecucao. Nao so estrategia.",
+            desc: "Growth Strategy + Lean Six Sigma + IA.\nExecução. Não só estratégia.",
           },
         ]
       : [
@@ -396,6 +396,50 @@ export default function WhySection() {
           </m.div>
         ) : null}
 
+        {isPtComparisonOnly ? (
+          <div className="mx-auto mb-10 max-w-5xl text-center">
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="mb-6 flex justify-center"
+            >
+              <span className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-orange-300 sm:text-[11px]">
+                <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
+                O que nos diferencia na GLX Partners
+              </span>
+            </m.div>
+
+            <m.h2
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="mb-6 text-3xl font-extrabold leading-[1.1] tracking-tight text-white md:text-5xl"
+            >
+              <span className="block">Você já tem o ativo.</span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">
+                Falta o sistema que o monetiza.
+              </span>
+            </m.h2>
+
+            <m.p
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ delay: 0.06, duration: 0.45, ease: "easeOut" }}
+              className="mx-auto max-w-4xl whitespace-pre-line text-center text-base font-light leading-relaxed text-gray-300 md:text-xl"
+            >
+              {`A maioria das clínicas privadas de alto padrão não tem problema de demanda. Tem problema de captura: o dinheiro existe na operação, mas vaza silenciosamente — em no-show sem protocolo, em leads que demoram horas para receber resposta, em serviços com margem negativa que ninguém mapeou.
+
+A operação deixa de depender de você e vira sistema.
+No-show cai, resposta acelera e a margem aparece.
+Resultado: governança, previsibilidade e crescimento com controle.`}
+            </m.p>
+          </div>
+        ) : null}
+
         <m.div
           initial="hidden"
           whileInView="visible"
@@ -427,15 +471,12 @@ export default function WhySection() {
                 className={cn("transition-opacity duration-[180ms] ease-out", dimmed && "opacity-[0.88]")}
               >
                 <ParallaxTiltCard
+                  disableInteractive={isPtBeforeAfterCard}
                   intensity={capabilities.motionLevel === "full" ? 6 : 3}
                   onHoverStart={() => setHoveredCardIndex(index)}
                   onHoverEnd={() => setHoveredCardIndex((current) => (current === index ? null : current))}
-                  whileHover={
-                    reducedMotion
-                      ? undefined
-                      : { y: -4, scale: 1.008, transition: { duration: 0.18, ease: "easeOut" } }
-                  }
-                  whileTap={reducedMotion ? undefined : { scale: 0.997 }}
+                  whileHover={undefined}
+                  whileTap={isPtBeforeAfterCard ? undefined : reducedMotion ? undefined : { scale: 0.997 }}
                   className={cn(
                     "group relative h-full overflow-hidden rounded-2xl border bg-[#101114]/82 p-6 shadow-[0_12px_28px_rgba(0,0,0,0.24)] backdrop-blur-md transition-[border-color,box-shadow,background-color] duration-[220ms] md:p-8",
                     "border-white/10 hover:border-orange-400/35 hover:shadow-[0_18px_36px_rgba(0,0,0,0.28)]",
@@ -479,7 +520,13 @@ export default function WhySection() {
                         </div>
                       )}
 
-                      <h3 className={cn("mb-4 font-bold tracking-tight text-white", large ? "text-3xl md:text-[2.15rem]" : "text-2xl md:text-[2rem]")}>
+                      <h3
+                        className={cn(
+                          "mb-4 font-bold tracking-tight text-white",
+                          large ? "text-3xl md:text-[2.15rem]" : "text-2xl md:text-[2rem]",
+                          isPtBeforeAfterCard && "text-center",
+                        )}
+                      >
                         <SplitText
                           text={item.title}
                           tag="span"
@@ -488,13 +535,20 @@ export default function WhySection() {
                           duration={0.42}
                           threshold={0.18}
                           rootMargin="-60px"
-                          className="block"
+                          className={cn("block", isPtBeforeAfterCard && "text-center")}
+                          textAlign={isPtBeforeAfterCard ? "center" : "left"}
                           from={{ opacity: 0, transform: "translateY(8px)" }}
                           to={{ opacity: 1, transform: "translateY(0px)" }}
                         />
                       </h3>
 
-                      <p className={cn("mb-4 whitespace-pre-line leading-relaxed text-white/72", large ? "text-[15px] md:text-base" : "text-sm md:text-[15px]")}>
+                      <p
+                        className={cn(
+                          "mb-4 whitespace-pre-line leading-relaxed text-white/72",
+                          large ? "text-[15px] md:text-base" : "text-sm md:text-[15px]",
+                          isPtBeforeAfterCard && "text-center",
+                        )}
+                      >
                         {item.desc}
                       </p>
 

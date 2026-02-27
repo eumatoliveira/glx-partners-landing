@@ -22,29 +22,34 @@ export default function FaqSection() {
       subtitle: "Entenda como podemos transformar sua operação de saúde.",
       faqs: [
         {
-          question: "Para quem é a consultoria da GLX Partners?",
+          question: "Para quem é a GLX Partners?",
           answer:
-            "Nossa consultoria é especializada em clínicas, healthtechs e empresas médicas que buscam crescimento acelerado e eficiência operacional. Atendemos negócios que já possuem tração e desejam escalar com previsibilidade e lucro.",
+            "Atendemos clínicas e healthtechs que já têm tração e precisam de governança para escalar. Entramos quando o desafio é crescer sem caos: aumentar capacidade, reduzir vazamentos de margem e transformar performance em rotina. Se você busca previsibilidade, lucro e execução disciplinada, a GLX é a parceira de implementação.",
         },
         {
           question: "Como funciona o diagnóstico inicial?",
           answer:
-            "Realizamos uma análise profunda de 30 minutos dos seus dados, processos e estrutura atual. Identificamos gargalos de crescimento e oportunidades imediatas de eficiência, entregando um plano de ação claro.",
+            "O GLX Control Tower é sua camada de governança executiva: um painel único que consolida demanda, capacidade, conversão, margem e caixa com alertas e prioridades acionáveis — para você identificar desvios cedo, corrigir a rota com cadência e escalar com previsibilidade, sem vazamento de margem e sem operar no escuro.",
         },
         {
           question: "Qual a diferença entre a GLX e uma agência de marketing?",
           answer:
-            "Não vendemos apenas leads. Construímos sistemas completos de crescimento que integram aquisição, vendas, operação e retenção. Nosso foco é no Lucro Líquido Previsível, não apenas em métricas de vaidade.",
+            "Não somos agência de mídia — não entregamos “leads” como fim. Implementamos um sistema de crescimento que conecta aquisição, conversão, capacidade operacional e retenção. O KPI não é vaidade: é lucro, margem e previsibilidade com governança e execução semanal.",
         },
         {
           question: "Quanto tempo leva para ver os primeiros resultados?",
           answer:
-            "Nossa metodologia é desenhada para gerar impacto rápido. Geralmente, identificamos e corrigimos ineficiências críticas nas primeiras 4 semanas, com resultados financeiros mensuráveis já no primeiro trimestre.",
+            "A maioria dos clientes enxerga ganhos operacionais nas primeiras 2–4 semanas (agenda, SLA e conversão). Impactos financeiros consistentes aparecem ao longo do primeiro trimestre, com margem e capacidade sob governança. Tudo acompanhado por métricas, cadência semanal e plano de execução claro.",
         },
         {
           question: "A GLX implementa as soluções ou apenas recomenda?",
           answer:
-            "Somos parceiros de execução. Não entregamos apenas um PDF com recomendações. Trabalhamos lado a lado com sua equipe para implementar processos, configurar ferramentas, treinar times e garantir que a estratégia se torne realidade.",
+            "Implementamos. A GLX é parceiro de execução — não entregamos um relatório e desaparecemos. Trabalhamos lado a lado com seu time para instalar processos, dashboards, automações e governança. Treinamos, acompanhamos e ajustamos em sprint até o resultado virar rotina — com métricas e accountability.",
+        },
+        {
+          question: "O que é o Control Tower e por qué preciso dele?",
+          answer:
+            "O GLX Control Tower é sua camada de governança executiva: um painel único que consolida demanda, capacidade, conversão, margem e caixa com alertas e prioridades acionáveis — para você identificar desvios cedo, corrigir a rota com cadência e escalar com previsibilidade, sem vazamento de margem e sem operar no escuro.",
         },
       ],
     },

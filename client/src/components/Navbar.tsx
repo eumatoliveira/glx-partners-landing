@@ -114,12 +114,12 @@ export default function Navbar() {
             "linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.0) 55%)",
         }}
       />
-      <div className="container flex items-center justify-between h-16 md:h-20 px-4">
+      <div className="container flex h-16 items-center justify-between px-3 pt-[env(safe-area-inset-top)] md:h-20 md:px-4">
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
           <m.img
             src="/images/logo-transparent.png"
             alt="GLX Partners"
-            className="h-16 md:h-28 w-auto"
+            className="h-12 w-auto sm:h-14 md:h-24"
             animate={
               reducedMotion
                 ? undefined
@@ -136,11 +136,11 @@ export default function Navbar() {
           />
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-5 xl:gap-8">
           <m.button
             type="button"
             onClick={() => scrollToSection("why")}
-            className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide"
+            className="whitespace-nowrap text-sm xl:text-base font-medium text-white hover:text-primary transition-colors tracking-wide"
             whileHover={{ y: -1.5 }}
             whileTap={{ scale: 0.99 }}
           >
@@ -149,7 +149,7 @@ export default function Navbar() {
           <m.button
             type="button"
             onClick={() => scrollToSection("what")}
-            className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide"
+            className="whitespace-nowrap text-sm xl:text-base font-medium text-white hover:text-primary transition-colors tracking-wide"
             whileHover={{ y: -1.5 }}
             whileTap={{ scale: 0.99 }}
           >
@@ -157,7 +157,7 @@ export default function Navbar() {
           </m.button>
           <Link href="/planos">
             <m.span
-              className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide cursor-pointer"
+              className="whitespace-nowrap text-sm xl:text-base font-medium text-white hover:text-primary transition-colors tracking-wide cursor-pointer"
               whileHover={{ y: -1.5 }}
               whileTap={{ scale: 0.99 }}
             >
@@ -167,7 +167,7 @@ export default function Navbar() {
           <m.button
             type="button"
             onClick={() => scrollToSection("portfolio")}
-            className="text-base font-medium text-white hover:text-primary transition-colors tracking-wide"
+            className="whitespace-nowrap text-sm xl:text-base font-medium text-white hover:text-primary transition-colors tracking-wide"
             whileHover={{ y: -1.5 }}
             whileTap={{ scale: 0.99 }}
           >
@@ -203,7 +203,7 @@ export default function Navbar() {
           <Link href="/login">
             <Button
               variant="outline"
-              className="hidden md:flex neon-btn-outline border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider px-6"
+              className="hidden xl:flex neon-btn-outline border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-wider px-5 text-xs whitespace-nowrap"
             >
               <AnimatedNavLabel text={t.nav.membersArea} splitType="words" />
             </Button>
@@ -211,7 +211,7 @@ export default function Navbar() {
 
           <Button
             onClick={() => window.open("https://calendly.com/glxpartners", "_blank", "noopener,noreferrer")}
-            className="hidden md:flex neon-btn-solid bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider px-6"
+            className="hidden xl:flex neon-btn-solid bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider px-5 text-xs whitespace-nowrap"
           >
             <AnimatedNavLabel text={t.nav.schedule} splitType="words" />
           </Button>
@@ -221,12 +221,12 @@ export default function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden text-white hover:text-primary hover:bg-transparent h-9 w-9"
+                className="lg:hidden text-white hover:text-primary hover:bg-transparent h-9 w-9"
               >
                 <Menu className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="z-[140] bg-black/95 border-white/10 text-white w-56 mr-2">
+            <DropdownMenuContent align="end" className="z-[140] mr-2 w-[min(92vw,20rem)] bg-black/95 text-white border-white/10">
               <DropdownMenuItem
                 onClick={() => scrollToSection("why")}
                 className="hover:bg-white/10 cursor-pointer py-3"

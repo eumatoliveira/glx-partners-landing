@@ -45,7 +45,7 @@ function TestimonialCard({
       viewport={{ once: true, margin: "-50px" }}
       transition={{ delay: index * 0.2, type: "spring", stiffness: 100, damping: 20 }}
       whileHover={hoverEnabled ? { y: -6, scale: 1.01 } : undefined}
-      className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0c]/60 p-6 pl-12 transition-colors duration-500 hover:border-orange-500/45 sm:p-7 sm:pl-12"
+      className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0c]/60 p-5 pl-10 transition-colors duration-500 hover:border-orange-500/45 sm:p-7 sm:pl-12"
     >
       <div className="absolute left-6 top-6 bottom-6 w-[1px]">
         <div className="absolute inset-0 w-[1px] bg-white/10" />
@@ -68,11 +68,11 @@ function TestimonialCard({
         <Quote className="text-orange-500 w-4 h-4" />
       </m.div>
 
-      <blockquote className="text-2xl lg:text-3xl font-light leading-relaxed mb-10">
+      <blockquote className="mb-8 text-xl font-light leading-relaxed sm:text-2xl lg:mb-10 lg:text-3xl">
         <span className="text-gray-300">"</span>
         <ScrollWordHighlight
           text={item.quote}
-          className="inline text-2xl lg:text-3xl leading-relaxed"
+          className="inline text-xl leading-relaxed sm:text-2xl lg:text-3xl"
           wordClassName="text-gray-500"
           activeWordClassName="text-white"
         />
@@ -225,16 +225,16 @@ export default function TestimonialsSection() {
           {
             quote:
               "Em 45 dias, o no-show caiu de 24% para 8%. A recepção passou a responder leads em menos de 40 minutos — antes levava o dia inteiro. Coisas simples, com sistema certo, geraram mais de R$ 35K de receita adicional no primeiro trimestre.",
-            author: "Dr. Rafael Mendonça",
-            role: "Diretor Clínico — Clínica de Nutrologia e Medicina do Esporte, SP",
+            author: "ROBERTO SOARES DE MELO",
+            role: "DIRETOR CLINICO - Instituto VittaMéd Nutrologia",
             metric: "+R$ 35K/mês",
             metricPeriod: "em 90 dias",
           },
           {
             quote:
               "A GLX mapeou que dois dos nossos procedimentos mais populares tinham margem negativa. A agenda estava cheia e parecia que ia bem. Após reprecificação e ajuste de mix, a margem EBITDA subiu 11 pontos percentuais em 3 meses.",
-            author: "Dra. Camila Fonseca",
-            role: "Sócia-Diretora — Clínica de Dermatologia Avançada, SP",
+            author: "CAMILA BRUNELLO",
+            role: "CO-FOUNDER - Lumina Dermatologia & Estética Médica",
             metric: "+11pp EBITDA",
             metricPeriod: "em 90 dias",
           },
@@ -242,7 +242,7 @@ export default function TestimonialsSection() {
       : t.testimonials;
 
   return (
-    <section ref={sectionRef} id="portfolio" className="py-32 bg-[#050505] relative overflow-hidden">
+    <section ref={sectionRef} id="portfolio" className="relative overflow-hidden bg-[#050505] py-20 md:py-32">
       <m.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-[12%] top-16 h-24 rounded-full bg-white/[0.03] blur-2xl"
@@ -284,7 +284,7 @@ export default function TestimonialsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
-          className="text-4xl md:text-5xl lg:text-5xl font-extrabold mb-10 md:mb-12 text-center tracking-tight"
+          className="mb-8 text-center text-3xl font-extrabold tracking-tight md:mb-12 md:text-5xl lg:text-5xl"
         >
           <m.span
             aria-hidden="true"
@@ -331,12 +331,12 @@ export default function TestimonialsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ delay: 0.08, duration: 0.4, ease: "easeOut" }}
-          className="mx-auto mb-10 md:mb-12 max-w-3xl text-center text-lg font-light leading-relaxed text-gray-300 md:text-xl"
+          className="mx-auto mb-10 max-w-3xl text-center text-base font-light leading-relaxed text-gray-300 md:mb-12 md:text-xl"
         >
           {headerCopy.subtitle}
         </m.p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 mb-24 [perspective:1000px]">
+        <div className="mb-20 grid grid-cols-1 gap-8 md:mb-24 md:grid-cols-2 md:gap-12 lg:gap-16 [perspective:1000px]">
           {testimonials.map((item, index) => (
             <TestimonialCard key={index} item={item} index={index} hoverEnabled={hoverEnabled} />
           ))}

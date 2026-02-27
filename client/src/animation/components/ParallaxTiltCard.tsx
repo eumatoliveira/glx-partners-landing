@@ -7,19 +7,21 @@ import { shouldEnableHoverMotion, shouldEnableParallax } from "@/animation/utils
 interface ParallaxTiltCardProps extends Omit<HTMLMotionProps<"div">, "children"> {
   children: ReactNode;
   intensity?: number;
+  disableInteractive?: boolean;
 }
 
 export function ParallaxTiltCard({
   children,
   className,
   intensity = 9,
+  disableInteractive = false,
   onMouseMove,
   onMouseLeave,
   ...rest
 }: ParallaxTiltCardProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const capabilities = useMotionCapabilities();
-  const interactive = shouldEnableHoverMotion(capabilities) && shouldEnableParallax(capabilities);
+  const interactive = !disableInteractive && shouldEnableHoverMotion(capabilities) && shouldEnableParallax(capabilities);
 
   const pointerX = useMotionValue(50);
   const pointerY = useMotionValue(50);

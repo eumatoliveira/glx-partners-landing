@@ -144,7 +144,7 @@ export default function WhatSection() {
   const content: Record<"pt" | "en" | "es", WhatCopy> = {
     pt: {
       badge: "ONDE ATUAMOS",
-      title: "Quatro alavancas. Um unico sistema integrado.",
+      title: "Quatro alavancas.\nUm único sistema integrado.",
       subtitle:
         "Cada frente ataca uma camada diferente do mesmo problema: sua clinica tem capacidade para lucrar mais — e voce ainda nao sabe exatamente quanto.",
       resultLabel: "Resultado",
@@ -154,49 +154,57 @@ export default function WhatSection() {
       services: [
         {
           icon: TrendingUp,
-          title: "01 — Growth & Captacao",
+          title: "01 — Growth & Captação",
           description: "Mais pacientes certos, com CAC controlado.",
-          outcome: "Sem aumentar o investimento em midia - aumentando a conversao do que ja entra.",
-          mechanism: "Estruturamos funil, canais e mensagem para aumentar demanda qualificada.",
-          learnMoreTitle: "Growth & Captacao",
+          outcome:
+            "Estruturamos funil, canais e mensagem para elevar a demanda qualificada. Sem aumentar o budget de mídia — extraindo mais conversão do tráfego que já existe. Com governança de performance: metas, cadência semanal e otimização orientada a dados.",
+          mechanism:
+            "Estruturamos funil, canais e mensagem para elevar a demanda qualificada. Sem aumentar o budget de mídia — extraindo mais conversão do tráfego que já existe. Com governança de performance: metas, cadência semanal e otimização orientada a dados.",
+          learnMoreTitle: "Growth & Captação",
           learnMoreBody:
-            "Estruturamos funil, canais e mensagem para aumentar demanda qualificada. Sem aumentar o investimento em midia — aumentando a conversao do que ja entra.",
+            "Estruturamos funil, canais e mensagem para elevar a demanda qualificada. Sem aumentar o budget de mídia — extraindo mais conversão do tráfego que já existe. Com governança de performance: metas, cadência semanal e otimização orientada a dados.",
           metrics: ["CAC", "Lead→Consulta", "No-Show", "Conversao"],
           visualType: "bars",
         },
         {
           icon: Settings,
-          title: "02 — Operacao & Capacidade",
+          title: "02 — Operação & Capacidade",
           description: "Mesma estrutura. Mais resultado.",
-          outcome: "Escala operacional sem caos, fila e retrabalho drenando energia do time.",
-          mechanism: "Eliminamos gargalos na agenda, no fluxo de atendimento e nos processos repetitivos que drenam tempo da equipe.",
-          learnMoreTitle: "Operacao & Capacidade",
+          outcome:
+            "Desenhamos a operação para escalar sem virar caos. Eliminamos gargalos na agenda, no fluxo de atendimento e na capacidade. Padronizamos processos e automatizamos rotinas que drenam tempo do time. Resultado: mais throughput, menos retrabalho e execução previsível.",
+          mechanism:
+            "Desenhamos a operação para escalar sem virar caos. Eliminamos gargalos na agenda, no fluxo de atendimento e na capacidade. Padronizamos processos e automatizamos rotinas que drenam tempo do time. Resultado: mais throughput, menos retrabalho e execução previsível.",
+          learnMoreTitle: "Operação & Capacidade",
           learnMoreBody:
-            "Desenhamos a operacao para escalar sem caos. Eliminamos gargalos na agenda, no fluxo de atendimento e nos processos repetitivos que drenam tempo da equipe.",
-          metrics: ["Tempo de Ciclo", "Ocupacao", "Capacidade", "NPS"],
+            "Desenhamos a operação para escalar sem virar caos. Eliminamos gargalos na agenda, no fluxo de atendimento e na capacidade. Padronizamos processos e automatizamos rotinas que drenam tempo do time. Resultado: mais throughput, menos retrabalho e execução previsível.",
+          metrics: ["Tempo de Ciclo", "Ocupação", "Capacidade", "NPS"],
           visualType: "pipeline",
         },
         {
           icon: Scissors,
           title: "03 — Margem & Financeiro",
           description: "Descubra onde o dinheiro some.",
-          outcome: "Mapeamos a margem real por servico, por medico e por canal.",
-          mechanism: "Identificamos custos invisiveis - glosas, retrabalho e descontos sem politica - e recuperamos margem que ja e sua.",
+          outcome:
+            "Mapeamos a margem real por serviço, por médico e por canal. Tornamos visíveis os vazamentos: glosas, retrabalho e descontos sem política. Estabelecemos regras de preço, autorização e exceções com governança. Resultado: margem recuperada, previsibilidade e lucro defendido no dia a dia.",
+          mechanism:
+            "Mapeamos a margem real por serviço, por médico e por canal. Tornamos visíveis os vazamentos: glosas, retrabalho e descontos sem política. Estabelecemos regras de preço, autorização e exceções com governança. Resultado: margem recuperada, previsibilidade e lucro defendido no dia a dia.",
           learnMoreTitle: "Margem & Financeiro",
           learnMoreBody:
-            "Mapeamos a margem real por servico, por medico e por canal. Identificamos custos invisiveis — glosas, retrabalho, descontos sem politica — e recuperamos margem que ja e sua.",
+            "Mapeamos a margem real por serviço, por médico e por canal. Tornamos visíveis os vazamentos: glosas, retrabalho e descontos sem política. Estabelecemos regras de preço, autorização e exceções com governança. Resultado: margem recuperada, previsibilidade e lucro defendido no dia a dia.",
           metrics: ["EBITDA", "Margem/Servico", "Break-even", "Glosas"],
           visualType: "savings",
         },
         {
           icon: BarChart3,
-          title: "04 — Dados & Governanca",
-          description: "Decisoes por KPI. Nao por extrato.",
-          outcome: "Voce para de apagar incendio e comeca a liderar com dados.",
-          mechanism: "Instalamos o GLX Control Tower: dashboard executivo com alertas automaticos, sprints semanais e rituais de gestao.",
+          title: "04 — Dados & Governança",
+          description: "Decisões por KPI. Não por extrato.",
+          outcome:
+            "Instalamos o GLX Control Tower: painel executivo com alertas automáticos e KPIs acionáveis. Rodamos sprints semanais com prioridades claras e responsáveis por frente. Criamos rituais de gestão para decisão rápida e correção de rota. Você sai do modo incêndio e passa a liderar por dados, cadência e previsibilidade.",
+          mechanism:
+            "Instalamos o GLX Control Tower: painel executivo com alertas automáticos e KPIs acionáveis. Rodamos sprints semanais com prioridades claras e responsáveis por frente. Criamos rituais de gestão para decisão rápida e correção de rota. Você sai do modo incêndio e passa a liderar por dados, cadência e previsibilidade.",
           learnMoreTitle: "Dados & Governanca",
           learnMoreBody:
-            "Instalamos o GLX Control Tower: dashboard executivo com alertas automaticos, sprints semanais e rituais de gestao. Voce para de apagar incendio e comeca a liderar com dados.",
+            "Instalamos o GLX Control Tower: painel executivo com alertas automáticos e KPIs acionáveis. Rodamos sprints semanais com prioridades claras e responsáveis por frente. Criamos rituais de gestão para decisão rápida e correção de rota. Você sai do modo incêndio e passa a liderar por dados, cadência e previsibilidade.",
           metrics: ["Dashboard", "KPIs", "Alertas", "Forecast"],
           visualType: "signal",
         },
@@ -362,7 +370,7 @@ export default function WhatSection() {
       <div className="pointer-events-none absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
 
       <div className="container relative z-10">
-        <m.div style={{ y: ySoft }} className="mx-auto mb-16 max-w-3xl text-center md:mb-20">
+        <m.div style={{ y: ySoft }} className="mx-auto mb-16 max-w-5xl text-center md:mb-20">
           <m.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -390,13 +398,13 @@ export default function WhatSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ delay: 0.08, duration: 0.55, ease: "easeOut" }}
-            className="mb-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-white md:text-5xl lg:text-6xl"
+            className="mb-6 text-3xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl"
           >
             <SplitText
               text={t.title}
               tag="span"
-              splitType="chars"
-              className="block text-center"
+              splitType="words"
+              className="block w-full whitespace-pre-line text-center text-balance"
               textAlign="center"
               delay={12}
               duration={0.36}
@@ -472,24 +480,49 @@ export default function WhatSection() {
                       </div>
                     </div>
 
-                    <div className="mb-6 grid gap-3 md:grid-cols-2">
-                      <div className="rounded-xl border border-white/8 bg-transparent px-4 py-3.5">
-                        <div className="mb-1.5 text-[10px] uppercase tracking-[0.14em] text-orange-300/85">
-                          {t.resultLabel}
-                        </div>
-                        <div className="text-[13px] leading-6 text-white/88 md:text-sm">
-                          {service.outcome}
+                    {language === "pt" && (index === 0 || index === 1 || index === 2 || index === 3) ? (
+                      <div className="mb-6 rounded-xl border border-white/8 bg-transparent px-4 py-3.5">
+                        <div className="whitespace-pre-line text-[13px] leading-6 text-white/88 md:text-sm">
+                          {index === 0
+                            ? `Estruturamos funil, canais e mensagem para elevar a demanda qualificada.
+Sem aumentar o budget de mídia — extraindo mais conversão do tráfego que já existe.
+Com governança de performance: metas, cadência semanal e otimização orientada a dados.`
+                            : index === 1
+                              ? `Desenhamos a operação para escalar sem virar caos.
+Eliminamos gargalos na agenda, no fluxo de atendimento e na capacidade.
+Padronizamos processos e automatizamos rotinas que drenam tempo do time.
+Resultado: mais throughput, menos retrabalho e execução previsível.`
+                              : index === 2
+                                ? `Mapeamos a margem real por serviço, por médico e por canal.
+Tornamos visíveis os vazamentos: glosas, retrabalho e descontos sem política.
+Estabelecemos regras de preço, autorização e exceções com governança.
+Resultado: margem recuperada, previsibilidade e lucro defendido no dia a dia.`
+                                : `Instalamos o GLX Control Tower: painel executivo com alertas automáticos e KPIs acionáveis.
+Rodamos sprints semanais com prioridades claras e responsáveis por frente.
+Criamos rituais de gestão para decisão rápida e correção de rota.
+Você sai do modo incêndio e passa a liderar por dados, cadência e previsibilidade.`}
                         </div>
                       </div>
-                      <div className="rounded-xl border border-white/8 bg-transparent px-4 py-3.5">
-                        <div className="mb-1.5 text-[10px] uppercase tracking-[0.14em] text-cyan-200/70">
-                          {t.mechanismLabel}
+                    ) : (
+                      <div className="mb-6 grid gap-3 md:grid-cols-2">
+                        <div className="rounded-xl border border-white/8 bg-transparent px-4 py-3.5">
+                          <div className="mb-1.5 text-[10px] uppercase tracking-[0.14em] text-orange-300/85">
+                            {t.resultLabel}
+                          </div>
+                          <div className="text-[13px] leading-6 text-white/88 md:text-sm">
+                            {service.outcome}
+                          </div>
                         </div>
-                        <div className="text-[13px] leading-6 text-white/80 md:text-sm">
-                          {service.mechanism}
+                        <div className="rounded-xl border border-white/8 bg-transparent px-4 py-3.5">
+                          <div className="mb-1.5 text-[10px] uppercase tracking-[0.14em] text-cyan-200/70">
+                            {t.mechanismLabel}
+                          </div>
+                          <div className="text-[13px] leading-6 text-white/80 md:text-sm">
+                            {service.mechanism}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="mt-auto border-t border-white/8 pt-4">
                       <div className="flex flex-wrap gap-2">

@@ -1,10 +1,8 @@
 import { m } from "framer-motion";
-import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 import CountUp from "@/animation/components/CountUp";
 import SplitText from "@/animation/components/SplitText";
-import BlurText from "@/animation/components/BlurText";
 import { useMotionCapabilities } from "@/animation/hooks/useMotionCapabilities";
 
 type FeaturedBrand = {
@@ -49,15 +47,12 @@ function parseDecoratedNumber(input: string): { prefix: string; numeric: number;
   return { prefix, numeric, suffix, decimals };
 }
 
-function FeaturedLogo({ brand }: { brand: FeaturedBrand }) {
+function FeaturedLogo({ brand, active }: { brand: FeaturedBrand; active: boolean }) {
   const [broken, setBroken] = useState(false);
-
   if (broken) {
     return (
-      <div className="flex h-20 w-full items-center justify-center rounded-xl border border-white/20 bg-white/[0.04] px-4">
-        <span className="text-center text-xs font-semibold uppercase tracking-[0.12em] text-white/80">
-          {brand.name}
-        </span>
+      <div className="flex h-full w-full items-center justify-center rounded-lg border border-white/15 bg-white/[0.03] px-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-white/80">
+        {brand.name}
       </div>
     );
   }
@@ -66,7 +61,9 @@ function FeaturedLogo({ brand }: { brand: FeaturedBrand }) {
     <img
       src={brand.logo}
       alt={brand.name}
-      className="mx-auto max-h-20 w-auto object-contain brightness-110 contrast-125"
+      className={`mx-auto h-full w-full rounded-lg object-contain transition-all duration-300 ${
+        active ? "grayscale-0 opacity-100" : "grayscale brightness-75 contrast-110 opacity-65"
+      }`}
       onError={() => setBroken(true)}
       loading="lazy"
     />
@@ -77,6 +74,7 @@ export default function ImpactSection() {
   const { t, language } = useLanguage();
   const motionCaps = useMotionCapabilities();
   const reducedMotion = motionCaps.prefersReducedMotion || motionCaps.motionLevel === "off";
+  const [hoveredLogoIndex, setHoveredLogoIndex] = useState<number | null>(null);
 
   const stats = [
     { value: t.impact.statA, label: t.impact.statALabel },
@@ -84,6 +82,7 @@ export default function ImpactSection() {
     { value: t.impact.statC, label: t.impact.statCLabel },
     { value: t.impact.statD, label: t.impact.statDLabel },
   ];
+  const rotatingBrands = [...featuredBrands, ...featuredBrands];
 
   return (
     <section id="cases" className="scroll-mt-28 py-24 bg-[#0A0A0B] border-y border-white/5 overflow-hidden">
@@ -118,7 +117,7 @@ export default function ImpactSection() {
           </span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 text-center items-center justify-center">
+        <div className="grid grid-cols-1 gap-5 text-center sm:grid-cols-2 md:gap-6 lg:grid-cols-4 lg:gap-8">
           {stats.map((stat, index) => (
             <m.div
               key={index}
@@ -128,7 +127,7 @@ export default function ImpactSection() {
               transition={{ delay: index * 0.1, type: "spring", stiffness: 100, damping: 20 }}
               whileHover={{ y: -6, scale: 1.02 }}
               animate={reducedMotion ? undefined : { y: [0, -2.5, 0] }}
-              className="group relative flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-white/[0.015] px-3 py-4 transition-colors hover:border-orange-500/25"
+              className="group relative flex min-h-[15.5rem] flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/[0.015] px-4 py-5 text-center transition-colors hover:border-orange-500/25 sm:min-h-[17rem] sm:px-5 md:min-h-[18rem]"
               style={reducedMotion ? undefined : { animationDelay: `${index * 0.2}s` }}
             >
               <m.div
@@ -148,7 +147,7 @@ export default function ImpactSection() {
                 transition={reducedMotion ? undefined : { duration: 2.2, repeat: Infinity, repeatDelay: 1.4, ease: "linear", delay: index * 0.15 }}
               />
               <m.div
-                className="relative z-10 text-5xl sm:text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-500 mb-4 tracking-tighter drop-shadow-sm"
+                className="relative z-10 mb-1 whitespace-nowrap bg-gradient-to-b from-white to-neutral-500 bg-clip-text text-5xl font-extrabold tracking-tighter text-transparent drop-shadow-sm sm:text-6xl md:text-7xl"
                 whileHover={{ filter: "drop-shadow(0 0 10px rgba(230,126,34,0.18))" }}
                 animate={reducedMotion ? undefined : { scale: [1, 1.015, 1] }}
                 transition={reducedMotion ? undefined : { duration: 3.5 + index * 0.25, repeat: Infinity, ease: "easeInOut" }}
@@ -173,12 +172,13 @@ export default function ImpactSection() {
                   );
                 })()}
               </m.div>
-              <div className="relative z-10 text-xs md:text-sm uppercase tracking-[0.2em] text-orange-500 font-bold max-w-[200px] leading-relaxed">
+              <div className="relative z-10 flex w-full justify-center text-[11px] font-bold uppercase leading-relaxed tracking-[0.08em] text-orange-500 sm:text-xs sm:tracking-[0.12em] md:text-sm md:tracking-[0.16em]">
                 <SplitText
                   text={stat.label}
                   splitType="words"
                   tag="div"
-                  className="justify-center text-center"
+                  className="mx-auto inline-block max-w-[22ch] text-center"
+                  textAlign="center"
                   delay={22}
                   duration={0.5}
                   threshold={0.2}
@@ -207,33 +207,31 @@ export default function ImpactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex items-center justify-center gap-6 md:gap-10 lg:gap-14"
+            className="relative"
           >
-            {featuredBrands.map((brand, index) => (
-              <Link href="/planos" key={brand.name}>
-                <m.div
-                  initial={{ opacity: 0, y: 12, scale: 0.95 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ delay: index * 0.12, duration: 0.45, ease: "easeOut" }}
-                  whileHover={{ y: -4, scale: 1.05 }}
-                  className="group flex flex-col items-center gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-6 py-5 backdrop-blur-sm transition-all duration-300 hover:border-orange-500/25 hover:bg-white/[0.06] min-w-[180px] md:min-w-[220px] cursor-pointer"
-                >
-                  <FeaturedLogo brand={brand} />
-                  <BlurText
-                    as="p"
-                    text={brand.name}
-                    className="text-center text-[10px] uppercase tracking-[0.18em] text-white/60 group-hover:text-white/80 transition-colors"
-                    animateBy="words"
-                    direction="bottom"
-                    delay={16 + index * 6}
-                    threshold={0.2}
-                    rootMargin="-70px"
-                    stepDuration={0.18}
-                  />
-                </m.div>
-              </Link>
-            ))}
+            <div className="overflow-hidden">
+              <m.div
+                className="flex w-max gap-4 will-change-transform sm:gap-5 lg:gap-6"
+                animate={reducedMotion ? undefined : { x: ["-50%", "0%"] }}
+                transition={reducedMotion ? undefined : { duration: 22, repeat: Infinity, ease: "linear" }}
+              >
+                {rotatingBrands.map((brand, index) => (
+                  <div
+                    key={`${brand.name}-${index}`}
+                    className="group flex h-[13.5rem] w-[14.5rem] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-center transition-colors duration-300 hover:border-orange-400/35 sm:h-[14.2rem] sm:w-[16.5rem] lg:h-[14.8rem] lg:w-[17.5rem]"
+                    onMouseEnter={() => setHoveredLogoIndex(index)}
+                    onMouseLeave={() => setHoveredLogoIndex(null)}
+                  >
+                    <div className="flex h-20 w-40 items-center justify-center rounded-lg sm:h-24 sm:w-44">
+                      <FeaturedLogo brand={brand} active={hoveredLogoIndex === index} />
+                    </div>
+                    <p className="flex h-10 items-center justify-center text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70 sm:h-11 sm:text-xs">
+                      {brand.name}
+                    </p>
+                  </div>
+                ))}
+              </m.div>
+            </div>
           </m.div>
         </div>
       </div>

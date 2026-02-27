@@ -40,8 +40,8 @@ export const pt = {
     statBLabel: "ROI Médio em 12 Meses",
     statC: "-40%",
     statCLabel: "Redução de No-Show",
-    statD: "100%",
-    statDLabel: "Decisões Baseadas em Dados",
+    statD: "30D",
+    statDLabel: "Para Atingir os Primeiros Resultados",
   },
   
   // Why Section

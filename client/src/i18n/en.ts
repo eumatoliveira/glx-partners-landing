@@ -42,8 +42,8 @@ export const en: Translations = {
     statBLabel: "Average ROI in 12 Months",
     statC: "-40%",
     statCLabel: "No-Show Reduction",
-    statD: "100%",
-    statDLabel: "Data-Driven Decisions",
+    statD: "30D",
+    statDLabel: "To Reach the First Results",
   },
   
   // Why Section
