@@ -1,38 +1,9 @@
-import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-
-const OKLCH_REGEX = /oklch\([^)]+\)/gi;
-
-function convertCssColorToRgb(color: string, doc: Document): string {
-  const probe = doc.createElement("span");
-  probe.style.color = "";
-  probe.style.color = color;
-  if (!probe.style.color) return color;
-  doc.body.appendChild(probe);
-  const computed = doc.defaultView?.getComputedStyle(probe).color || color;
-  probe.remove();
-  return computed;
-}
-
-function sanitizeUnsupportedColorsForHtml2Canvas(doc: Document) {
-  const convertToken = (token: string) => convertCssColorToRgb(token, doc);
-
-  doc.querySelectorAll("style").forEach((styleEl) => {
-    const cssText = styleEl.textContent;
-    if (!cssText || !cssText.toLowerCase().includes("oklch(")) return;
-    styleEl.textContent = cssText.replace(OKLCH_REGEX, convertToken);
-  });
-
-  doc.querySelectorAll<HTMLElement>("[style]").forEach((el) => {
-    const styleAttr = el.getAttribute("style");
-    if (!styleAttr || !styleAttr.toLowerCase().includes("oklch(")) return;
-    el.setAttribute("style", styleAttr.replace(OKLCH_REGEX, convertToken));
-  });
-}
+import autoTable from 'jspdf-autotable';
 
 /**
  * Professional PDF export for stakeholder/investor presentations.
- * Captures the current dashboard view with branding header and footer.
+ * Generates pure data tables (no charts) via jsPDF AutoTable without breaking UI.
  */
 export async function exportDashboardPDF(
   contentElement: HTMLElement,
@@ -41,146 +12,173 @@ export async function exportDashboardPDF(
 ): Promise<void> {
   if (!contentElement) return;
 
-  const dashboardRoot = contentElement.closest('.glx-plan-dashboard-root') as HTMLElement | null;
-  const themeTarget = dashboardRoot ?? document.documentElement;
-  const originalBg = themeTarget.getAttribute('data-theme');
-  themeTarget.setAttribute('data-theme', 'light');
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const now = new Date();
+  const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-  // Wait for theme transition and chart re-render
-  await new Promise(r => setTimeout(r, 600));
+  const drawHeader = (p: jsPDF) => {
+    // Orange accent bar
+    p.setFillColor(255, 90, 31);
+    p.rect(0, 0, 210, 3, 'F');
 
-  try {
-    const canvas = await html2canvas(contentElement, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-      windowWidth: contentElement.scrollWidth,
-      windowHeight: contentElement.scrollHeight,
-      onclone: (clonedDoc) => {
-        sanitizeUnsupportedColorsForHtml2Canvas(clonedDoc);
-      },
+    // Logo area
+    p.setFillColor(255, 90, 31);
+    p.roundedRect(8, 6, 12, 10, 2, 2, 'F');
+    p.setTextColor(255, 255, 255);
+    p.setFontSize(7);
+    p.setFont('helvetica', 'bold');
+    p.text('GLX', 14, 12.5, { align: 'center' });
+
+    // Titles
+    p.setTextColor(17, 24, 39);
+    p.setFontSize(12);
+    p.setFont('helvetica', 'bold');
+    p.text(title, 23, 10);
+
+    p.setTextColor(107, 114, 128);
+    p.setFontSize(8);
+    p.setFont('helvetica', 'normal');
+    p.text(subtitle, 23, 14.5);
+
+    p.setTextColor(107, 114, 128);
+    p.setFontSize(7);
+    p.text(dateStr, 202, 10, { align: 'right' });
+
+    p.setDrawColor(229, 231, 235);
+    p.setLineWidth(0.3);
+    p.line(8, 20, 202, 20);
+  };
+
+  const drawFooter = (p: jsPDF) => {
+    const pageCount = p.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      p.setPage(i);
+      p.setTextColor(107, 114, 128);
+      p.setFontSize(7);
+      p.text(`Página ${i} de ${pageCount}`, 202, 14, { align: 'right' });
+
+      p.setDrawColor(229, 231, 235);
+      p.setLineWidth(0.3);
+      p.line(8, 285, 202, 285);
+      p.setTextColor(156, 163, 175);
+      p.setFontSize(7);
+      p.setFont('helvetica', 'normal');
+      p.text('GLX Performance Control Tower — Confidencial', 8, 291);
+      p.text('© 2026 GLX Partners. Todos os direitos reservados.', 202, 291, { align: 'right' });
+    }
+  };
+
+  // Extract Sections to support all tabs
+  const sections = contentElement.querySelectorAll('.pdf-export-section');
+  const elementsToProcess = sections.length > 0 ? Array.from(sections) : [contentElement];
+
+  // Add initial page header
+  drawHeader(pdf);
+
+  elementsToProcess.forEach((section, idx) => {
+    const sectionTitle = section.getAttribute('data-title');
+
+    // Page break or space for new sections
+    if (idx > 0) {
+      if ((pdf as any).lastAutoTable) {
+        if ((pdf as any).lastAutoTable.finalY > 250) {
+          pdf.addPage();
+          (pdf as any).lastAutoTable.finalY = 26;
+        } else {
+          (pdf as any).lastAutoTable.finalY += 15;
+        }
+      }
+    }
+
+    let startY = (pdf as any).lastAutoTable ? (pdf as any).lastAutoTable.finalY : 26;
+
+    if (sectionTitle) {
+      pdf.setFontSize(14);
+      pdf.setTextColor(255, 90, 31);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`Aba: ${sectionTitle}`, 8, startY);
+      startY += 5;
+    }
+
+    // Extract Cards
+    const cards = section.querySelectorAll('.overview-card');
+    const cardData: string[][] = [];
+    cards.forEach(card => {
+      const label = card.querySelector('.overview-card-label')?.textContent?.trim() || '';
+      const value = card.querySelector('.overview-card-value')?.textContent?.trim() || '';
+      if (label && value) cardData.push([label, value]);
     });
 
-    const imgWidth = 210; // A4 width in mm
-    const pageHeight = 297; // A4 height in mm
-    const headerHeight = 22;
-    const footerHeight = 12;
-    const contentAreaHeight = pageHeight - headerHeight - footerHeight;
-    const margin = 8;
+    if (cardData.length > 0) {
+      autoTable(pdf, {
+        startY: startY,
+        head: [['Indicador / KPI', 'Valor consolidado']],
+        body: cardData,
+        theme: 'grid',
+        headStyles: { fillColor: [255, 90, 31], textColor: 255 },
+        styles: { fontSize: 8, cellPadding: 3 },
+        margin: { top: 26, bottom: 15, left: 8, right: 8 }
+      });
+      startY = (pdf as any).lastAutoTable.finalY;
+    }
 
-    const imgData = canvas.toDataURL('image/png');
-    const imgAspectRatio = canvas.width / canvas.height;
-    const printableWidth = imgWidth - margin * 2;
-    const scaledHeight = printableWidth / imgAspectRatio;
+    // Extract Tables
+    const tables = section.querySelectorAll('.data-table');
+    tables.forEach((table, tableIndex) => {
+      const head: string[][] = [];
+      const body: string[][] = [];
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const totalPages = Math.ceil(scaledHeight / contentAreaHeight);
-    const now = new Date();
-    const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+      table.querySelectorAll('thead tr').forEach(tr => {
+        const row: string[] = [];
+        tr.querySelectorAll('th').forEach(th => row.push(th.textContent?.trim() || ''));
+        if (row.length) head.push(row);
+      });
 
-    for (let page = 0; page < totalPages; page++) {
-      if (page > 0) pdf.addPage();
+      table.querySelectorAll('tbody tr').forEach(tr => {
+        const row: string[] = [];
+        tr.querySelectorAll('td').forEach(td => row.push(td.textContent?.trim() || ''));
+        if (row.length) body.push(row);
+      });
 
-      // ---- HEADER ----
-      // Orange accent bar
-      pdf.setFillColor(255, 90, 31);
-      pdf.rect(0, 0, 210, 3, 'F');
+      if (head.length || body.length) {
+        let tableStartY = (pdf as any).lastAutoTable ? (pdf as any).lastAutoTable.finalY + 10 : startY + 10;
 
-      // Logo area
-      pdf.setFillColor(255, 90, 31);
-      pdf.roundedRect(margin, 6, 12, 10, 2, 2, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(7);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('GLX', margin + 6, 12.5, { align: 'center' });
+        const titleSpan = table.closest('.chart-card')?.querySelector('.chart-card-title, .detail-section-header');
+        const tableTitleText = titleSpan?.textContent?.trim() || `Detalhamento ${tableIndex + 1}`;
 
-      // Title
-      pdf.setTextColor(17, 24, 39);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(title, margin + 15, 10);
-
-      pdf.setTextColor(107, 114, 128);
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(subtitle, margin + 15, 14.5);
-
-      // Date + page on right
-      pdf.setTextColor(107, 114, 128);
-      pdf.setFontSize(7);
-      pdf.text(dateStr, imgWidth - margin, 10, { align: 'right' });
-      pdf.text(`Página ${page + 1} de ${totalPages}`, imgWidth - margin, 14, { align: 'right' });
-
-      // Header divider
-      pdf.setDrawColor(229, 231, 235);
-      pdf.setLineWidth(0.3);
-      pdf.line(margin, headerHeight - 2, imgWidth - margin, headerHeight - 2);
-
-      // ---- CONTENT ----
-      const srcY = page * contentAreaHeight;
-      pdf.addImage(
-        imgData,
-        'PNG',
-        margin,
-        headerHeight,
-        printableWidth,
-        scaledHeight,
-        undefined,
-        'FAST',
-        0,
-      );
-
-      // Clip to current page
-      if (page > 0) {
-        pdf.setFillColor(255, 255, 255);
-        pdf.rect(0, 0, imgWidth, headerHeight, 'F');
-        // Re-draw header
-        pdf.setFillColor(255, 90, 31);
-        pdf.rect(0, 0, 210, 3, 'F');
-        pdf.setFillColor(255, 90, 31);
-        pdf.roundedRect(margin, 6, 12, 10, 2, 2, 'F');
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(7);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('GLX', margin + 6, 12.5, { align: 'center' });
+        pdf.setFontSize(10);
         pdf.setTextColor(17, 24, 39);
-        pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(title, margin + 15, 10);
-        pdf.setTextColor(107, 114, 128);
-        pdf.setFontSize(8);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(subtitle, margin + 15, 14.5);
-        pdf.setTextColor(107, 114, 128);
-        pdf.setFontSize(7);
-        pdf.text(dateStr, imgWidth - margin, 10, { align: 'right' });
-        pdf.text(`Página ${page + 1} de ${totalPages}`, imgWidth - margin, 14, { align: 'right' });
-        pdf.setDrawColor(229, 231, 235);
-        pdf.setLineWidth(0.3);
-        pdf.line(margin, headerHeight - 2, imgWidth - margin, headerHeight - 2);
+        if (tableStartY + 10 > 280) {
+          pdf.addPage();
+          tableStartY = 26;
+        }
+
+        pdf.text(tableTitleText, 8, tableStartY);
+
+        autoTable(pdf, {
+          startY: tableStartY + 3,
+          head: head.length ? head : undefined,
+          body: body,
+          theme: 'grid',
+          headStyles: { fillColor: [28, 31, 38], textColor: 255 },
+          styles: { fontSize: 7, cellPadding: 2.5 },
+          margin: { top: 26, bottom: 15, left: 8, right: 8 }
+        });
       }
+    });
 
-      // ---- FOOTER ----
-      pdf.setDrawColor(229, 231, 235);
-      pdf.setLineWidth(0.3);
-      pdf.line(margin, pageHeight - footerHeight, imgWidth - margin, pageHeight - footerHeight);
+  });
 
-      pdf.setTextColor(156, 163, 175);
-      pdf.setFontSize(7);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('GLX Performance Control Tower — Confidencial', margin, pageHeight - 6);
-      pdf.text('© 2026 GLX Partners. Todos os direitos reservados.', imgWidth - margin, pageHeight - 6, { align: 'right' });
-    }
-
-    pdf.save(`GLX_Report_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}.pdf`);
-  } finally {
-    // Restore original theme
-    if (originalBg) {
-      themeTarget.setAttribute('data-theme', originalBg);
-    } else if (themeTarget !== document.documentElement) {
-      themeTarget.removeAttribute('data-theme');
-    }
+  // Apply Headers to all extra pages generated by autotable
+  const totalPages = pdf.getNumberOfPages();
+  for (let i = 2; i <= totalPages; i++) {
+    pdf.setPage(i);
+    drawHeader(pdf);
   }
+
+  // Apply Footers at the end
+  drawFooter(pdf);
+
+  pdf.save(`GLX_Report_TodosModelos_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}.pdf`);
 }

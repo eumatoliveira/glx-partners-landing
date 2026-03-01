@@ -10,7 +10,7 @@ export const en: Translations = {
     membersArea: "MEMBERS AREA",
     schedule: "SCHEDULE DIAGNOSIS",
   },
-  
+
   // Hero Section
   hero: {
     badge: "HEALTHCARE PERFORMANCE CONSULTING",
@@ -23,7 +23,7 @@ export const en: Translations = {
     cta: "SCHEDULE DIAGNOSIS",
     secondary: "VIEW CASES",
   },
-  
+
   // Impact Section
   impact: {
     title: "Real Impact on Healthcare Clinics",
@@ -45,7 +45,7 @@ export const en: Translations = {
     statD: "30D",
     statDLabel: "To Reach the First Results",
   },
-  
+
   // Why Section
   why: {
     title: "Why GLX?",
@@ -68,7 +68,7 @@ export const en: Translations = {
     whyItem3Title: "Artificial Intelligence",
     whyItem3Desc: "Automation of repetitive processes to scale without inflating the team.",
   },
-  
+
   // What Section (Services)
   what: {
     title: "What We Do",
@@ -82,7 +82,7 @@ export const en: Translations = {
     service4Title: "Team Training",
     service4Desc: "Continuous training for your administrative and clinical team.",
   },
-  
+
   // How Section (Method)
   how: {
     title: "The GLX Method",
@@ -96,13 +96,39 @@ export const en: Translations = {
     step4: "Monitoring",
     step4Desc: "Continuous tracking of results",
   },
-  
+
   // Testimonials
   testimonials: {
-    title: "What Our Clients Say",
-    subtitle: "Testimonials from those who have transformed their clinic",
+    eyebrow: 'WHO TRUSTS GLX',
+    title: 'CEOs who stopped guessing',
+    titleHighlight: 'and started knowing.',
+    subtitle: 'Real cases, with an installed operation and measured results.',
+    item1: {
+      quote: 'We went from spreadsheet chaos to a system that tells me, every Monday, exactly where the bottlenecks are and what decision needs to be made. The impact on margins appeared before the project even finished.',
+      author: 'Dr. Felipe Roca Nacif',
+      role: 'CEO — MAKTUB Diagnostic Medicine'
+    },
+    item2: {
+      quote: "The difference with GLX is that they don't leave with a report under their arm. They stay until the process becomes routine for the team. The discipline they brought to our operation changed the standard of the entire company.",
+      author: 'Dr. Izabela Brauer Pinho',
+      role: 'CEO — Healthtech Solutions'
+    },
+    item3: {
+      quote: 'In 45 days, our no-show rate dropped from 24% to 8%. The front desk started answering leads in less than 40 minutes — it used to take all day. Simple things, with the right system, generated over R$ 35K in additional revenue in the first quarter.',
+      author: 'ROBERTO SOARES DE MELO',
+      role: 'CLINICAL DIRECTOR - VittaMéd Nutrology Institute',
+      metric: '+R$ 35K/month',
+      metricPeriod: 'in 90 days'
+    },
+    item4: {
+      quote: 'GLX mapped out that two of our most popular procedures had a negative margin. The schedule was full and seemed fine. After repricing and mix adjustments, our EBITDA margin rose by 11 percentage points in 3 months.',
+      author: 'CAMILA BRUNELLO',
+      role: 'CO-FOUNDER - Lumina Dermatology & Medical Aesthetics',
+      metric: '+11pp EBITDA',
+      metricPeriod: 'in 90 days'
+    }
   },
-  
+
   // FAQ
   faq: {
     title: "Frequently Asked Questions",
@@ -116,14 +142,14 @@ export const en: Translations = {
     q4: "What is the required investment?",
     a4: "The investment varies according to the clinic size. Schedule a free diagnosis to receive a personalized proposal.",
   },
-  
+
   // Results Section
   results: {
     title: "Proven Results",
     subtitle: "Success cases from our clients",
     cta: "I Want These Results",
   },
-  
+
   // Contact Form
   contact: {
     title: "Contact Us",
@@ -136,7 +162,7 @@ export const en: Translations = {
     submit: "Send Message",
     success: "Message sent successfully!",
   },
-  
+
   // Footer
   footer: {
     description: "Specialized consulting in healthcare clinic management.",
@@ -145,7 +171,7 @@ export const en: Translations = {
     followUs: "Follow Us",
     rights: "All rights reserved.",
   },
-  
+
   // Login Page
   login: {
     title: "Members Area",
@@ -165,7 +191,7 @@ export const en: Translations = {
     heroHighlight: "Partners.",
     heroDesc: "Access your dashboards, performance reports and exclusive materials from the GLX methodology.",
   },
-  
+
   // Plans Page
   plans: {
     backToSite: "Back to Site",

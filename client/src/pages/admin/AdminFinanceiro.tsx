@@ -98,25 +98,25 @@ const chartOptions = {
 };
 
 const inadimplentes = [
-  { id: 1, cliente: "Clínica Saúde Total", email: "financeiro@saudetotal.com", valor: 4500, diasAtraso: 15, tentativas: 2 },
+  { id: 1, cliente: "Clanica Saade Total", email: "financeiro@saudetotal.com", valor: 4500, diasAtraso: 15, tentativas: 2 },
   { id: 2, cliente: "Instituto Bem Estar", email: "contato@bemestar.com", valor: 3200, diasAtraso: 8, tentativas: 1 },
-  { id: 3, cliente: "Centro Médico Vida", email: "adm@centrovida.com", valor: 6800, diasAtraso: 22, tentativas: 3 },
-  { id: 4, cliente: "Clínica Derma Plus", email: "financeiro@dermaplus.com", valor: 2100, diasAtraso: 5, tentativas: 1 },
+  { id: 3, cliente: "Centro Madico Vida", email: "adm@centrovida.com", valor: 6800, diasAtraso: 22, tentativas: 3 },
+  { id: 4, cliente: "Clanica Derma Plus", email: "financeiro@dermaplus.com", valor: 2100, diasAtraso: 5, tentativas: 1 },
 ];
 
 const transacoes = [
-  { id: 1, cliente: "Hospital São Lucas", tipo: "Assinatura", valor: 12500, status: "Aprovado", data: "31/01/2026" },
-  { id: 2, cliente: "Clínica Ortopédica", tipo: "Upgrade", valor: 3500, status: "Aprovado", data: "30/01/2026" },
-  { id: 3, cliente: "Centro Médico Vida", tipo: "Assinatura", valor: 6800, status: "Falhou", data: "29/01/2026" },
-  { id: 4, cliente: "Instituto Cardiológico", tipo: "Assinatura", valor: 8900, status: "Aprovado", data: "28/01/2026" },
-  { id: 5, cliente: "Clínica Derma Plus", tipo: "Downgrade", valor: -1500, status: "Aprovado", data: "27/01/2026" },
+  { id: 1, cliente: "Hospital Sao Lucas", tipo: "Assinatura", valor: 12500, status: "Aprovado", data: "31/01/2026" },
+  { id: 2, cliente: "Clanica Ortopadica", tipo: "Upgrade", valor: 3500, status: "Aprovado", data: "30/01/2026" },
+  { id: 3, cliente: "Centro Madico Vida", tipo: "Assinatura", valor: 6800, status: "Falhou", data: "29/01/2026" },
+  { id: 4, cliente: "Instituto Cardiolagico", tipo: "Assinatura", valor: 8900, status: "Aprovado", data: "28/01/2026" },
+  { id: 5, cliente: "Clanica Derma Plus", tipo: "Downgrade", valor: -1500, status: "Aprovado", data: "27/01/2026" },
 ];
 
 export default function AdminFinanceiro() {
   const [periodo, setPeriodo] = useState("12m");
 
   const handleExportPDF = () => {
-    alert("Exportando relatório PDF...");
+    alert("Exportando relatario PDF...");
   };
 
   const handleExportCSV = () => {
@@ -138,7 +138,7 @@ export default function AdminFinanceiro() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Painel Financeiro</h1>
-            <p className="text-muted-foreground">Health Check do negócio em tempo real</p>
+            <p className="text-muted-foreground">Health Check do negacio em tempo real</p>
           </div>
           <div className="flex items-center gap-2">
             <Select value={periodo} onValueChange={setPeriodo}>
@@ -175,7 +175,7 @@ export default function AdminFinanceiro() {
               <div className="flex items-center gap-1 mt-1">
                 <ArrowUpRight className="h-4 w-4 text-green-500" />
                 <span className="text-green-500">+12.3%</span>
-                <span className="text-xs text-muted-foreground">vs mês anterior</span>
+                <span className="text-xs text-muted-foreground">vs mas anterior</span>
               </div>
             </CardContent>
           </Card>
@@ -205,10 +205,10 @@ export default function AdminFinanceiro() {
               <div className="flex items-center gap-1 mt-1">
                 <ArrowDownRight className="h-4 w-4 text-green-500" />
                 <span className="text-green-500">-0.5%</span>
-                <span className="text-xs text-muted-foreground">vs mês anterior</span>
+                <span className="text-xs text-muted-foreground">vs mas anterior</span>
               </div>
               <Badge variant="outline" className="mt-2 text-green-500 border-green-500">
-                Saudável (&lt; 5%)
+                Saudavel (&lt; 5%)
               </Badge>
             </CardContent>
           </Card>
@@ -233,8 +233,8 @@ export default function AdminFinanceiro() {
         {/* MRR Chart */}
         <Card className="bg-card/50 border-border/50">
           <CardHeader>
-            <CardTitle>Evolução do MRR</CardTitle>
-            <CardDescription>Receita Mensal Recorrente nos últimos 12 meses</CardDescription>
+            <CardTitle>Evoluaao do MRR</CardTitle>
+            <CardDescription>Receita Mensal Recorrente nos altimos 12 meses</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -243,16 +243,16 @@ export default function AdminFinanceiro() {
           </CardContent>
         </Card>
 
-        {/* Inadimplência */}
+        {/* Inadimplancia */}
         <Card className="bg-card/50 border-border/50">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                  Inadimplência
+                  Inadimplancia
                 </CardTitle>
-                <CardDescription>Pagamentos atrasados que requerem ação</CardDescription>
+                <CardDescription>Pagamentos atrasados que requerem aaao</CardDescription>
               </div>
               <Badge variant="destructive">{inadimplentes.length} pendentes</Badge>
             </div>
@@ -265,7 +265,7 @@ export default function AdminFinanceiro() {
                   <TableHead>Valor</TableHead>
                   <TableHead>Dias em Atraso</TableHead>
                   <TableHead>Tentativas</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="text-right">Aaaes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -312,11 +312,11 @@ export default function AdminFinanceiro() {
           </CardContent>
         </Card>
 
-        {/* Transações Recentes */}
+        {/* Transaaaes Recentes */}
         <Card className="bg-card/50 border-border/50">
           <CardHeader>
-            <CardTitle>Transações Recentes</CardTitle>
-            <CardDescription>Últimas movimentações financeiras</CardDescription>
+            <CardTitle>Transaaaes Recentes</CardTitle>
+            <CardDescription>altimas movimentaaaes financeiras</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>

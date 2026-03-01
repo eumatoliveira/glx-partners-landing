@@ -3,7 +3,7 @@ import { Redirect, useLocation } from 'wouter';
 import { Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
-import type { Language } from '@/i18n';
+import type { Language } from '@/i18n/index';
 import { normalizePlanTier } from '@shared/controlTowerRules';
 import EssentialDashboard from './components/EssentialDashboard';
 import ProDashboard from './components/ProDashboard';
@@ -144,7 +144,46 @@ const i18n: Record<Lang, Record<string, string>> = {
   },
 };
 
-const NotificationPanel = memo(({ onClose }: { onClose: () => void }) => (
+const initialNotifications = [
+  { id: '1', badgeType: 'danger', badge: 'P1', title: 'CAC acima do teto', desc: 'R$ 185 vs meta de R$ 150. Google Ads principal ofensor.', time: 'Hoje, 11:15' },
+  { id: '2', badgeType: '', badge: 'P2', title: 'No-Show acima da meta', desc: 'Taxa de 12.5% meta < 10%. 3 semanas consecutivas.', time: 'Hoje, 14:30' },
+  { id: '3', badgeType: 'info', badge: 'i', title: 'Relatório semanal disponível', desc: 'Semana 08/2026 processada com sucesso.', time: 'Ontem, 18:00' },
+  { id: '4', badgeType: 'success', badge: '✓', title: 'Meta de ocupação atingida', desc: '78% acima da meta de 75%.', time: 'Ontem, 09:00' },
+];
+
+const NotificationItem = memo(({ item, isRemoved, onToggleRemove }: { item: typeof initialNotifications[0], isRemoved: boolean, onToggleRemove: (id: string, remove: boolean) => void }) => {
+  if (isRemoved) {
+    return (
+      <div className="notif-item deleted" style={{ justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', border: '1px solid var(--border)', borderRadius: 6, marginBottom: 8 }}>
+        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Notificação removida.</span>
+        <button className="text-btn" style={{ padding: '6px 10px', fontSize: 12, border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg)', color: 'var(--text)', cursor: 'pointer' }} onClick={() => onToggleRemove(item.id, false)}>
+          ↩ Desfazer
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="notif-item" style={{ position: 'relative', paddingRight: 32 }}>
+      <div className={`notif-badge ${item.badgeType}`}>{item.badge}</div>
+      <div>
+        <strong>{item.title}</strong>
+        <p>{item.desc}</p>
+        <span className="notif-time">{item.time}</span>
+      </div>
+      <button
+        className="notif-close-btn"
+        style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}
+        onClick={() => onToggleRemove(item.id, true)}
+        title="Excluir notificação"
+      >
+        ×
+      </button>
+    </div>
+  );
+});
+
+const NotificationPanel = memo(({ onClose, removedNotifs, onToggleRemove }: { onClose: () => void, removedNotifs: Set<string>, onToggleRemove: (id: string, remove: boolean) => void }) => (
   <div className="overlay-backdrop" onClick={onClose}>
     <div className="overlay-panel" onClick={e => e.stopPropagation()} style={{ width: 380 }}>
       <div className="overlay-header">
@@ -152,10 +191,7 @@ const NotificationPanel = memo(({ onClose }: { onClose: () => void }) => (
         <button className="overlay-close" onClick={onClose}>×</button>
       </div>
       <div className="overlay-body">
-        <div className="notif-item"><div className="notif-badge danger">P1</div><div><strong>CAC acima do teto</strong><p>R$ 185 vs meta de R$ 150. Google Ads principal ofensor.</p><span className="notif-time">Hoje, 11:15</span></div></div>
-        <div className="notif-item"><div className="notif-badge">P2</div><div><strong>No-Show acima da meta</strong><p>Taxa de 12.5% meta {'<'} 10%. 3 semanas consecutivas.</p><span className="notif-time">Hoje, 14:30</span></div></div>
-        <div className="notif-item"><div className="notif-badge info">i</div><div><strong>Relatório semanal disponível</strong><p>Semana 08/2026 processada com sucesso.</p><span className="notif-time">Ontem, 18:00</span></div></div>
-        <div className="notif-item"><div className="notif-badge success">✓</div><div><strong>Meta de ocupação atingida</strong><p>78% acima da meta de 75%.</p><span className="notif-time">Ontem, 09:00</span></div></div>
+        {initialNotifications.map(n => <NotificationItem key={n.id} item={n} isRemoved={removedNotifs.has(n.id)} onToggleRemove={onToggleRemove} />)}
       </div>
     </div>
   </div>
@@ -205,6 +241,7 @@ function PlanDashboardApp() {
   const [lang, setLang] = useState<Lang>(() => toDashboardLang(language));
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [removedNotifs, setRemovedNotifs] = useState<Set<string>>(new Set());
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
@@ -212,6 +249,18 @@ function PlanDashboardApp() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const contentRef = useRef<HTMLElement>(null);
+  const exportContentRef = useRef<HTMLDivElement>(null);
+
+  const handleToggleNotif = useCallback((id: string, remove: boolean) => {
+    setRemovedNotifs(prev => {
+      const next = new Set(prev);
+      if (remove) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const activeNotifCount = initialNotifications.length - removedNotifs.size;
 
   const t = useMemo(() => i18n[lang], [lang]);
   const menu = sidebarMenus[activePlan];
@@ -293,15 +342,19 @@ function PlanDashboardApp() {
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.style.display = 'none';
       a.href = url;
-      a.download = `glx_report_${new Date().toISOString().split('T')[0]}.csv`;
+      // Using a simpler name format to avoid parsing issues in embedded browsers/webviews
+      const ts = new Date().getTime();
+      a.setAttribute('download', `glx_report_${ts}.csv`);
+      a.target = '_blank';
       document.body.appendChild(a);
       a.click();
+
+      // Give enough time for the browser to trigger download before revoking
       setTimeout(() => {
-        document.body.removeChild(a);
+        if (a.parentNode) document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      }, 200);
+      }, 5000);
       setToastMsg(t.csvMsg);
     } catch (err) {
       console.error('CSV export error:', err);
@@ -322,15 +375,20 @@ function PlanDashboardApp() {
     if (!contentRef.current || pdfLoading) return;
     setPdfLoading(true);
     setToastMsg(t.pdfGenerating);
-    try {
-      await exportDashboardPDF(contentRef.current, t[titleKey], t[subtitleKey]);
-      setToastMsg(t.pdfMsg);
-    } catch (err) {
-      console.error('PDF export error:', err);
-      setToastMsg('Erro ao gerar PDF: ' + (err instanceof Error ? err.message : String(err)));
-    } finally {
-      setPdfLoading(false);
-    }
+    // Allow React to render the hidden export container, then capture it
+    setTimeout(async () => {
+      try {
+        if (!exportContentRef.current) throw new Error("Export ref missing");
+        await exportDashboardPDF(exportContentRef.current, t[titleKey], t[subtitleKey]);
+        setToastMsg(t.pdfMsg);
+      } catch (err) {
+        console.error('PDF export error:', err);
+        setToastMsg('Erro na engine de PDF. Abrindo impressao...');
+        setTimeout(() => window.print(), 500);
+      } finally {
+        setPdfLoading(false);
+      }
+    }, 500);
   }, [exportCapability.allowPdf, exportCapability.reason, pdfLoading, t, titleKey, subtitleKey]);
 
   if ((user as any)?.role === 'admin') {
@@ -346,7 +404,7 @@ function PlanDashboardApp() {
         <span className="ambient-orb ambient-orb-c" />
       </div>
       {mobileSidebarOpen && <button type="button" className="sidebar-backdrop" aria-label="Fechar menu" onClick={() => setMobileSidebarOpen(false)} />}
-      {showNotifications && <NotificationPanel onClose={() => setShowNotifications(false)} />}
+      {showNotifications && <NotificationPanel onClose={() => setShowNotifications(false)} removedNotifs={removedNotifs} onToggleRemove={handleToggleNotif} />}
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} theme={theme} setTheme={setTheme} lang={lang} setLang={handleSetLang} />}
       {showHelp && <HelpPanel onClose={() => setShowHelp(false)} />}
       {toastMsg && <Toast message={toastMsg} onDone={() => setToastMsg('')} />}
@@ -412,7 +470,8 @@ function PlanDashboardApp() {
             {activeFilterCount > 0 && <span style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 700, marginRight: 4 }}>{activeFilterCount} filtro{activeFilterCount > 1 ? 's' : ''}</span>}
             <button className="topbar-btn live status-btn">{t.dadosVivo}</button>
             <button className="topbar-btn topbar-icon-btn notification-btn" onClick={() => setShowNotifications(true)} style={{ position: 'relative' }}>
-              🔔<span style={{ position: 'absolute', top: -2, right: -2, width: 14, height: 14, borderRadius: '50%', background: 'var(--red)', color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>4</span>
+              🔔
+              {activeNotifCount > 0 && <span style={{ position: 'absolute', top: -2, right: -2, width: 14, height: 14, borderRadius: '50%', background: 'var(--red)', color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{activeNotifCount}</span>}
             </button>
             <button className="topbar-btn" onClick={() => setShowSettings(true)}>⚙</button>
             <button className="topbar-btn text-btn" onClick={() => setShowHelp(true)}>{t.help}</button>
@@ -431,6 +490,19 @@ function PlanDashboardApp() {
           {activePlan === 'PRO' && <ProDashboard activeTab={activeMenuItem} theme={theme} filters={filters} onFiltersChange={setFilters} />}
           {activePlan === 'ENTERPRISE' && <EnterpriseDashboard activeTab={activeMenuItem} theme={theme} filters={filters} onFiltersChange={setFilters} />}
         </main>
+
+        {/* Hidden Container for Multi-Tab PDF Export */}
+        {pdfLoading && (
+          <div ref={exportContentRef} style={{ display: 'none' }}>
+            {menu.items.map((tabName, idx) => (
+              <div key={idx} className="pdf-export-section" data-title={tabName}>
+                {activePlan === 'ESSENTIAL' && <EssentialDashboard activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
+                {activePlan === 'PRO' && <ProDashboard activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
+                {activePlan === 'ENTERPRISE' && <EnterpriseDashboard activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import type { Language } from "@/i18n";
+import type { Language } from "@/i18n/index";
 
 type LegendCopy = {
   title: string;
@@ -50,6 +50,7 @@ type AdminLayoutCopy = {
     kommo: string;
     errors: string;
     flags: string;
+    settings: string;
   };
   environment: {
     production: string;
@@ -456,6 +457,7 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
       kommo: "Kommo",
       errors: "Erros e Logs",
       flags: "Feature Flags",
+      settings: "Configurações",
     },
     environment: {
       production: "Producao",
@@ -563,6 +565,7 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
       kommo: "Kommo",
       errors: "Errors and Logs",
       flags: "Feature Flags",
+      settings: "Settings",
     },
     environment: {
       production: "Production",
@@ -670,6 +673,7 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
       kommo: "Kommo",
       errors: "Errores y Logs",
       flags: "Feature Flags",
+      settings: "Configuraciones",
     },
     environment: {
       production: "Produccion",

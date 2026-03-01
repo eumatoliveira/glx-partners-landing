@@ -132,114 +132,21 @@ export default function TestimonialsSection() {
     offset: ["start end", "end start"],
   });
 
-  const content = {
-    pt: {
-      title: "Quem confia na",
-      titleHighlight: "GLX",
-      testimonials: [
-        {
-          quote:
-            "A GLX transformou nossa operação. Saímos de um caos de planilhas para um sistema previsível de crescimento. O impacto na margem foi imediato.",
-          author: "Dr. Felipe Roca Nacif",
-          role: "CEO, MAKTUB MEDICINA DIAGNÓSTICA",
-        },
-        {
-          quote:
-            "Eles não entregam apenas relatórios, entregam execução. A disciplina do Lean Six Sigma aplicada à nossa realidade mudou o jogo.",
-          author: "Dra. Izabela Brauer Pinho",
-          role: "CEO, Healthtech Solutions",
-        },
-      ],
-    },
-    en: {
-      title: "Who trusts",
-      titleHighlight: "GLX",
-      testimonials: [
-        {
-          quote:
-            "GLX transformed our operation. We went from spreadsheet chaos to a predictable growth system. The impact on margin was immediate.",
-          author: "Dr. Felipe Roca Nacif",
-          role: "CEO, MAKTUB DIAGNOSTIC MEDICINE",
-        },
-        {
-          quote:
-            "They don't just deliver reports, they deliver execution. The Lean Six Sigma discipline applied to our reality changed the game.",
-          author: "Dr. Izabela Brauer Pinho",
-          role: "CEO, Healthtech Solutions",
-        },
-      ],
-    },
-    es: {
-      title: "Quién confía en",
-      titleHighlight: "GLX",
-      testimonials: [
-        {
-          quote:
-            "GLX transformó nuestra operación. Pasamos del caos de hojas de cálculo a un sistema de crecimiento predecible. El impacto en el margen fue inmediato.",
-          author: "Dr. Felipe Roca Nacif",
-          role: "CEO, MAKTUB MEDICINA DIAGNÓSTICA",
-        },
-        {
-          quote:
-            "No solo entregan informes, entregan ejecución. La disciplina Lean Six Sigma aplicada a nuestra realidad cambió el juego.",
-          author: "Dra. Izabela Brauer Pinho",
-          role: "CEO, Healthtech Solutions",
-        },
-      ],
-    },
+  const t = useLanguage().t;
+
+  const headerCopy = {
+    eyebrow: t.testimonials.eyebrow,
+    title: t.testimonials.title,
+    titleHighlight: t.testimonials.titleHighlight,
+    subtitle: t.testimonials.subtitle,
   };
 
-  const t = content[language];
-  const headerCopy =
-    language === "pt"
-      ? {
-          eyebrow: "QUEM CONFIA NA GLX",
-          title: "CEOs que pararam de achar",
-          titleHighlight: "e começaram a saber.",
-          subtitle: "Casos reais, com operação instalada e resultado medido.",
-        }
-      : {
-          eyebrow: language === "en" ? "WHO TRUSTS GLX" : "QUIÉN CONFÍA EN GLX",
-          title: t.title,
-          titleHighlight: t.titleHighlight,
-          subtitle:
-            language === "en"
-              ? "Executives who stopped guessing and started knowing."
-              : "CEOs que dejaron de adivinar y empezaron a saber.",
-        };
-  const testimonials: TestimonialItem[] =
-    language === "pt"
-      ? [
-          {
-            quote:
-              "Saímos de um caos de planilhas para um sistema que me diz, toda segunda-feira, exatamente onde estão os gargalos e qual decisão precisa ser tomada. O impacto na margem apareceu antes do projeto terminar.",
-            author: "Dr. Felipe Roca Nacif",
-            role: "CEO — MAKTUB Medicina Diagnóstica",
-          },
-          {
-            quote:
-              "A diferença da GLX é que eles não saem com um relatório embaixo do braço. Ficam até o processo virar rotina do time. A disciplina que trouxeram para a nossa operação mudou o padrão de toda a empresa.",
-            author: "Dra. Izabela Brauer Pinho",
-            role: "CEO — Healthtech Solutions",
-          },
-          {
-            quote:
-              "Em 45 dias, o no-show caiu de 24% para 8%. A recepção passou a responder leads em menos de 40 minutos — antes levava o dia inteiro. Coisas simples, com sistema certo, geraram mais de R$ 35K de receita adicional no primeiro trimestre.",
-            author: "ROBERTO SOARES DE MELO",
-            role: "DIRETOR CLINICO - Instituto VittaMéd Nutrologia",
-            metric: "+R$ 35K/mês",
-            metricPeriod: "em 90 dias",
-          },
-          {
-            quote:
-              "A GLX mapeou que dois dos nossos procedimentos mais populares tinham margem negativa. A agenda estava cheia e parecia que ia bem. Após reprecificação e ajuste de mix, a margem EBITDA subiu 11 pontos percentuais em 3 meses.",
-            author: "CAMILA BRUNELLO",
-            role: "CO-FOUNDER - Lumina Dermatologia & Estética Médica",
-            metric: "+11pp EBITDA",
-            metricPeriod: "em 90 dias",
-          },
-        ]
-      : t.testimonials;
+  const testimonials: TestimonialItem[] = [
+    t.testimonials.item1,
+    t.testimonials.item2,
+    t.testimonials.item3,
+    t.testimonials.item4,
+  ];
 
   return (
     <section ref={sectionRef} id="portfolio" className="relative overflow-hidden bg-[#050505] py-20 md:py-32">

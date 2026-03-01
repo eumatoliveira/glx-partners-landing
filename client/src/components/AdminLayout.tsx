@@ -1,7 +1,7 @@
 ﻿import { useAuth } from "@/_core/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Language } from "@/i18n";
+import type { Language } from "@/i18n/index";
 import { getAdminLayoutCopy, resolveAdminLegend } from "@/lib/dashboardLocale";
 import {
   LayoutDashboard,
@@ -20,6 +20,7 @@ import {
   Sun,
   Server,
   Settings,
+  Wifi,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
@@ -45,7 +46,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: "dark",
-  toggleTheme: () => {},
+  toggleTheme: () => { },
 });
 
 export const useAdminTheme = () => useContext(ThemeContext);
@@ -54,7 +55,7 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-type NavKey = "dashboard" | "finance" | "users" | "system" | "kommo" | "errors" | "flags";
+type NavKey = "dashboard" | "finance" | "users" | "system" | "kommo" | "errors" | "flags" | "settings";
 
 const NAV_ITEMS: Array<{ key: NavKey; href: string; icon: React.ComponentType<{ className?: string }> }> = [
   { key: "dashboard", href: "/admin", icon: LayoutDashboard },
@@ -64,6 +65,7 @@ const NAV_ITEMS: Array<{ key: NavKey; href: string; icon: React.ComponentType<{ 
   { key: "kommo", href: "/admin/kommo", icon: Wifi },
   { key: "errors", href: "/admin/erros", icon: AlertTriangle },
   { key: "flags", href: "/admin/flags", icon: Flag },
+  { key: "settings", href: "/admin/configuracoes", icon: Settings },
 ];
 
 const LANGUAGE_OPTIONS: Array<{ code: Language; label: string }> = [
@@ -214,22 +216,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
 
             <div className="p-4 border-t border-white/5 space-y-1">
-              <Link href="/performance">
-                <Button variant="ghost" className={cn("w-full justify-start gap-2", sidebarText, sidebarHover, "hover:text-white")}>
-                  <Activity className="h-4 w-4" />
-                  {copy.glxDashboard}
-                </Button>
-              </Link>
               <Link href="/">
                 <Button variant="ghost" className={cn("w-full justify-start gap-2", sidebarText, sidebarHover, "hover:text-white")}>
                   <LayoutDashboard className="h-4 w-4" />
                   {copy.backToSite}
                 </Button>
               </Link>
-              <Button variant="ghost" className={cn("w-full justify-start gap-2", sidebarText, sidebarHover, "hover:text-white")}>
-                <Settings className="h-4 w-4" />
-                {copy.settings}
-              </Button>
             </div>
 
             <div className="p-4 border-t border-white/5">
@@ -351,14 +343,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/performance">
-                        <span className="cursor-pointer flex items-center gap-2">
-                          <Activity className="h-4 w-4" />
-                          {copy.glxDashboard}
-                        </span>
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/">
                         <span className="cursor-pointer flex items-center gap-2">

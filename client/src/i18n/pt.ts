@@ -8,7 +8,7 @@ export const pt = {
     membersArea: "ÁREA DE MEMBROS",
     schedule: "AGENDAR DIAGNÓSTICO",
   },
-  
+
   // Hero Section
   hero: {
     badge: "CONSULTORIA DE PERFORMANCE EM SAÚDE",
@@ -21,7 +21,7 @@ export const pt = {
     cta: "AGENDAR DIAGNÓSTICO",
     secondary: "VER CASES",
   },
-  
+
   // Impact Section
   impact: {
     title: "Impacto Real em Clínicas de Saúde",
@@ -43,7 +43,7 @@ export const pt = {
     statD: "30D",
     statDLabel: "Para Atingir os Primeiros Resultados",
   },
-  
+
   // Why Section
   why: {
     title: "Por que a GLX?",
@@ -66,7 +66,7 @@ export const pt = {
     whyItem3Title: "Inteligência Artificial",
     whyItem3Desc: "Automação de processos repetitivos para escalar sem inflar a equipe.",
   },
-  
+
   // What Section (Services)
   what: {
     title: "O Que Fazemos",
@@ -80,7 +80,7 @@ export const pt = {
     service4Title: "Treinamento de Equipe",
     service4Desc: "Capacitação contínua para sua equipe administrativa e clínica.",
   },
-  
+
   // How Section (Method)
   how: {
     title: "O Método GLX",
@@ -94,13 +94,39 @@ export const pt = {
     step4: "Monitoramento",
     step4Desc: "Acompanhamento contínuo dos resultados",
   },
-  
+
   // Testimonials
   testimonials: {
-    title: "O Que Nossos Clientes Dizem",
-    subtitle: "Depoimentos de quem já transformou sua clínica",
+    eyebrow: 'QUEM CONFIA NA GLX',
+    title: 'CEOs que pararam de achar',
+    titleHighlight: 'e começaram a saber.',
+    subtitle: 'Casos reais, com operação instalada e resultado medido.',
+    item1: {
+      quote: 'Saímos de um caos de planilhas para um sistema que me diz, toda segunda-feira, exatamente onde estão os gargalos e qual decisão precisa ser tomada. O impacto na margem apareceu antes do projeto terminar.',
+      author: 'Dr. Felipe Roca Nacif',
+      role: 'CEO — MAKTUB Medicina Diagnóstica'
+    },
+    item2: {
+      quote: 'A diferença da GLX é que eles não saem com um relatório embaixo do braço. Ficam até o processo virar rotina do time. A disciplina que trouxeram para a nossa operação mudou o padrão de toda a empresa.',
+      author: 'Dra. Izabela Brauer Pinho',
+      role: 'CEO — Healthtech Solutions'
+    },
+    item3: {
+      quote: 'Em 45 dias, o no-show caiu de 24% para 8%. A recepção passou a responder leads em menos de 40 minutos — antes levava o dia inteiro. Coisas simples, com sistema certo, geraram mais de R$ 35K de receita adicional no primeiro trimestre.',
+      author: 'ROBERTO SOARES DE MELO',
+      role: 'DIRETOR CLÍNICO - Instituto VittaMéd Nutrologia',
+      metric: '+R$ 35K/mês',
+      metricPeriod: 'em 90 dias'
+    },
+    item4: {
+      quote: 'A GLX mapeou que dois dos nossos procedimentos mais populares tinham margem negativa. A agenda estava cheia e parecia que ia bem. Após reprecificação e ajuste de mix, a margem EBITDA subiu 11 pontos percentuais em 3 meses.',
+      author: 'CAMILA BRUNELLO',
+      role: 'CO-FOUNDER - Lumina Dermatologia & Estética Médica',
+      metric: '+11pp EBITDA',
+      metricPeriod: 'em 90 dias'
+    }
   },
-  
+
   // FAQ
   faq: {
     title: "Perguntas Frequentes",
@@ -114,14 +140,14 @@ export const pt = {
     q4: "Qual o investimento necessário?",
     a4: "O investimento varia conforme o porte da clínica. Agende um diagnóstico gratuito para receber uma proposta personalizada.",
   },
-  
+
   // Results Section
   results: {
     title: "Resultados Comprovados",
     subtitle: "Cases de sucesso de nossos clientes",
     cta: "Quero Esses Resultados",
   },
-  
+
   // Contact Form
   contact: {
     title: "Fale Conosco",
@@ -134,7 +160,7 @@ export const pt = {
     submit: "Enviar Mensagem",
     success: "Mensagem enviada com sucesso!",
   },
-  
+
   // Footer
   footer: {
     description: "Consultoria especializada em gestão de clínicas de saúde.",
@@ -143,7 +169,7 @@ export const pt = {
     followUs: "Siga-nos",
     rights: "Todos os direitos reservados.",
   },
-  
+
   // Login Page
   login: {
     title: "Área de Membros",
@@ -163,7 +189,7 @@ export const pt = {
     heroHighlight: "Parceiros.",
     heroDesc: "Acesse seus dashboards, relatórios de performance e materiais exclusivos da metodologia GLX.",
   },
-  
+
   // Plans Page
   plans: {
     backToSite: "Voltar ao Site",

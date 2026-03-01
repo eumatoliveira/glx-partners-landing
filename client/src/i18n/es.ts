@@ -10,7 +10,7 @@ export const es: Translations = {
     membersArea: "ÁREA DE MIEMBROS",
     schedule: "AGENDAR DIAGNÓSTICO",
   },
-  
+
   // Hero Section
   hero: {
     badge: "CONSULTORÍA DE RENDIMIENTO EN SALUD",
@@ -23,7 +23,7 @@ export const es: Translations = {
     cta: "AGENDAR DIAGNÓSTICO",
     secondary: "VER CASOS",
   },
-  
+
   // Impact Section
   impact: {
     title: "Impacto Real en Clínicas de Salud",
@@ -45,7 +45,7 @@ export const es: Translations = {
     statD: "30D",
     statDLabel: "Para Alcanzar los Primeros Resultados",
   },
-  
+
   // Why Section
   why: {
     title: "¿Por qué GLX?",
@@ -68,7 +68,7 @@ export const es: Translations = {
     whyItem3Title: "Inteligencia Artificial",
     whyItem3Desc: "Automatización de procesos repetitivos para escalar sin inflar el equipo.",
   },
-  
+
   // What Section (Services)
   what: {
     title: "Qué Hacemos",
@@ -82,7 +82,7 @@ export const es: Translations = {
     service4Title: "Capacitación de Equipo",
     service4Desc: "Formación continua para tu equipo administrativo y clínico.",
   },
-  
+
   // How Section (Method)
   how: {
     title: "El Método GLX",
@@ -96,13 +96,39 @@ export const es: Translations = {
     step4: "Monitoreo",
     step4Desc: "Seguimiento continuo de resultados",
   },
-  
+
   // Testimonials
   testimonials: {
-    title: "Lo Que Dicen Nuestros Clientes",
-    subtitle: "Testimonios de quienes ya transformaron su clínica",
+    eyebrow: 'QUIÉN CONFÍA EN GLX',
+    title: 'CEOs que dejaron de adivinar',
+    titleHighlight: 'y empezaron a saber.',
+    subtitle: 'Casos reales, con una operación instalada y resultados medidos.',
+    item1: {
+      quote: 'Pasamos del caos de las hojas de cálculo a un sistema que me dice, cada lunes, exactamente dónde están los cuellos de botella y qué decisión se debe tomar. El impacto en los márgenes apareció antes de que terminara el proyecto.',
+      author: 'Dr. Felipe Roca Nacif',
+      role: 'CEO — MAKTUB Medicina Diagnóstica'
+    },
+    item2: {
+      quote: 'La diferencia con GLX es que no se van con un informe bajo el brazo. Se quedan hasta que el proceso se convierte en rutina para el equipo. La disciplina que aportaron a nuestra operación cambió el estándar de toda la empresa.',
+      author: 'Dra. Izabela Brauer Pinho',
+      role: 'CEO — Healthtech Solutions'
+    },
+    item3: {
+      quote: 'En 45 días, nuestra tasa de ausencias bajó del 24% al 8%. Recepción comenzó a responder prospectos en menos de 40 minutos — antes tardaba todo el día. Cosas simples, con el sistema adecuado, generaron más de R$ 35K en ingresos adicionales en el primer trimestre.',
+      author: 'ROBERTO SOARES DE MELO',
+      role: 'DIRECTOR CLÍNICO - Instituto de Nutrología VittaMéd',
+      metric: '+R$ 35K/mes',
+      metricPeriod: 'en 90 días'
+    },
+    item4: {
+      quote: 'GLX mapeó que dos de nuestros procedimientos más populares tenían un margen negativo. La agenda estaba llena y parecía ir bien. Después de ajustar precios y el mix, nuestro margen EBITDA subió 11 puntos porcentuales en 3 meses.',
+      author: 'CAMILA BRUNELLO',
+      role: 'CO-FUNDADOR - Lumina Dermatología y Estética Médica',
+      metric: '+11pp EBITDA',
+      metricPeriod: 'en 90 días'
+    }
   },
-  
+
   // FAQ
   faq: {
     title: "Preguntas Frecuentes",
@@ -116,14 +142,14 @@ export const es: Translations = {
     q4: "¿Cuál es la inversión necesaria?",
     a4: "La inversión varía según el tamaño de la clínica. Agenda un diagnóstico gratuito para recibir una propuesta personalizada.",
   },
-  
+
   // Results Section
   results: {
     title: "Resultados Comprobados",
     subtitle: "Casos de éxito de nuestros clientes",
     cta: "Quiero Estos Resultados",
   },
-  
+
   // Contact Form
   contact: {
     title: "Contáctanos",
@@ -136,7 +162,7 @@ export const es: Translations = {
     submit: "Enviar Mensaje",
     success: "¡Mensaje enviado con éxito!",
   },
-  
+
   // Footer
   footer: {
     description: "Consultoría especializada en gestión de clínicas de salud.",
@@ -145,7 +171,7 @@ export const es: Translations = {
     followUs: "Síguenos",
     rights: "Todos los derechos reservados.",
   },
-  
+
   // Login Page
   login: {
     title: "Área de Miembros",
@@ -165,7 +191,7 @@ export const es: Translations = {
     heroHighlight: "Socios.",
     heroDesc: "Accede a tus dashboards, informes de rendimiento y materiales exclusivos de la metodología GLX.",
   },
-  
+
   // Plans Page
   plans: {
     backToSite: "Volver al Sitio",

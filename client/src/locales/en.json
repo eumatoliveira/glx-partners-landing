@@ -1,0 +1,35 @@
+{
+    "testimonials": {
+        "eyebrow": "WHO TRUSTS GLX",
+        "title": "CEOs who stopped guessing",
+        "titleHighlight": "and started knowing.",
+        "subtitle": "Real cases, with an installed operation and measured results.",
+        "item1": {
+            "quote": "We went from spreadsheet chaos to a system that tells me, every Monday, exactly where the bottlenecks are and what decision needs to be made. The impact on margins appeared before the project even finished.",
+            "author": "Dr. Felipe Roca Nacif",
+            "role": "CEO — MAKTUB Diagnostic Medicine"
+        },
+        "item2": {
+            "quote": "The difference with GLX is that they don't leave with a report under their arm. They stay until the process becomes routine for the team. The discipline they brought to our operation changed the standard of the entire company.",
+            "author": "Dr. Izabela Brauer Pinho",
+            "role": "CEO — Healthtech Solutions"
+        },
+        "item3": {
+            "quote": "In 45 days, our no-show rate dropped from 24% to 8%. The front desk started answering leads in less than 40 minutes — it used to take all day. Simple things, with the right system, generated over R$ 35K in additional revenue in the first quarter.",
+            "author": "ROBERTO SOARES DE MELO",
+            "role": "CLINICAL DIRECTOR - VittaMéd Nutrology Institute",
+            "metric": "+R$ 35K/month",
+            "metricPeriod": "in 90 days"
+        },
+        "item4": {
+            "quote": "GLX mapped out that two of our most popular procedures had a negative margin. The schedule was full and seemed fine. After repricing and mix adjustments, our EBITDA margin rose by 11 percentage points in 3 months.",
+            "author": "CAMILA BRUNELLO",
+            "role": "CO-FOUNDER - Lumina Dermatology & Medical Aesthetics",
+            "metric": "+11pp EBITDA",
+            "metricPeriod": "in 90 days"
+        }
+    },
+    "nav": {
+        "language": "Language"
+    }
+}
