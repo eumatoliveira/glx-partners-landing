@@ -1,3 +1,5 @@
+import { ENV } from "../../_core/env";
+
 export interface ProcessKommoWebhookInput {
   eventId: string;
   signature?: string;
@@ -13,6 +15,14 @@ export interface ProcessKommoWebhookResult {
 export async function processKommoWebhookUseCase(input: ProcessKommoWebhookInput): Promise<ProcessKommoWebhookResult> {
   if (!input.eventId) {
     return { accepted: false, status: "ignored", reason: "missing_event_id" };
+  }
+
+  if (!ENV.kommoWebhookSecret) {
+    return { accepted: false, status: "ignored", reason: "missing_webhook_secret" };
+  }
+
+  if (!input.signature || input.signature !== ENV.kommoWebhookSecret) {
+    return { accepted: false, status: "ignored", reason: "invalid_signature" };
   }
 
   // Deterministic delegation only: webhook parsing/normalization happens in infrastructure,

@@ -89,11 +89,18 @@ export default function AdminDashboard() {
             <h1 className="text-2xl font-bold">{c.title}</h1>
             <p className="text-muted-foreground">{c.subtitle}</p>
           </div>
-          <Link href="/admin/usuarios">
-            <Button className="bg-[#e67e22] hover:bg-[#f08e36] text-white">
-              {c.manageUsers}
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/admin/kommo">
+              <Button variant="outline">
+                Kommo
+              </Button>
+            </Link>
+            <Link href="/admin/usuarios">
+              <Button className="bg-[#e67e22] hover:bg-[#f08e36] text-white">
+                {c.manageUsers}
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">

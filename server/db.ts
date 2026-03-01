@@ -30,7 +30,13 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const databaseUrl = new URL(process.env.DATABASE_URL);
+      if (!databaseUrl.searchParams.has("charset")) {
+        databaseUrl.searchParams.set("charset", "utf8mb4");
+      }
+
+      _db = drizzle(databaseUrl.toString());
+      await _db.execute(sql.raw("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"));
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;

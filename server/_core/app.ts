@@ -117,6 +117,62 @@ function securityHeaders(_req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+function csrfProtection(req: Request, res: Response, next: NextFunction) {
+  const method = req.method.toUpperCase();
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") {
+    next();
+    return;
+  }
+
+  const hasCookieHeader = typeof req.headers.cookie === "string" && req.headers.cookie.length > 0;
+  if (!hasCookieHeader) {
+    next();
+    return;
+  }
+
+  const origin = req.headers.origin;
+  const referer = req.headers.referer;
+  const host = req.headers.host;
+
+  const sameOrigin = (value: string | undefined) => {
+    if (!value || !host) return false;
+    try {
+      return new URL(value).host === host;
+    } catch {
+      return false;
+    }
+  };
+
+  if (sameOrigin(origin) || sameOrigin(referer)) {
+    next();
+    return;
+  }
+
+  res.status(403).json({
+    error: "CSRF validation failed",
+  });
+}
+
+function disablePublicAuthFlows(req: Request, res: Response, next: NextFunction) {
+  const path = req.path;
+
+  if (path === "/api/trpc/emailAuth.register") {
+    res.status(403).json({
+      error: "Cadastro público desativado. Solicite um convite do administrador.",
+    });
+    return;
+  }
+
+  if (path === "/api/trpc/emailAuth.recoverPassword") {
+    res.status(403).json({
+      error: "Recuperação pública desativada. Faça login e altere sua senha na área autenticada.",
+    });
+    return;
+  }
+
+  next();
+}
+
 // ═══════════════════════════════════════════════════════════════
 // Application Setup
 // ═══════════════════════════════════════════════════════════════
@@ -124,6 +180,8 @@ function securityHeaders(_req: Request, res: Response, next: NextFunction) {
 function registerAppRoutes(app: Express) {
   // Security headers on every response
   app.use(securityHeaders);
+  app.use(csrfProtection);
+  app.use(disablePublicAuthFlows);
 
   // Body parsing with sensible limits (5MB default, not 50MB)
   app.use(express.json({ limit: "5mb" }));
@@ -131,8 +189,8 @@ function registerAppRoutes(app: Express) {
 
   // Rate limiters for sensitive endpoints
   const authLimiter = createRateLimiter({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    maxRequests: 10,           // 10 attempts per window
+    windowMs: process.env.NODE_ENV === "development" ? 60 * 1000 : 15 * 60 * 1000,
+    maxRequests: process.env.NODE_ENV === "development" ? 100 : 10,
     keyPrefix: "auth",
   });
   const apiLimiter = createRateLimiter({

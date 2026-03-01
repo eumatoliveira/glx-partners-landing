@@ -1,5 +1,7 @@
 import { Router } from "express";
+import { createHash } from "node:crypto";
 import { processKommoWebhookUseCase } from "../../application/useCases/processKommoWebhookUseCase";
+import { ENV } from "../../_core/env";
 
 function resolveWebhookEventId(payload: unknown): string {
   if (!payload || typeof payload !== "object") return `kommo-${Date.now()}`;
@@ -34,7 +36,7 @@ kommoWebhookRouter.post("/webhook", async (req, res) => {
       payload: req.body,
     });
 
-    res.status(200).json({
+    res.status(result.accepted ? 200 : 401).json({
       ok: result.accepted,
       status: result.status,
       eventId,
@@ -45,6 +47,46 @@ kommoWebhookRouter.post("/webhook", async (req, res) => {
       ok: false,
       status: "failed",
       message: error instanceof Error ? error.message : "unknown_error",
+    });
+  }
+});
+
+kommoWebhookRouter.get("/webhook/revoked", async (req, res) => {
+  try {
+    const queryIndex = req.originalUrl.indexOf("?");
+    const rawQuery = queryIndex >= 0 ? req.originalUrl.slice(queryIndex + 1) : "";
+    const params = new URLSearchParams(rawQuery);
+    const signature = params.get("sign") ?? "";
+
+    if (!ENV.kommoClientSecret) {
+      return res.status(401).json({ ok: false, reason: "missing_client_secret" });
+    }
+
+    if (!signature) {
+      return res.status(401).json({ ok: false, reason: "missing_signature" });
+    }
+
+    params.delete("sign");
+    const baseString = params.toString();
+    const expectedSignature = createHash("sha1")
+      .update(`${baseString}${ENV.kommoClientSecret}`)
+      .digest("hex");
+
+    if (expectedSignature !== signature) {
+      return res.status(401).json({ ok: false, reason: "invalid_signature" });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      accountId: req.query.account_id ?? null,
+      clientId: req.query.client_id ?? null,
+      from: req.query.from ?? null,
+      revokedAt: req.query.date_create ?? null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      reason: error instanceof Error ? error.message : "unknown_error",
     });
   }
 });

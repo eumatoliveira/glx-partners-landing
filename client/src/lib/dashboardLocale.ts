@@ -47,6 +47,7 @@ type AdminLayoutCopy = {
     finance: string;
     users: string;
     system: string;
+    kommo: string;
     errors: string;
     flags: string;
   };
@@ -452,6 +453,7 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
       finance: "Financeiro",
       users: "Usuarios",
       system: "Sistema",
+      kommo: "Kommo",
       errors: "Erros e Logs",
       flags: "Feature Flags",
     },
@@ -509,6 +511,16 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
           "Saude de jobs e filas assincronas.",
         ],
       },
+      "/admin/kommo": {
+        title: "Legenda - Kommo",
+        description:
+          "Parametros de OAuth, tokens e webhook para sincronizacao em tempo real.",
+        bullets: [
+          "Client ID, secret e redirect devem bater com o app cadastrado na Kommo.",
+          "Refresh token sustenta a sincronizacao sem login manual recorrente.",
+          "Webhook autenticado evita ingestao de eventos falsos.",
+        ],
+      },
       "/admin/erros": {
         title: "Legenda - Erros e Logs",
         description:
@@ -548,6 +560,7 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
       finance: "Financial",
       users: "Users",
       system: "System",
+      kommo: "Kommo",
       errors: "Errors and Logs",
       flags: "Feature Flags",
     },
@@ -605,6 +618,16 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
           "Health of jobs and async queues.",
         ],
       },
+      "/admin/kommo": {
+        title: "Legend - Kommo",
+        description:
+          "OAuth, token and webhook parameters for real-time synchronization.",
+        bullets: [
+          "Client ID, secret and redirect URL must match the Kommo app settings.",
+          "Refresh token keeps sync alive without repeated manual login.",
+          "Authenticated webhook prevents forged event ingestion.",
+        ],
+      },
       "/admin/erros": {
         title: "Legend - Errors and Logs",
         description:
@@ -644,6 +667,7 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
       finance: "Finanzas",
       users: "Usuarios",
       system: "Sistema",
+      kommo: "Kommo",
       errors: "Errores y Logs",
       flags: "Feature Flags",
     },
@@ -699,6 +723,16 @@ const ADMIN_COPY: Record<Language, AdminLayoutCopy> = {
           "Latencia por servicio y capa.",
           "Uso de recursos con umbral de alerta.",
           "Salud de jobs y colas asincronas.",
+        ],
+      },
+      "/admin/kommo": {
+        title: "Leyenda - Kommo",
+        description:
+          "Parametros de OAuth, tokens y webhook para sincronizacion en tiempo real.",
+        bullets: [
+          "Client ID, secret y redirect URL deben coincidir con la app registrada en Kommo.",
+          "Refresh token mantiene la sincronizacion sin relogin manual.",
+          "Webhook autenticado evita ingestar eventos falsos.",
         ],
       },
       "/admin/erros": {

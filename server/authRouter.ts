@@ -87,6 +87,10 @@ const adminProvisionedIntegrationSchema = z.object({
 
 // Initialize admin user on first load
 async function initializeAdminUser() {
+  if (!ENV.isDevelopment) {
+    return;
+  }
+
   if (!ENV.bootstrapAdminEmail || !ENV.bootstrapAdminPassword) {
     console.warn("[Auth] Admin bootstrap skipped. Set BOOTSTRAP_ADMIN_EMAIL and BOOTSTRAP_ADMIN_PASSWORD in .env.");
     return;
@@ -107,6 +111,10 @@ async function initializeAdminUser() {
 
 // Ensure configured test users exist when bootstrap variables are set.
 async function ensureTestClientUsers() {
+  if (!ENV.isDevelopment) {
+    return;
+  }
+
   if (BOOTSTRAP_DEMO_CLIENTS.length === 0) {
     console.warn(
       "[Auth] Test user bootstrap skipped. Configure BOOTSTRAP_DEMO_USERS or BOOTSTRAP_TEST_CLIENT_EMAILS/BOOTSTRAP_TEST_CLIENT_PASSWORD in .env."
@@ -270,6 +278,47 @@ export const authRouter = router({
       return {
         success: true,
         message: "Usuário criado com sucesso",
+      };
+    }),
+  recoverPassword: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+      oldPassword: z.string().min(6),
+      newPassword: z.string().min(6),
+    }))
+    .mutation(async ({ input }) => {
+      const normalizedEmail = input.email.trim().toLowerCase();
+      const user = await getUserByEmail(normalizedEmail);
+
+      if (!user || !user.passwordHash) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Email ou senha antiga inválidos",
+        });
+      }
+
+      const isValidPassword = await bcrypt.compare(input.oldPassword, user.passwordHash);
+
+      if (!isValidPassword) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Email ou senha antiga inválidos",
+        });
+      }
+
+      const newPasswordHash = await bcrypt.hash(input.newPassword, 12);
+      await updateUserPassword(user.id, newPasswordHash);
+
+      await createAuditLog({
+        userId: user.id,
+        action: "recover_password",
+        entity: "user",
+        entityId: user.id.toString(),
+      });
+
+      return {
+        success: true,
+        message: "Senha atualizada com sucesso",
       };
     }),
   // Change password (authenticated user)

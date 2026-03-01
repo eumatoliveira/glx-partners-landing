@@ -1,5 +1,6 @@
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
@@ -13,7 +14,25 @@ export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => {
+      const user = opts.ctx.user;
+      if (!user) return null;
+
+      return {
+        id: user.id,
+        openId: user.openId,
+        email: user.email,
+        name: user.name,
+        loginMethod: user.loginMethod,
+        role: user.role,
+        plan: user.plan,
+        mfaEnabled: user.mfaEnabled,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        lastSignedIn: user.lastSignedIn,
+      };
+    }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -72,7 +91,13 @@ export const appRouter = router({
   clientDashboard: router({
     getMyDashboard: protectedProcedure
       .input(z.object({ clientSlug: z.string() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        if (ctx.user?.role !== "admin") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Client dashboard access by slug is restricted",
+          });
+        }
         const client = await getClientBySlug(input.clientSlug);
         if (!client) {
           return null;

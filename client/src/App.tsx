@@ -1,8 +1,9 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Redirect, Route, Switch, useLocation } from "wouter";
 import { MotionRouteTransition } from "@/animation/components/MotionRouteTransition";
+import { normalizeMojibakeTree } from "@/utils/mojibake";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -11,6 +12,7 @@ import ClientRoute from "./components/ClientRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const ThankYou = lazy(() => import("./pages/ThankYou"));
 const Plans = lazy(() => import("./pages/Plans"));
@@ -22,6 +24,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminFinanceiro = lazy(() => import("./pages/admin/AdminFinanceiro"));
 const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
 const AdminSistema = lazy(() => import("./pages/admin/AdminSistema"));
+const AdminKommo = lazy(() => import("./pages/admin/AdminKommo"));
 const AdminErros = lazy(() => import("./pages/admin/AdminErros"));
 const AdminFeatureFlags = lazy(() => import("./pages/admin/AdminFeatureFlags"));
 
@@ -66,6 +69,7 @@ function Router() {
           <Route path="/"><Home /></Route>
           <Route path="/obrigado"><ThankYou /></Route>
           <Route path="/login"><Login /></Route>
+          <Route path="/esqueceu-a-senha"><ForgotPassword /></Route>
           <Route path="/dashboard"><ClientRoute><Dashboard /></ClientRoute></Route>
           <Route path="/ceo"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
           <Route path="/gestor"><ClientRoute><Redirect to="/dashboard" /></ClientRoute></Route>
@@ -88,6 +92,7 @@ function Router() {
           <Route path="/admin/financeiro"><AdminRoute><AdminFinanceiro /></AdminRoute></Route>
           <Route path="/admin/usuarios"><AdminRoute><AdminUsuarios /></AdminRoute></Route>
           <Route path="/admin/sistema"><AdminRoute><AdminSistema /></AdminRoute></Route>
+          <Route path="/admin/kommo"><AdminRoute><AdminKommo /></AdminRoute></Route>
           <Route path="/admin/erros"><AdminRoute><AdminErros /></AdminRoute></Route>
           <Route path="/admin/flags"><AdminRoute><AdminFeatureFlags /></AdminRoute></Route>
 
@@ -108,6 +113,39 @@ function Router() {
   );
 }
 
+function GlobalMojibakeFix() {
+  useEffect(() => {
+    normalizeMojibakeTree(document.body);
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "characterData" && mutation.target.parentNode) {
+          normalizeMojibakeTree(mutation.target.parentNode as ParentNode);
+          continue;
+        }
+
+        mutation.addedNodes.forEach((node) => {
+          if (node instanceof Element) {
+            normalizeMojibakeTree(node);
+          } else if (node.parentNode) {
+            normalizeMojibakeTree(node.parentNode as ParentNode);
+          }
+        });
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return null;
+}
+
 // NOTE: About Theme
 // - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
 //   to keep consistent foreground/background color across components
@@ -122,6 +160,7 @@ function App() {
       >
         <LanguageProvider>
           <TooltipProvider>
+            <GlobalMojibakeFix />
             <Toaster />
             <Router />
           </TooltipProvider>

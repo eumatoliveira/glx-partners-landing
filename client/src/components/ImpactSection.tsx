@@ -1,6 +1,6 @@
 import { m } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CountUp from "@/animation/components/CountUp";
 import SplitText from "@/animation/components/SplitText";
 import { useMotionCapabilities } from "@/animation/hooks/useMotionCapabilities";
@@ -75,6 +75,16 @@ export default function ImpactSection() {
   const motionCaps = useMotionCapabilities();
   const reducedMotion = motionCaps.prefersReducedMotion || motionCaps.motionLevel === "off";
   const [hoveredLogoIndex, setHoveredLogoIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const offsetRef = useRef(0);
+  const velocityRef = useRef(0);
+  const speedRef = useRef(0.6);
+  const totalWidthRef = useRef(0);
+  const draggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const startOffsetRef = useRef(0);
+  const lastXRef = useRef(0);
 
   const stats = [
     { value: t.impact.statA, label: t.impact.statALabel },
@@ -82,7 +92,114 @@ export default function ImpactSection() {
     { value: t.impact.statC, label: t.impact.statCLabel },
     { value: t.impact.statD, label: t.impact.statDLabel },
   ];
-  const rotatingBrands = [...featuredBrands, ...featuredBrands];
+
+  useEffect(() => {
+    speedRef.current = 0.6;
+  }, []);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    const container = containerRef.current;
+    if (!track || !container) return;
+
+    const measure = () => {
+      totalWidthRef.current = track.scrollWidth / 3;
+    };
+
+    const clamp = () => {
+      const total = totalWidthRef.current;
+      if (!total) return;
+      if (offsetRef.current >= total) offsetRef.current -= total;
+      if (offsetRef.current < 0) offsetRef.current += total;
+    };
+
+    const render = () => {
+      track.style.transform = `translateX(${-offsetRef.current}px)`;
+    };
+
+    let frameId = 0;
+    const loop = () => {
+      if (!draggingRef.current) {
+        offsetRef.current += speedRef.current;
+        if (Math.abs(velocityRef.current) > 0.05) {
+          offsetRef.current += velocityRef.current;
+          velocityRef.current *= 0.92;
+        }
+        clamp();
+        render();
+      }
+      frameId = window.requestAnimationFrame(loop);
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      if (!draggingRef.current) return;
+      offsetRef.current = startOffsetRef.current - (event.clientX - startXRef.current);
+      velocityRef.current = lastXRef.current - event.clientX;
+      lastXRef.current = event.clientX;
+      clamp();
+      render();
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (!draggingRef.current) return;
+      const touch = event.touches[0];
+      offsetRef.current = startOffsetRef.current - (touch.clientX - startXRef.current);
+      velocityRef.current = lastXRef.current - touch.clientX;
+      lastXRef.current = touch.clientX;
+      clamp();
+      render();
+    };
+
+    const stopDragging = () => {
+      draggingRef.current = false;
+    };
+
+    const handleMouseDown = (event: MouseEvent) => {
+      draggingRef.current = true;
+      startXRef.current = event.clientX;
+      startOffsetRef.current = offsetRef.current;
+      lastXRef.current = event.clientX;
+      velocityRef.current = 0;
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      draggingRef.current = true;
+      startXRef.current = touch.clientX;
+      startOffsetRef.current = offsetRef.current;
+      lastXRef.current = touch.clientX;
+      velocityRef.current = 0;
+    };
+
+    const handleMouseLeave = () => {
+      draggingRef.current = false;
+    };
+
+    measure();
+    render();
+    frameId = window.requestAnimationFrame(loop);
+
+    container.addEventListener("mousedown", handleMouseDown);
+    container.addEventListener("mouseleave", handleMouseLeave);
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", stopDragging);
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", stopDragging);
+    window.addEventListener("resize", measure);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      container.removeEventListener("mousedown", handleMouseDown);
+      container.removeEventListener("mouseleave", handleMouseLeave);
+      container.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", stopDragging);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", stopDragging);
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
 
   return (
     <section id="cases" className="scroll-mt-28 py-24 bg-[#0A0A0B] border-y border-white/5 overflow-hidden">
@@ -192,7 +309,7 @@ export default function ImpactSection() {
         </div>
       </div>
 
-      <div className="relative w-full overflow-hidden py-12 border-t border-white/[0.03] bg-[#080808]">
+      <div className="relative w-full overflow-hidden border-t border-white/[0.03] bg-[#080808] py-12">
         <m.div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent"
@@ -209,28 +326,35 @@ export default function ImpactSection() {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="relative"
           >
-            <div className="overflow-hidden">
-              <m.div
-                className="flex w-max gap-4 will-change-transform sm:gap-5 lg:gap-6"
-                animate={reducedMotion ? undefined : { x: ["-50%", "0%"] }}
-                transition={reducedMotion ? undefined : { duration: 22, repeat: Infinity, ease: "linear" }}
+            <div className="relative w-full py-5">
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#080808] via-[#080808]/75 to-transparent sm:w-20" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#080808] via-[#080808]/75 to-transparent sm:w-20" />
+
+              <div
+                ref={containerRef}
+                className="overflow-hidden cursor-grab select-none active:cursor-grabbing"
               >
-                {rotatingBrands.map((brand, index) => (
-                  <div
-                    key={`${brand.name}-${index}`}
-                    className="group flex h-[13.5rem] w-[14.5rem] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-center transition-colors duration-300 hover:border-orange-400/35 sm:h-[14.2rem] sm:w-[16.5rem] lg:h-[14.8rem] lg:w-[17.5rem]"
-                    onMouseEnter={() => setHoveredLogoIndex(index)}
-                    onMouseLeave={() => setHoveredLogoIndex(null)}
-                  >
-                    <div className="flex h-20 w-40 items-center justify-center rounded-lg sm:h-24 sm:w-44">
-                      <FeaturedLogo brand={brand} active={hoveredLogoIndex === index} />
+                <div
+                  ref={trackRef}
+                  className="flex w-max gap-4 will-change-transform sm:gap-5 lg:gap-6"
+                >
+                  {[...featuredBrands, ...featuredBrands, ...featuredBrands].map((brand, index) => (
+                    <div
+                      key={`${brand.name}-${index}`}
+                      className="group flex h-[11.25rem] w-[11.25rem] flex-shrink-0 flex-col items-center justify-center gap-3 rounded-[18px] border border-white/10 bg-[#101012] px-5 py-5 text-center transition-[border-color,box-shadow] duration-300 hover:border-white/20 hover:shadow-[0_8px_32px_rgba(0,0,0,0.4)] sm:h-[12rem] sm:w-[12rem]"
+                      onMouseEnter={() => setHoveredLogoIndex(index)}
+                      onMouseLeave={() => setHoveredLogoIndex(null)}
+                    >
+                      <div className="flex h-20 w-20 items-center justify-center rounded-[10px] sm:h-24 sm:w-24">
+                        <FeaturedLogo brand={brand} active={hoveredLogoIndex === index} />
+                      </div>
+                      <p className="text-center text-[10px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-white/65">
+                        {brand.name}
+                      </p>
                     </div>
-                    <p className="flex h-10 items-center justify-center text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70 sm:h-11 sm:text-xs">
-                      {brand.name}
-                    </p>
-                  </div>
-                ))}
-              </m.div>
+                  ))}
+                </div>
+              </div>
             </div>
           </m.div>
         </div>

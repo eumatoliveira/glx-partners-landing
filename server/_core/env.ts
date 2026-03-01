@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 
 const isProduction = process.env.NODE_ENV === "production";
+const isDevelopment = process.env.NODE_ENV === "development";
 const jwtSecret = process.env.JWT_SECRET;
 type BootstrapDemoPlan = "essencial" | "pro" | "enterprise";
 
@@ -63,8 +64,12 @@ export const ENV = {
   oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
   ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
   isProduction,
+  isDevelopment,
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  kommoClientId: process.env.KOMMO_CLIENT_ID?.trim() ?? "",
+  kommoClientSecret: process.env.KOMMO_CLIENT_SECRET?.trim() ?? "",
+  kommoWebhookSecret: process.env.KOMMO_WEBHOOK_SECRET?.trim() ?? "",
   bootstrapAdminEmail: process.env.BOOTSTRAP_ADMIN_EMAIL?.trim().toLowerCase() ?? "",
   bootstrapAdminPassword: process.env.BOOTSTRAP_ADMIN_PASSWORD ?? "",
   bootstrapTestClientEmails: parseEmailList(process.env.BOOTSTRAP_TEST_CLIENT_EMAILS),

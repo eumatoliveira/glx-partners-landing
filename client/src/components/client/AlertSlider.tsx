@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { type Alert, type AlertPriority, playAlertSound, getP1Count } from "@/lib/alertEngine";
 
-/* ─── CSS ─── */
 const SLIDER_CSS = `
 .alert-slider{position:relative;background:#111113;border:1px solid #2a2a2e;border-radius:16px;overflow:hidden;transition:all .3s}
 .alert-slider.war-room{border-color:#EF4444;box-shadow:0 0 30px rgba(239,68,68,.15)}
@@ -37,11 +36,10 @@ const SLIDER_CSS = `
 .war-room-banner{background:linear-gradient(90deg,#EF4444,#DC2626);color:#fff;padding:8px 20px;font-size:12px;font-weight:700;text-align:center;letter-spacing:.5px;animation:pulseGlow 2s ease-in-out infinite}
 `;
 
-/* ─── Priority labels ─── */
 const PRIORITY_LABELS: Record<AlertPriority, string> = {
-  P1: '🔴 P1 CRÍTICO',
-  P2: '🟠 P2 ATENÇÃO',
-  P3: '🟡 P3 MONITORAR',
+  P1: "P1 CRÍTICO",
+  P2: "P2 ATENÇÃO",
+  P3: "P3 MONITORAR",
 };
 
 interface AlertSliderProps {
@@ -55,22 +53,20 @@ export default function AlertSlider({ alerts, onResolve, onAssign, onDismiss }: 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasPlayedSound, setHasPlayedSound] = useState(false);
 
-  const activeAlerts = alerts.filter(a => !a.acknowledged);
+  const activeAlerts = alerts.filter((a) => !a.acknowledged);
   const p1Count = getP1Count(alerts);
-  const p2Count = activeAlerts.filter(a => a.priority === 'P2').length;
-  const p3Count = activeAlerts.filter(a => a.priority === 'P3').length;
+  const p2Count = activeAlerts.filter((a) => a.priority === "P2").length;
+  const p3Count = activeAlerts.filter((a) => a.priority === "P3").length;
   const isWarRoom = p1Count >= 2;
 
-  // Play sound once on first alerts
   useEffect(() => {
     if (activeAlerts.length > 0 && !hasPlayedSound) {
-      const highestPriority = activeAlerts[0]?.priority ?? 'P3';
+      const highestPriority = activeAlerts[0]?.priority ?? "P3";
       playAlertSound(highestPriority);
       setHasPlayedSound(true);
     }
   }, [activeAlerts.length, hasPlayedSound]);
 
-  // Reset index if out of bounds
   useEffect(() => {
     if (currentIndex >= activeAlerts.length) {
       setCurrentIndex(Math.max(0, activeAlerts.length - 1));
@@ -86,13 +82,14 @@ export default function AlertSlider({ alerts, onResolve, onAssign, onDismiss }: 
   const current = activeAlerts[currentIndex];
   if (!current) return null;
 
-  const thresholdColor = current.priority === 'P1' ? '#EF4444' : current.priority === 'P2' ? '#FF7A00' : '#FACC15';
+  const thresholdColor =
+    current.priority === "P1" ? "#EF4444" : current.priority === "P2" ? "#FF7A00" : "#FACC15";
   const deviationWidth = Math.min(100, Math.abs(current.deviationPercent));
 
   const formatTime = (date: Date) => {
     const diff = Date.now() - date.getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'agora';
+    if (mins < 1) return "agora";
     if (mins < 60) return `há ${mins}min`;
     const hours = Math.floor(mins / 60);
     if (hours < 24) return `há ${hours}h`;
@@ -102,19 +99,15 @@ export default function AlertSlider({ alerts, onResolve, onAssign, onDismiss }: 
   return (
     <>
       <style>{SLIDER_CSS}</style>
-      <div className={`alert-slider ${isWarRoom ? 'war-room' : ''}`}>
-        {/* War Room Banner */}
+      <div className={`alert-slider ${isWarRoom ? "war-room" : ""}`}>
         {isWarRoom && (
           <div className="war-room-banner">
-            ⚠️ SITUAÇÃO CRÍTICA — {p1Count} alertas P1 ativos
+            SITUACAO CRÍTICA - {p1Count} alertas P1 ativos
           </div>
         )}
 
-        {/* Header */}
         <div className="alert-slider-header">
-          <div className="alert-slider-title">
-            🚨 Alertas Ativos ({activeAlerts.length})
-          </div>
+          <div className="alert-slider-title">Alertas Ativos ({activeAlerts.length})</div>
           <div className="alert-slider-count">
             {p1Count > 0 && <span className="alert-badge p1">{p1Count} P1</span>}
             {p2Count > 0 && <span className="alert-badge p2">{p2Count} P2</span>}
@@ -122,7 +115,6 @@ export default function AlertSlider({ alerts, onResolve, onAssign, onDismiss }: 
           </div>
         </div>
 
-        {/* Slide Content */}
         <div className="alert-slide" key={current.id}>
           <div className={`alert-slide-priority ${current.priority.toLowerCase()}`}>
             {PRIORITY_LABELS[current.priority]}
@@ -132,11 +124,11 @@ export default function AlertSlider({ alerts, onResolve, onAssign, onDismiss }: 
 
           {current.financialImpact != null && current.financialImpact > 0 && (
             <div className="alert-slide-impact">
-              💰 Impacto estimado: -R$ {current.financialImpact.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+              Impacto estimado: -R${" "}
+              {current.financialImpact.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}
             </div>
           )}
 
-          {/* Threshold bar */}
           <div className="alert-threshold-bar">
             <div
               className="alert-threshold-fill"
@@ -146,13 +138,12 @@ export default function AlertSlider({ alerts, onResolve, onAssign, onDismiss }: 
 
           <div className="alert-slide-time">{formatTime(current.timestamp)}</div>
 
-          {/* Actions */}
           <div className="alert-slide-actions">
             <button className="alert-btn-resolve" onClick={() => onResolve?.(current.id)}>
-              ✅ Resolver
+              Resolver
             </button>
             <button className="alert-btn-assign" onClick={() => onAssign?.(current.id)}>
-              👤 Atribuir
+              Atribuir
             </button>
             <button className="alert-btn-dismiss" onClick={() => onDismiss?.(current.id)}>
               Ignorar
@@ -160,13 +151,12 @@ export default function AlertSlider({ alerts, onResolve, onAssign, onDismiss }: 
           </div>
         </div>
 
-        {/* Dots Navigation */}
         {activeAlerts.length > 1 && (
           <div className="alert-dots">
             {activeAlerts.map((alert, i) => (
               <button
                 key={alert.id}
-                className={`alert-dot ${i === currentIndex ? 'active' : ''} ${alert.priority === 'P1' ? 'p1' : ''}`}
+                className={`alert-dot ${i === currentIndex ? "active" : ""} ${alert.priority === "P1" ? "p1" : ""}`}
                 onClick={() => goTo(i)}
                 aria-label={`Alerta ${i + 1}: ${alert.title}`}
               />

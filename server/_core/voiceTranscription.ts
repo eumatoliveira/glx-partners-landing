@@ -64,6 +64,42 @@ export type TranscriptionError = {
   details?: string;
 };
 
+const ALLOWED_AUDIO_HOSTS = new Set([
+  "storage.googleapis.com",
+  "s3.amazonaws.com",
+  "cdn.seudominio.com",
+]);
+
+function validateAudioUrl(audioUrl: string): TranscriptionError | null {
+  let parsedUrl: URL;
+
+  try {
+    parsedUrl = new URL(audioUrl);
+  } catch {
+    return {
+      error: "Audio URL is invalid",
+      code: "INVALID_FORMAT",
+    };
+  }
+
+  if (parsedUrl.protocol !== "https:") {
+    return {
+      error: "Only HTTPS audio URLs are allowed",
+      code: "INVALID_FORMAT",
+    };
+  }
+
+  if (!ALLOWED_AUDIO_HOSTS.has(parsedUrl.hostname)) {
+    return {
+      error: "Audio host is not allowed",
+      code: "INVALID_FORMAT",
+      details: `Host ${parsedUrl.hostname} is not in the allowlist`,
+    };
+  }
+
+  return null;
+}
+
 /**
  * Transcribe audio to text using the internal Speech-to-Text service
  * 
@@ -74,6 +110,11 @@ export async function transcribeAudio(
   options: TranscribeOptions
 ): Promise<TranscriptionResponse | TranscriptionError> {
   try {
+    const urlValidationError = validateAudioUrl(options.audioUrl);
+    if (urlValidationError) {
+      return urlValidationError;
+    }
+
     // Step 1: Validate environment configuration
     if (!ENV.forgeApiUrl) {
       return {

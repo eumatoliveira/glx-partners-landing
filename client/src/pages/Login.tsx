@@ -463,7 +463,7 @@ export default function Login() {
                     {t.remember}
                   </label>
                 </div>
-                <a href="#" className="text-primary hover:underline font-medium">{t.forgot}</a>
+                <a href="/esqueceu-a-senha" className="text-primary hover:underline font-medium">{t.forgot}</a>
               </div>
 
               <m.div whileHover={ctaHover} whileTap={ctaTap}>
