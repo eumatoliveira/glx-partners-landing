@@ -10,6 +10,7 @@ import {
 
 interface Props {
   activeTab: number;
+  lang?: "PT" | "EN" | "ES";
   theme: 'dark' | 'light';
   filters: Filters;
   onFiltersChange: (f: Filters) => void;
@@ -37,7 +38,7 @@ function badge(priority: Priority) {
   return { label: 'OK', className: 'green' };
 }
 
-function ProDashboard({ activeTab, theme, filters, onFiltersChange }: Props) {
+function ProDashboard({ activeTab, theme, filters, onFiltersChange, lang = "PT" }: Props) {
   const ct = useMemo(() => getChartTheme(theme), [theme]);
   const allData = useMemo(() => getAllAppointments(), []);
   const filtered = useMemo(() => applyFilters(allData, filters), [allData, filters]);
@@ -725,7 +726,7 @@ function ProDashboard({ activeTab, theme, filters, onFiltersChange }: Props) {
       {/* ===== EQUIPE ===== */}
       {activeTab === 7 && (<>
         <div className="section-header"><h2><span className="orange-bar" /> Equipe</h2></div>
-        <div className="detail-section"><div className="detail-section-header">👥 Performance da Equipe</div><div className="detail-section-body"><table className="data-table"><thead><tr><th>Profissional</th><th>Consultas</th><th>Receita</th><th>Ticket</th><th>NPS</th><th>No-Show</th><th>Ocupação</th><th>Espera</th></tr></thead><tbody>
+        <div className="detail-section"><div className="detail-section-header">👥 Performance da Equipe</div><div className="detail-section-body"><table className="data-table"><thead><tr><th>Profissional</th><th>Consultas</th><th>Receita</th><th>{ lang === "EN" ? "Avg Ticket" : lang === "ES" ? "Ticket Promedio" : "Ticket Médio" }</th><th>NPS</th><th>No-Show</th><th>Ocupação</th><th>Espera</th></tr></thead><tbody>
           {byProf.map(p=><tr key={p.name} style={{cursor:'pointer'}} onClick={()=>drillProf(byProf.indexOf(p))}><td style={{fontWeight:600}}>{p.name}</td><td>{p.realized}</td><td>{fmt(p.grossRevenue)}</td><td>{fmt(p.avgTicket)}</td><td style={{color:p.avgNPS>=8?'var(--green)':'var(--yellow)',fontWeight:700}}>{p.avgNPS.toFixed(1)}</td><td style={{color:p.noShowRate<=10?'var(--green)':'var(--red)',fontWeight:700}}>{p.noShowRate.toFixed(1)}%</td><td>{p.occupancyRate.toFixed(1)}%</td><td>{p.avgWait.toFixed(0)} min</td></tr>)}
         </tbody></table></div></div>
         <div className="chart-grid">

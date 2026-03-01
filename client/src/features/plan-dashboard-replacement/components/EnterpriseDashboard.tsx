@@ -10,6 +10,7 @@ import {
 
 interface Props {
   activeTab: number;
+  lang?: "PT" | "EN" | "ES";
   theme: 'dark' | 'light';
   filters: Filters;
   onFiltersChange: (f: Filters) => void;
@@ -21,7 +22,7 @@ function fmt(n: number): string {
   return `R$ ${n.toFixed(0)}`;
 }
 
-function EnterpriseDashboard({ activeTab, theme, filters, onFiltersChange }: Props) {
+function EnterpriseDashboard({ activeTab, theme, filters, onFiltersChange, lang = "PT" }: Props) {
   const ct = useMemo(() => getChartTheme(theme), [theme]);
   const allData = useMemo(() => getAllAppointments(), []);
   const filtered = useMemo(() => applyFilters(allData, filters), [allData, filters]);
@@ -206,24 +207,24 @@ function EnterpriseDashboard({ activeTab, theme, filters, onFiltersChange }: Pro
       {activeTab === 0 && (<>
         <div className="section-header"><h2><span className="orange-bar" /> Visão CEO — Enterprise</h2></div>
         <div className="overview-row">
-          <div className="overview-card"><div className="overview-card-label">Valuation Estimado</div><div className="overview-card-value" style={{color:'var(--accent)'}}>{fmt(valuation)}</div><div className="overview-card-info"><div className="dot" style={{background:'var(--accent)'}}/><span>8x EBITDA</span></div></div>
+          <div className="overview-card"><div className="overview-card-label">{ lang === "EN" ? "Estimated Valuation" : lang === "ES" ? "Valuación Estimada" : "Valuation Estimado" }</div><div className="overview-card-value" style={{color:'var(--accent)'}}>{fmt(valuation)}</div><div className="overview-card-info"><div className="dot" style={{background:'var(--accent)'}}/><span>8x EBITDA</span></div></div>
           <div className="overview-card"><div className="overview-card-label">EBITDA</div><div className="overview-card-value">{fmt(ebitda)}</div><div className="overview-card-info"><div className="dot" style={{background:ebitdaMargin>=15?'var(--green)':'var(--yellow)'}}/><span>Margem {ebitdaMargin.toFixed(1)}%</span></div></div>
           <div className="overview-card"><div className="overview-card-label">Receita</div><div className="overview-card-value">{fmt(kpis.grossRevenue)}</div></div>
           <div className="overview-card"><div className="overview-card-label">Unidades Ativas</div><div className="overview-card-value">2</div><div className="overview-card-info"><div className="dot" style={{background:'var(--green)'}}/><span>Jardins + Paulista</span></div></div>
         </div>
         <div className="chart-grid">
-          <div className="chart-card"><div className="chart-card-header"><span className="chart-card-title">Evolução Receita (Rede)</span></div><div className="chart-card-body">
+          <div className="chart-card"><div className="chart-card-header"><span className="chart-card-title">{ lang === "EN" ? "Revenue Evolution (Network)" : lang === "ES" ? "Evolución Ingresos (Red)" : "Evolução Receita (Rede)" }</span></div><div className="chart-card-body">
             <ReactApexChart options={{...ct,chart:{...ct.chart,type:'area'},fill:{type:'gradient',gradient:{shadeIntensity:1,opacityFrom:0.4,opacityTo:0}},colors:['#ff5a1f','#45a29e'],xaxis:{...ct.xaxis,categories:weeklyTrend.map(w=>w.label)},legend:{...ct.legend,show:true,position:'bottom' as const}}} series={[{name:'Receita',data:weeklyTrend.map(w=>Math.round(w.grossRevenue))},{name:'EBITDA',data:weeklyTrend.map(w=>Math.round(w.grossRevenue-w.totalCost-w.grossRevenue*0.08))}]} type="area" height={230}/>
           </div></div>
-          <div className="chart-card"><div className="chart-card-header"><span className="chart-card-title">EBITDA Semanal</span></div><div className="chart-card-body">
+          <div className="chart-card"><div className="chart-card-header"><span className="chart-card-title">{ lang === "EN" ? "Weekly EBITDA" : lang === "ES" ? "EBITDA Semanal" : "EBITDA Semanal" }</span></div><div className="chart-card-body">
             <ReactApexChart options={{...ct,chart:{type:'bar'},plotOptions:{bar:{borderRadius:4,columnWidth:'45%',colors:{ranges:[{from:-999999,to:-1,color:'#ef4444'},{from:0,to:999999,color:'#22c55e'}]}}},xaxis:{...ct.xaxis,categories:weeklyTrend.map(w=>w.label)}}} series={[{name:'EBITDA',data:weeklyTrend.map(w=>Math.round(w.grossRevenue-w.totalCost-w.grossRevenue*0.08))}]} type="bar" height={230}/>
           </div></div>
         </div>
         <div className="chart-grid">
-          <div className="chart-card"><div className="chart-card-header"><span className="chart-card-title">Score Geral por Área</span></div><div className="chart-card-body">
+          <div className="chart-card"><div className="chart-card-header"><span className="chart-card-title">{ lang === "EN" ? "Overall Score by Area" : lang === "ES" ? "Puntaje General por Área" : "Score Geral por Área" }</span></div><div className="chart-card-body">
             <ReactApexChart options={{...ct,chart:{type:'radar'},xaxis:{categories:['Receita','Margem','Ocupação','NPS','Marketing','Retenção']},yaxis:{show:false},colors:['#ff5a1f','#45a29e'],stroke:{width:2}}} series={[{name:'Atual',data:[Math.min(10,Math.round(kpis.grossRevenue/6000)),Math.round(kpis.margin/6),Math.round(kpis.occupancyRate/10),Math.round(kpis.avgNPS),Math.round(kpis.leads/40),Math.round(kpis.returnRate/5)]},{name:'Meta',data:[8,5,8,8,7,8]}]} type="radar" height={250}/>
           </div></div>
-          <div className="chart-card"><div className="chart-card-header"><span className="chart-card-title">Indicadores Estratégicos</span></div><div className="chart-card-body" style={{padding:14}}>
+          <div className="chart-card"><div className="chart-card-header"><span className="chart-card-title">{ lang === "EN" ? "Strategic Indicators" : lang === "ES" ? "Indicadores Estratégicos" : "Indicadores Estratégicos" }</span></div><div className="chart-card-body" style={{padding:14}}>
             <table className="data-table"><thead><tr><th>Indicador</th><th>Valor</th><th>Meta</th><th>Status</th></tr></thead><tbody>
               <tr><td>EBITDA Margin</td><td style={{fontWeight:700}}>{ebitdaMargin.toFixed(1)}%</td><td>{'>'}15%</td><td><span className={`chart-card-badge ${ebitdaMargin>=15?'green':ebitdaMargin>=10?'yellow':'red'}`} style={{display:'inline-block'}}>{ebitdaMargin>=15?'OK':ebitdaMargin>=10?'ATENÇÃO':'CRÍTICO'}</span></td></tr>
               <tr><td>LTV/CAC</td><td style={{fontWeight:700}}>{kpis.avgCAC>0?((ltv)/kpis.avgCAC).toFixed(1):'–'}x</td><td>{'>'}3x</td><td><span className={`chart-card-badge ${kpis.avgCAC>0&&ltv/kpis.avgCAC>=3?'green':'yellow'}`} style={{display:'inline-block'}}>{kpis.avgCAC>0&&ltv/kpis.avgCAC>=3?'OK':'ATENÇÃO'}</span></td></tr>
@@ -413,7 +414,7 @@ function EnterpriseDashboard({ activeTab, theme, filters, onFiltersChange }: Pro
       {/* ===== TAB 8: EQUIPE ===== */}
       {activeTab === 8 && (<>
         <div className="section-header"><h2><span className="orange-bar" /> Equipe Enterprise</h2></div>
-        <div className="detail-section"><div className="detail-section-header">👥 Ranking Enterprise — Equipe Completa</div><div className="detail-section-body"><table className="data-table"><thead><tr><th>Profissional</th><th>Receita</th><th>Ticket</th><th>NPS</th><th>Ocupação</th><th>No-Show</th><th>Margem</th><th>Retorno</th></tr></thead><tbody>
+        <div className="detail-section"><div className="detail-section-header">👥 Ranking Enterprise — Equipe Completa</div><div className="detail-section-body"><table className="data-table"><thead><tr><th>Profissional</th><th>Receita</th><th>{ lang === "EN" ? "Avg Ticket" : lang === "ES" ? "Ticket Promedio" : "Ticket Médio" }</th><th>NPS</th><th>Ocupação</th><th>No-Show</th><th>Margem</th><th>Retorno</th></tr></thead><tbody>
           {byProf.map(p=><tr key={p.name} style={{cursor:'pointer'}} onClick={()=>drillProf(byProf.indexOf(p))}><td style={{fontWeight:600}}>{p.name}</td><td>{fmt(p.grossRevenue)}</td><td>{fmt(p.avgTicket)}</td><td style={{color:p.avgNPS>=8?'var(--green)':'var(--yellow)',fontWeight:700}}>{p.avgNPS.toFixed(1)}</td><td>{p.occupancyRate.toFixed(1)}%</td><td style={{color:p.noShowRate<=10?'var(--green)':'var(--red)',fontWeight:700}}>{p.noShowRate.toFixed(1)}%</td><td style={{color:p.margin>=20?'var(--green)':'var(--yellow)',fontWeight:700}}>{p.margin.toFixed(1)}%</td><td>{p.returnRate.toFixed(1)}%</td></tr>)}
         </tbody></table></div></div>
         <div className="chart-grid">

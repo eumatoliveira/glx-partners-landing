@@ -10,6 +10,7 @@ import {
 
 interface Props {
   activeTab: number;
+  lang?: "PT" | "EN" | "ES";
   theme: 'dark' | 'light';
   filters: Filters;
   onFiltersChange: (f: Filters) => void;
@@ -45,7 +46,7 @@ function badgeForPriority(priority: Priority) {
   return { label: 'OK', className: 'green' };
 }
 
-function EssentialDashboard({ activeTab, theme, filters, onFiltersChange }: Props) {
+function EssentialDashboard({ activeTab, theme, filters, onFiltersChange, lang = "PT" }: Props) {
   const { t } = useTranslation();
   const ct = useMemo(() => getChartTheme(theme), [theme]);
   const allData = useMemo(() => getAllAppointments(), []);

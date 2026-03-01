@@ -486,9 +486,9 @@ function PlanDashboardApp() {
           </div>
         </header>
         <main className="content" ref={contentRef} key={refreshKey}>
-          {activePlan === 'ESSENTIAL' && <EssentialDashboard activeTab={activeMenuItem} theme={theme} filters={filters} onFiltersChange={setFilters} />}
-          {activePlan === 'PRO' && <ProDashboard activeTab={activeMenuItem} theme={theme} filters={filters} onFiltersChange={setFilters} />}
-          {activePlan === 'ENTERPRISE' && <EnterpriseDashboard activeTab={activeMenuItem} theme={theme} filters={filters} onFiltersChange={setFilters} />}
+          {activePlan === 'ESSENTIAL' && <EssentialDashboard lang={lang} activeTab={activeMenuItem} theme={theme} filters={filters} onFiltersChange={setFilters} />}
+          {activePlan === 'PRO' && <ProDashboard lang={lang} activeTab={activeMenuItem} theme={theme} filters={filters} onFiltersChange={setFilters} />}
+          {activePlan === 'ENTERPRISE' && <EnterpriseDashboard lang={lang} activeTab={activeMenuItem} theme={theme} filters={filters} onFiltersChange={setFilters} />}
         </main>
 
         {/* Hidden Container for Multi-Tab PDF Export */}
@@ -496,9 +496,9 @@ function PlanDashboardApp() {
           <div ref={exportContentRef} style={{ display: 'none' }}>
             {menu.items.map((tabName, idx) => (
               <div key={idx} className="pdf-export-section" data-title={tabName}>
-                {activePlan === 'ESSENTIAL' && <EssentialDashboard activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
-                {activePlan === 'PRO' && <ProDashboard activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
-                {activePlan === 'ENTERPRISE' && <EnterpriseDashboard activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
+                {activePlan === 'ESSENTIAL' && <EssentialDashboard lang={lang} activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
+                {activePlan === 'PRO' && <ProDashboard lang={lang} activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
+                {activePlan === 'ENTERPRISE' && <EnterpriseDashboard lang={lang} activeTab={idx} theme="light" filters={filters} onFiltersChange={() => { }} />}
               </div>
             ))}
           </div>
